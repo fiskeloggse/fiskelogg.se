@@ -36,9 +36,33 @@ const SORT_OPTIONS = [
   },
 ] as const;
 
+const MONTHS = [
+  { value: 1, label: "Januari" },
+  { value: 2, label: "Februari" },
+  { value: 3, label: "Mars" },
+  { value: 4, label: "April" },
+  { value: 5, label: "Maj" },
+  { value: 6, label: "Juni" },
+  { value: 7, label: "Juli" },
+  { value: 8, label: "Augusti" },
+  { value: 9, label: "September" },
+  { value: 10, label: "Oktober" },
+  { value: 11, label: "November" },
+  { value: 12, label: "December" },
+] as const;
+
 function param(searchParams: Record<string, string | string[] | undefined>, key: string) {
   const value = searchParams[key];
   return typeof value === "string" ? value : "";
+}
+
+function paramList(
+  searchParams: Record<string, string | string[] | undefined>,
+  key: string
+) {
+  const value = searchParams[key];
+  if (typeof value === "string") return [value];
+  return value ?? [];
 }
 
 function toMonthDay(dateStr: string): string | null {
@@ -58,6 +82,9 @@ export default async function RegisterPage(props: PageProps<"/register">) {
   const weightMin = param(searchParams, "weightMin");
   const weightMax = param(searchParams, "weightMax");
   const sort = param(searchParams, "sort") || "date-desc";
+  const months = paramList(searchParams, "month")
+    .map(Number)
+    .filter((m) => Number.isInteger(m) && m >= 1 && m <= 12);
 
   const speciesSuggestions = await getSpeciesSuggestions(user.id);
 
@@ -74,6 +101,10 @@ export default async function RegisterPage(props: PageProps<"/register">) {
   const weightMaxCondition = weightMax
     ? sql`and weight_kg <= ${Number(weightMax)}`
     : sql``;
+  const monthCondition =
+    months.length > 0
+      ? sql`and extract(month from caught_at at time zone ${TIMEZONE})::int = any(${sql.array(months)}::int[])`
+      : sql``;
 
   // "Datum från/till" ignores the year — it filters by day-of-year (season),
   // so e.g. 15 nov–15 feb matches every winter regardless of which year.
@@ -105,11 +136,19 @@ export default async function RegisterPage(props: PageProps<"/register">) {
       ${weightMinCondition}
       ${weightMaxCondition}
       ${dateCondition}
+      ${monthCondition}
     order by ${sql.unsafe(sortColumn)}
   `;
 
   const hasFilters = Boolean(
-    species || from || to || lengthMin || lengthMax || weightMin || weightMax
+    species ||
+      from ||
+      to ||
+      lengthMin ||
+      lengthMax ||
+      weightMin ||
+      weightMax ||
+      months.length > 0
   );
 
   return (
@@ -254,9 +293,29 @@ export default async function RegisterPage(props: PageProps<"/register">) {
           </div>
         </div>
 
+        <div className="flex flex-col gap-1.5">
+          <span className="text-sm font-medium">Fångstmånad</span>
+          <div className="flex flex-wrap gap-1.5">
+            {MONTHS.map((m) => (
+              <label key={m.value} className="cursor-pointer">
+                <input
+                  type="checkbox"
+                  name="month"
+                  value={m.value}
+                  defaultChecked={months.includes(m.value)}
+                  className="peer sr-only"
+                />
+                <span className="block rounded-full border border-black/10 px-3 py-1 text-sm transition-colors peer-checked:border-foreground peer-checked:bg-foreground peer-checked:text-background dark:border-white/15">
+                  {m.label}
+                </span>
+              </label>
+            ))}
+          </div>
+        </div>
+
         <p className="text-xs text-zinc-500 dark:text-zinc-400">
-          Datum från/till filtrerar på årstid (dag och månad) – året spelar ingen
-          roll, så t.ex. 15 nov–15 feb matchar varje vinter.
+          Datum från/till och fångstmånad filtrerar på årstid (dag och månad) –
+          året spelar ingen roll, så t.ex. 15 nov–15 feb matchar varje vinter.
         </p>
 
         <div className="flex items-center gap-4">
