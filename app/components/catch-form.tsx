@@ -50,6 +50,7 @@ export default function CatchForm({
 }) {
   const [state, formAction, pending] = useActionState(addCatch, undefined);
   const wasPending = useRef(false);
+  const [open, setOpen] = useState(false);
 
   // Controlled so field values survive a failed submission — React resets
   // uncontrolled fields after every form action, success or not.
@@ -66,12 +67,33 @@ export default function CatchForm({
     wasPending.current = pending;
   }, [pending, state]);
 
+  if (!open) {
+    return (
+      <button
+        type="button"
+        onClick={() => setOpen(true)}
+        className="rounded-full bg-foreground px-4 py-2 text-sm font-medium text-background"
+      >
+        + Logga fångst
+      </button>
+    );
+  }
+
   return (
     <form
       action={formAction}
       className="flex flex-col gap-4 rounded-xl border border-black/10 bg-white p-5 dark:border-white/15 dark:bg-white/5"
     >
-      <h2 className="text-lg font-semibold">Logga en fångst</h2>
+      <div className="flex items-center justify-between">
+        <h2 className="text-lg font-semibold">Logga en fångst</h2>
+        <button
+          type="button"
+          onClick={() => setOpen(false)}
+          className="text-sm text-zinc-500 hover:text-foreground dark:text-zinc-400"
+        >
+          Avbryt
+        </button>
+      </div>
 
       <div className="flex flex-col gap-2">
         <label htmlFor="species" className="text-sm font-medium">

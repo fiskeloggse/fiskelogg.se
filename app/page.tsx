@@ -5,6 +5,7 @@ import { getSpeciesSuggestions } from "@/lib/species-suggestions";
 import CatchForm from "@/app/components/catch-form";
 import CatchList, { type Catch } from "@/app/components/catch-list";
 import CatchViewSelect from "@/app/components/catch-view-select";
+import CatchSpeciesFilter from "@/app/components/catch-species-filter";
 import CatchTabs from "@/app/components/catch-tabs";
 
 const CATCHES_LIMIT = 5;
@@ -18,8 +19,16 @@ export default async function Home(props: PageProps<"/">) {
   const user = await requireUser();
   const searchParams = await props.searchParams;
   const view = searchParams.view === "today-longest" ? "today-longest" : "recent";
+  const speciesFilter =
+    typeof searchParams.species === "string" ? searchParams.species : "";
 
   const speciesSuggestions = await getSpeciesSuggestions(user.id);
+  const speciesCondition = speciesFilter
+    ? sql`and species = ${speciesFilter}`
+    : sql``;
+  const teamSpeciesCondition = speciesFilter
+    ? sql`and c.species = ${speciesFilter}`
+    : sql``;
 
   const personalCatches =
     view === "today-longest"
@@ -30,6 +39,7 @@ export default async function Home(props: PageProps<"/">) {
             and length_cm is not null
             and (caught_at at time zone ${TIMEZONE})::date
               = (now() at time zone ${TIMEZONE})::date
+            ${speciesCondition}
           order by length_cm desc
           limit ${CATCHES_LIMIT}
         `
@@ -37,6 +47,7 @@ export default async function Home(props: PageProps<"/">) {
           select id, user_id, species, length_cm, weight_kg, caught_at
           from catches
           where user_id = ${user.id}
+            ${speciesCondition}
           order by caught_at desc
           limit ${CATCHES_LIMIT}
         `;
@@ -52,6 +63,7 @@ export default async function Home(props: PageProps<"/">) {
             and c.length_cm is not null
             and (c.caught_at at time zone ${TIMEZONE})::date
               = (now() at time zone ${TIMEZONE})::date
+            ${teamSpeciesCondition}
           order by c.length_cm desc
           limit ${CATCHES_LIMIT}
         `
@@ -61,13 +73,13 @@ export default async function Home(props: PageProps<"/">) {
           from catches c
           join users u on u.id = c.user_id
           where u.team_id = ${user.team_id}
+            ${teamSpeciesCondition}
           order by c.caught_at desc
           limit ${CATCHES_LIMIT}
         `
     : [];
 
-  const heading =
-    view === "today-longest" ? "Dagens 5 längsta" : "Mina 5 senaste fångster";
+  const heading = view === "today-longest" ? "Dagens 5 längsta" : "5 senaste";
   const emptyMessage =
     view === "today-longest" ? "Inga fångster loggade idag än." : undefined;
 
@@ -84,9 +96,12 @@ export default async function Home(props: PageProps<"/">) {
 
       <CatchForm suggestions={speciesSuggestions} />
 
-      <div className="flex items-center justify-between gap-4">
+      <div className="flex flex-wrap items-center justify-between gap-4">
         <h2 className="text-lg font-semibold">{heading}</h2>
-        <CatchViewSelect />
+        <div className="flex items-center gap-2">
+          <CatchSpeciesFilter species={speciesSuggestions.all} />
+          <CatchViewSelect />
+        </div>
       </div>
 
       <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">

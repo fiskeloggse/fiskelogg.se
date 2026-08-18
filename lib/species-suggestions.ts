@@ -4,6 +4,7 @@ import sql from "./db";
 export type SpeciesSuggestions = {
   recent: string[];
   common: string[];
+  all: string[];
 };
 
 export async function getSpeciesSuggestions(
@@ -34,5 +35,9 @@ export async function getSpeciesSuggestions(
     .slice(0, 5)
     .map((row) => row.species);
 
-  return { recent, common };
+  const all = rows
+    .map((row) => row.species)
+    .sort((a, b) => a.localeCompare(b, "sv"));
+
+  return { recent, common, all };
 }
