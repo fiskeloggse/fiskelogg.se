@@ -14,7 +14,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Fiskelogg",
+  title: "Fisklogg",
   description: "Logga dina fångster – art, längd, vikt och tid.",
 };
 

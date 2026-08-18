@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import LoginForm from "./login-form";
 
 export const metadata: Metadata = {
-  title: "Logga in – Fiskelogg",
+  title: "Logga in – Fisklogg",
 };
 
 export default function LoginPage() {

@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import SignupForm from "./signup-form";
 
 export const metadata: Metadata = {
-  title: "Skapa konto – Fiskelogg",
+  title: "Skapa konto – Fisklogg",
 };
 
 export default function SignupPage() {
