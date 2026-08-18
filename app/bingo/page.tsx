@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { requireUser } from "@/lib/dal";
 import { getBingoCards, getBingoCatches } from "@/lib/bingo";
 import CatchTabs from "@/app/components/catch-tabs";
@@ -12,6 +11,7 @@ export const metadata: Metadata = {
 
 export default async function BingoPage() {
   const user = await requireUser();
+  const cards = await getBingoCards(user.id, user.team_id);
 
   return (
     <main className="mx-auto flex w-full max-w-4xl flex-1 flex-col gap-8 px-4 py-10 sm:px-6">
@@ -22,30 +22,9 @@ export default async function BingoPage() {
         </p>
       </div>
 
-      <CatchTabs active="/bingo" />
+      <CatchTabs active="/bingo" showBingo={user.show_bingo} />
 
-      {!user.team_id ? (
-        <p className="rounded-xl border border-dashed border-black/15 p-6 text-center text-sm text-zinc-500 dark:border-white/15 dark:text-zinc-400">
-          Bingobrickor är en lagutmaning. Du måste vara med i ett team för att
-          skapa eller se en.{" "}
-          <Link href="/konto" className="underline">
-            Bjud in någon
-          </Link>{" "}
-          under Konto.
-        </p>
-      ) : (
-        <BingoContent teamId={user.team_id} />
-      )}
-    </main>
-  );
-}
-
-async function BingoContent({ teamId }: { teamId: number }) {
-  const cards = await getBingoCards(teamId);
-
-  return (
-    <>
-      <BingoCardForm />
+      <BingoCardForm hasTeam={user.team_id !== null} />
 
       {cards.length === 0 ? (
         <p className="rounded-xl border border-dashed border-black/15 p-6 text-center text-sm text-zinc-500 dark:border-white/15 dark:text-zinc-400">
@@ -55,7 +34,7 @@ async function BingoContent({ teamId }: { teamId: number }) {
         <div className="flex flex-col gap-6">
           {await Promise.all(
             cards.map(async (card) => {
-              const catchesByCm = await getBingoCatches(teamId, card);
+              const catchesByCm = await getBingoCatches(card);
               return (
                 <BingoCardGrid key={card.id} card={card} catchesByCm={catchesByCm} />
               );
@@ -63,6 +42,6 @@ async function BingoContent({ teamId }: { teamId: number }) {
           )}
         </div>
       )}
-    </>
+    </main>
   );
 }

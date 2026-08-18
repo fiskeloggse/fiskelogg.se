@@ -24,6 +24,9 @@ export default function BingoCardGrid({
         <div>
           <h2 className="text-lg font-semibold">
             {card.species} {card.min_cm}–{card.max_cm} cm
+            <span className="ml-2 rounded-full bg-black/10 px-2 py-0.5 text-xs font-normal text-zinc-500 dark:bg-white/10 dark:text-zinc-400">
+              {card.team_id ? "Team" : "Ensam"}
+            </span>
           </h2>
           <p className="text-sm text-zinc-500 dark:text-zinc-400">
             {doneCount} av {cells.length} rutor klara

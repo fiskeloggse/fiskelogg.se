@@ -4,8 +4,12 @@ import { revalidatePath } from "next/cache";
 import * as z from "zod";
 import sql from "@/lib/db";
 import { requireUser } from "@/lib/dal";
+import { findMatchingBingoCards } from "@/lib/bingo";
 
-export type CatchState = { error: string } | undefined;
+export type CatchState =
+  | { error: string }
+  | { bingoMatch: { species: string; cm: number } }
+  | undefined;
 
 const CatchSchema = z
   .object({
@@ -64,6 +68,19 @@ export async function addCatch(
   `;
 
   revalidatePath("/");
+  revalidatePath("/bingo");
+
+  if (lengthCm !== undefined) {
+    const matches = await findMatchingBingoCards(
+      user.id,
+      user.team_id,
+      species,
+      lengthCm
+    );
+    if (matches.length > 0) {
+      return { bingoMatch: { species, cm: lengthCm } };
+    }
+  }
 }
 
 export async function deleteCatch(formData: FormData) {

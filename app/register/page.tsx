@@ -168,7 +168,7 @@ export default async function RegisterPage(props: PageProps<"/register">) {
         </p>
       </div>
 
-      <CatchTabs active="/register" />
+      <CatchTabs active="/register" showBingo={user.show_bingo} />
 
       <form
         method="GET"

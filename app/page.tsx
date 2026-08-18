@@ -92,7 +92,7 @@ export default async function Home(props: PageProps<"/">) {
         </p>
       </div>
 
-      <CatchTabs active="/" />
+      <CatchTabs active="/" showBingo={user.show_bingo} />
 
       <CatchForm suggestions={speciesSuggestions} />
 

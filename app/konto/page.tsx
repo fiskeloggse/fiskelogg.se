@@ -3,8 +3,10 @@ import { requireUser } from "@/lib/dal";
 import { getTeamMembers } from "@/lib/team";
 import { logout } from "@/app/actions/auth";
 import { leaveTeam } from "@/app/actions/team";
+import { updatePreferences } from "@/app/actions/preferences";
 import CatchTabs from "@/app/components/catch-tabs";
 import InviteForm from "@/app/components/invite-form";
+import ThemeToggle from "@/app/components/theme-toggle";
 
 export const metadata: Metadata = {
   title: "Konto – Fisklogg",
@@ -15,7 +17,7 @@ export default async function KontoPage() {
   const teamMembers = user.team_id ? await getTeamMembers(user.team_id) : [];
 
   return (
-    <main className="mx-auto flex w-full max-w-2xl flex-1 flex-col gap-8 px-4 py-10 sm:px-6">
+    <main className="mx-auto flex w-full max-w-4xl flex-1 flex-col gap-8 px-4 py-10 sm:px-6">
       <div>
         <h1 className="text-2xl font-semibold">Mina fångster</h1>
         <p className="text-sm text-zinc-500 dark:text-zinc-400">
@@ -23,7 +25,7 @@ export default async function KontoPage() {
         </p>
       </div>
 
-      <CatchTabs active="/konto" />
+      <CatchTabs active="/konto" showBingo={user.show_bingo} />
 
       <div className="flex flex-col gap-4 rounded-xl border border-black/10 bg-white p-5 dark:border-white/15 dark:bg-white/5">
         <div>
@@ -39,6 +41,31 @@ export default async function KontoPage() {
             className="rounded-full border border-black/10 px-4 py-2 text-sm font-medium transition-colors hover:bg-black/5 dark:border-white/15 dark:hover:bg-white/10"
           >
             Logga ut
+          </button>
+        </form>
+      </div>
+
+      <div className="flex flex-col gap-4 rounded-xl border border-black/10 bg-white p-5 dark:border-white/15 dark:bg-white/5">
+        <h2 className="text-lg font-semibold">Tema</h2>
+        <ThemeToggle />
+      </div>
+
+      <div className="flex flex-col gap-4 rounded-xl border border-black/10 bg-white p-5 dark:border-white/15 dark:bg-white/5">
+        <h2 className="text-lg font-semibold">Funktioner</h2>
+        <form action={updatePreferences} className="flex flex-col gap-3">
+          <label className="flex items-center gap-2 text-sm">
+            <input
+              type="checkbox"
+              name="show_bingo"
+              defaultChecked={user.show_bingo}
+            />
+            Visa Bingo-fliken
+          </label>
+          <button
+            type="submit"
+            className="self-start rounded-full bg-foreground px-4 py-2 text-sm font-medium text-background"
+          >
+            Spara
           </button>
         </form>
       </div>

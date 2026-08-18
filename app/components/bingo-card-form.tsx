@@ -7,7 +7,7 @@ import { FISH_SPECIES } from "@/lib/species";
 const inputClassName =
   "rounded-lg border border-black/10 bg-white px-3 py-2 text-sm dark:border-white/15 dark:bg-transparent";
 
-export default function BingoCardForm() {
+export default function BingoCardForm({ hasTeam }: { hasTeam: boolean }) {
   const [state, formAction, pending] = useActionState(createBingoCard, undefined);
 
   return (
@@ -16,6 +16,25 @@ export default function BingoCardForm() {
       className="flex flex-col gap-4 rounded-xl border border-black/10 bg-white p-5 dark:border-white/15 dark:bg-white/5"
     >
       <h2 className="text-lg font-semibold">Ny bingobricka</h2>
+
+      <fieldset className="flex flex-col gap-1.5">
+        <legend className="text-sm font-medium">Bricka för</legend>
+        <div className="flex gap-4 text-sm">
+          <label className="flex items-center gap-1.5">
+            <input type="radio" name="mode" value="solo" defaultChecked />
+            Ensam
+          </label>
+          <label className="flex items-center gap-1.5">
+            <input
+              type="radio"
+              name="mode"
+              value="team"
+              disabled={!hasTeam}
+            />
+            Team{!hasTeam && " (kräver team)"}
+          </label>
+        </div>
+      </fieldset>
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
         <div className="flex flex-col gap-1.5">

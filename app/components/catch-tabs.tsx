@@ -1,6 +1,6 @@
 import Link from "next/link";
 
-const TABS = [
+const ALL_TABS = [
   { href: "/", label: "Fångster" },
   { href: "/register", label: "Register" },
   { href: "/personbasta", label: "Personbästa" },
@@ -10,12 +10,18 @@ const TABS = [
 
 export default function CatchTabs({
   active,
+  showBingo = true,
 }: {
-  active: (typeof TABS)[number]["href"];
+  active: (typeof ALL_TABS)[number]["href"];
+  showBingo?: boolean;
 }) {
+  const tabs = showBingo
+    ? ALL_TABS
+    : ALL_TABS.filter((tab) => tab.href !== "/bingo");
+
   return (
     <div className="flex gap-2 border-b border-black/10 dark:border-white/15">
-      {TABS.map((tab) => (
+      {tabs.map((tab) => (
         <Link
           key={tab.href}
           href={tab.href}

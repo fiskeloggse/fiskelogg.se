@@ -9,11 +9,13 @@ create table if not exists users (
   name text not null,
   password_hash text not null,
   team_id integer references teams(id) on delete set null,
+  show_bingo boolean not null default true,
   created_at timestamptz not null default now()
 );
 
--- Safe to re-run: no-op if the column already exists.
+-- Safe to re-run: no-op if the columns already exist.
 alter table users add column if not exists team_id integer references teams(id) on delete set null;
+alter table users add column if not exists show_bingo boolean not null default true;
 
 create table if not exists catches (
   id serial primary key,
@@ -38,7 +40,7 @@ create index if not exists users_team_id_idx on users (team_id);
 
 create table if not exists bingo_cards (
   id serial primary key,
-  team_id integer not null references teams(id) on delete cascade,
+  team_id integer references teams(id) on delete cascade,
   species text not null,
   min_cm integer not null,
   max_cm integer not null,
@@ -46,4 +48,9 @@ create table if not exists bingo_cards (
   created_at timestamptz not null default now()
 );
 
+-- Safe to re-run: no-op if the column is already nullable. Bingo cards can
+-- now be solo (team_id null, scoped to created_by) or team-wide.
+alter table bingo_cards alter column team_id drop not null;
+
 create index if not exists bingo_cards_team_id_idx on bingo_cards (team_id);
+create index if not exists bingo_cards_created_by_idx on bingo_cards (created_by);
