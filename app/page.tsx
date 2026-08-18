@@ -7,9 +7,9 @@ import CatchList, { type Catch } from "@/app/components/catch-list";
 import CatchViewSelect from "@/app/components/catch-view-select";
 import CatchSpeciesFilter from "@/app/components/catch-species-filter";
 import CatchTabs from "@/app/components/catch-tabs";
+import { TIMEZONE } from "@/lib/constants";
 
 const CATCHES_LIMIT = 5;
-const TIMEZONE = "Europe/Stockholm";
 
 function totalLength(catches: Catch[]) {
   return catches.reduce((sum, c) => sum + (c.length_cm ?? 0), 0);
