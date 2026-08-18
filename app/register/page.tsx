@@ -6,10 +6,16 @@ import { getSpeciesSuggestions } from "@/lib/species-suggestions";
 import { TIMEZONE } from "@/lib/constants";
 import CatchTabs from "@/app/components/catch-tabs";
 import CatchList, { type Catch } from "@/app/components/catch-list";
+import DualRangeSlider from "@/app/components/dual-range-slider";
 
 export const metadata: Metadata = {
   title: "Register – Fisklogg",
 };
+
+const LENGTH_MIN = 0;
+const LENGTH_MAX = 150;
+const WEIGHT_MIN = 0;
+const WEIGHT_MAX = 20;
 
 const SORT_OPTIONS = [
   { value: "date-desc", label: "Datum, nyast först", column: "caught_at desc" },
@@ -77,10 +83,14 @@ export default async function RegisterPage(props: PageProps<"/register">) {
   const species = param(searchParams, "species");
   const from = param(searchParams, "from");
   const to = param(searchParams, "to");
-  const lengthMin = param(searchParams, "lengthMin");
-  const lengthMax = param(searchParams, "lengthMax");
-  const weightMin = param(searchParams, "weightMin");
-  const weightMax = param(searchParams, "weightMax");
+  const lengthMinRaw = param(searchParams, "lengthMin");
+  const lengthMaxRaw = param(searchParams, "lengthMax");
+  const weightMinRaw = param(searchParams, "weightMin");
+  const weightMaxRaw = param(searchParams, "weightMax");
+  const lengthMin = lengthMinRaw ? Number(lengthMinRaw) : LENGTH_MIN;
+  const lengthMax = lengthMaxRaw ? Number(lengthMaxRaw) : LENGTH_MAX;
+  const weightMin = weightMinRaw ? Number(weightMinRaw) : WEIGHT_MIN;
+  const weightMax = weightMaxRaw ? Number(weightMaxRaw) : WEIGHT_MAX;
   const sort = param(searchParams, "sort") || "date-desc";
   const months = paramList(searchParams, "month")
     .map(Number)
@@ -89,18 +99,14 @@ export default async function RegisterPage(props: PageProps<"/register">) {
   const speciesSuggestions = await getSpeciesSuggestions(user.id);
 
   const speciesCondition = species ? sql`and species = ${species}` : sql``;
-  const lengthMinCondition = lengthMin
-    ? sql`and length_cm >= ${Number(lengthMin)}`
-    : sql``;
-  const lengthMaxCondition = lengthMax
-    ? sql`and length_cm <= ${Number(lengthMax)}`
-    : sql``;
-  const weightMinCondition = weightMin
-    ? sql`and weight_kg >= ${Number(weightMin)}`
-    : sql``;
-  const weightMaxCondition = weightMax
-    ? sql`and weight_kg <= ${Number(weightMax)}`
-    : sql``;
+  const lengthMinCondition =
+    lengthMin > LENGTH_MIN ? sql`and length_cm >= ${lengthMin}` : sql``;
+  const lengthMaxCondition =
+    lengthMax < LENGTH_MAX ? sql`and length_cm <= ${lengthMax}` : sql``;
+  const weightMinCondition =
+    weightMin > WEIGHT_MIN ? sql`and weight_kg >= ${weightMin}` : sql``;
+  const weightMaxCondition =
+    weightMax < WEIGHT_MAX ? sql`and weight_kg <= ${weightMax}` : sql``;
   const monthCondition =
     months.length > 0
       ? sql`and extract(month from caught_at at time zone ${TIMEZONE})::int = any(${sql.array(months)}::int[])`
@@ -144,10 +150,10 @@ export default async function RegisterPage(props: PageProps<"/register">) {
     species ||
       from ||
       to ||
-      lengthMin ||
-      lengthMax ||
-      weightMin ||
-      weightMax ||
+      lengthMin > LENGTH_MIN ||
+      lengthMax < LENGTH_MAX ||
+      weightMin > WEIGHT_MIN ||
+      weightMax < WEIGHT_MAX ||
       months.length > 0
   );
 
@@ -232,65 +238,31 @@ export default async function RegisterPage(props: PageProps<"/register">) {
             </select>
           </div>
 
-          <div className="flex flex-col gap-1.5">
-            <label htmlFor="lengthMin" className="text-sm font-medium">
-              Längd från (cm)
-            </label>
-            <input
-              id="lengthMin"
-              name="lengthMin"
-              type="number"
-              step="0.1"
-              min="0"
-              defaultValue={lengthMin}
-              className="rounded-lg border border-black/10 bg-white px-3 py-2 text-sm dark:border-white/15 dark:bg-transparent"
-            />
-          </div>
+        </div>
 
-          <div className="flex flex-col gap-1.5">
-            <label htmlFor="lengthMax" className="text-sm font-medium">
-              Längd till (cm)
-            </label>
-            <input
-              id="lengthMax"
-              name="lengthMax"
-              type="number"
-              step="0.1"
-              min="0"
-              defaultValue={lengthMax}
-              className="rounded-lg border border-black/10 bg-white px-3 py-2 text-sm dark:border-white/15 dark:bg-transparent"
-            />
-          </div>
-
-          <div className="flex flex-col gap-1.5">
-            <label htmlFor="weightMin" className="text-sm font-medium">
-              Vikt från (kg)
-            </label>
-            <input
-              id="weightMin"
-              name="weightMin"
-              type="number"
-              step="0.01"
-              min="0"
-              defaultValue={weightMin}
-              className="rounded-lg border border-black/10 bg-white px-3 py-2 text-sm dark:border-white/15 dark:bg-transparent"
-            />
-          </div>
-
-          <div className="flex flex-col gap-1.5">
-            <label htmlFor="weightMax" className="text-sm font-medium">
-              Vikt till (kg)
-            </label>
-            <input
-              id="weightMax"
-              name="weightMax"
-              type="number"
-              step="0.01"
-              min="0"
-              defaultValue={weightMax}
-              className="rounded-lg border border-black/10 bg-white px-3 py-2 text-sm dark:border-white/15 dark:bg-transparent"
-            />
-          </div>
+        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
+          <DualRangeSlider
+            label="Längd (cm)"
+            minName="lengthMin"
+            maxName="lengthMax"
+            min={LENGTH_MIN}
+            max={LENGTH_MAX}
+            step={1}
+            defaultMinValue={lengthMin}
+            defaultMaxValue={lengthMax}
+            unit="cm"
+          />
+          <DualRangeSlider
+            label="Vikt (kg)"
+            minName="weightMin"
+            maxName="weightMax"
+            min={WEIGHT_MIN}
+            max={WEIGHT_MAX}
+            step={0.1}
+            defaultMinValue={weightMin}
+            defaultMaxValue={weightMax}
+            unit="kg"
+          />
         </div>
 
         <div className="flex flex-col gap-1.5">
