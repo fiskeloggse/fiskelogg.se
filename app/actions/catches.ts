@@ -7,22 +7,28 @@ import { requireUser } from "@/lib/dal";
 
 export type CatchState = { error: string } | undefined;
 
-const CatchSchema = z.object({
-  species: z
-    .string()
-    .trim()
-    .min(1, { error: "Välj eller ange en art." })
-    .max(100),
-  lengthCm: z.coerce
-    .number({ error: "Ange fiskens längd." })
-    .positive({ error: "Längden måste vara större än noll." })
-    .max(1000, { error: "Det verkar vara en väldigt stor fisk." }),
-  weightKg: z.coerce
-    .number({ error: "Ange fiskens vikt." })
-    .positive({ error: "Vikten måste vara större än noll." })
-    .max(1000, { error: "Det verkar vara en väldigt tung fisk." })
-    .optional(),
-});
+const CatchSchema = z
+  .object({
+    species: z
+      .string()
+      .trim()
+      .min(1, { error: "Välj eller ange en art." })
+      .max(100),
+    lengthCm: z.coerce
+      .number({ error: "Ange fiskens längd." })
+      .positive({ error: "Längden måste vara större än noll." })
+      .max(1000, { error: "Det verkar vara en väldigt stor fisk." })
+      .optional(),
+    weightKg: z.coerce
+      .number({ error: "Ange fiskens vikt." })
+      .positive({ error: "Vikten måste vara större än noll." })
+      .max(1000, { error: "Det verkar vara en väldigt tung fisk." })
+      .optional(),
+  })
+  .refine((data) => data.lengthCm !== undefined || data.weightKg !== undefined, {
+    error: "Ange antingen längd eller vikt.",
+    path: ["lengthCm"],
+  });
 
 export async function addCatch(
   _prevState: CatchState,
@@ -30,10 +36,14 @@ export async function addCatch(
 ): Promise<CatchState> {
   const user = await requireUser();
 
+  const rawLength = formData.get("lengthCm");
   const rawWeight = formData.get("weightKg");
   const parsed = CatchSchema.safeParse({
     species: formData.get("species"),
-    lengthCm: formData.get("lengthCm"),
+    lengthCm:
+      typeof rawLength === "string" && rawLength.trim() !== ""
+        ? rawLength
+        : undefined,
     weightKg:
       typeof rawWeight === "string" && rawWeight.trim() !== ""
         ? rawWeight
@@ -49,7 +59,7 @@ export async function addCatch(
 
   await sql`
     insert into catches (user_id, species, length_cm, weight_kg, caught_at)
-    values (${user.id}, ${species}, ${lengthCm}, ${weightKg ?? null}, ${caughtAt})
+    values (${user.id}, ${species}, ${lengthCm ?? null}, ${weightKg ?? null}, ${caughtAt})
   `;
 
   revalidatePath("/");

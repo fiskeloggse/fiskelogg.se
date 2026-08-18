@@ -3,7 +3,7 @@ import { deleteCatch } from "@/app/actions/catches";
 export type Catch = {
   id: number;
   species: string | null;
-  length_cm: number;
+  length_cm: number | null;
   weight_kg: number | null;
   caught_at: Date;
 };
@@ -34,8 +34,12 @@ export default function CatchList({ catches }: { catches: Catch[] }) {
           <div>
             <p className="font-medium">{item.species || "Okänd art"}</p>
             <p className="text-sm text-zinc-500 dark:text-zinc-400">
-              {item.length_cm} cm
-              {item.weight_kg != null ? ` · ${item.weight_kg} kg` : ""}
+              {[
+                item.length_cm != null ? `${item.length_cm} cm` : null,
+                item.weight_kg != null ? `${item.weight_kg} kg` : null,
+              ]
+                .filter(Boolean)
+                .join(" · ")}
             </p>
             <p className="text-xs text-zinc-400 dark:text-zinc-500">
               {formatCaughtAt(item.caught_at)}

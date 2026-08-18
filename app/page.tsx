@@ -3,6 +3,8 @@ import { requireUser } from "@/lib/dal";
 import CatchForm from "@/app/components/catch-form";
 import CatchList, { type Catch } from "@/app/components/catch-list";
 
+const RECENT_CATCHES_LIMIT = 5;
+
 export default async function Home() {
   const user = await requireUser();
 
@@ -11,6 +13,7 @@ export default async function Home() {
     from catches
     where user_id = ${user.id}
     order by caught_at desc
+    limit ${RECENT_CATCHES_LIMIT}
   `;
 
   return (
@@ -24,7 +27,12 @@ export default async function Home() {
 
       <CatchForm />
 
-      <CatchList catches={catches} />
+      <div className="flex flex-col gap-3">
+        <h2 className="text-lg font-semibold">
+          Mina {RECENT_CATCHES_LIMIT} senaste fångster
+        </h2>
+        <CatchList catches={catches} />
+      </div>
     </main>
   );
 }
