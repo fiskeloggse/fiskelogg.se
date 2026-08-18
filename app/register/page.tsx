@@ -174,7 +174,7 @@ export default async function RegisterPage(props: PageProps<"/register">) {
         method="GET"
         className="rounded-xl border border-black/10 bg-white p-5 dark:border-white/15 dark:bg-white/5"
       >
-        <details open>
+        <details open={hasFilters}>
           <summary className="cursor-pointer text-lg font-semibold">
             Filter
           </summary>
