@@ -15,11 +15,17 @@ function formatCaughtAt(date: Date) {
   });
 }
 
-export default function CatchList({ catches }: { catches: Catch[] }) {
+export default function CatchList({
+  catches,
+  emptyMessage = "Inga fångster loggade än. Lägg till din första fisk!",
+}: {
+  catches: Catch[];
+  emptyMessage?: string;
+}) {
   if (catches.length === 0) {
     return (
       <p className="rounded-xl border border-dashed border-black/15 p-6 text-center text-sm text-zinc-500 dark:border-white/15 dark:text-zinc-400">
-        Inga fångster loggade än. Lägg till din första fisk!
+        {emptyMessage}
       </p>
     );
   }
