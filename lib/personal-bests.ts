@@ -1,3 +1,6 @@
+import "server-only";
+import sql from "./db";
+
 export type PersonalBest = {
   species: string;
   longest: { id: number; length_cm: number; caught_at: Date } | null;
@@ -49,4 +52,23 @@ export function buildPersonalBests(
   return Array.from(bySpecies.values()).sort((a, b) =>
     a.species.localeCompare(b.species, "sv")
   );
+}
+
+export async function getPersonalBests(userId: number): Promise<PersonalBest[]> {
+  const [longestRows, heaviestRows] = await Promise.all([
+    sql<LongestRow[]>`
+      select distinct on (species) id, species, length_cm, caught_at
+      from catches
+      where user_id = ${userId} and length_cm is not null
+      order by species, length_cm desc, caught_at asc
+    `,
+    sql<HeaviestRow[]>`
+      select distinct on (species) id, species, weight_kg, caught_at
+      from catches
+      where user_id = ${userId} and weight_kg is not null
+      order by species, weight_kg desc, caught_at asc
+    `,
+  ]);
+
+  return buildPersonalBests(longestRows, heaviestRows);
 }

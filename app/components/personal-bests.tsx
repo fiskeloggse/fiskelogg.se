@@ -7,8 +7,6 @@ function formatDate(date: Date) {
 export default function PersonalBests({ bests }: { bests: PersonalBest[] }) {
   return (
     <div className="flex flex-col gap-3">
-      <h2 className="text-lg font-semibold">Personbästa</h2>
-
       {bests.length === 0 ? (
         <p className="rounded-xl border border-dashed border-black/15 p-6 text-center text-sm text-zinc-500 dark:border-white/15 dark:text-zinc-400">
           Inga personbästa än. Logga en fångst för att komma igång!
