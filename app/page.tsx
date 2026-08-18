@@ -1,6 +1,7 @@
 import Link from "next/link";
 import sql from "@/lib/db";
 import { requireUser } from "@/lib/dal";
+import { getSpeciesSuggestions } from "@/lib/species-suggestions";
 import CatchForm from "@/app/components/catch-form";
 import CatchList, { type Catch } from "@/app/components/catch-list";
 import CatchViewSelect from "@/app/components/catch-view-select";
@@ -17,6 +18,8 @@ export default async function Home(props: PageProps<"/">) {
   const user = await requireUser();
   const searchParams = await props.searchParams;
   const view = searchParams.view === "today-longest" ? "today-longest" : "recent";
+
+  const speciesSuggestions = await getSpeciesSuggestions(user.id);
 
   const personalCatches =
     view === "today-longest"
@@ -79,7 +82,7 @@ export default async function Home(props: PageProps<"/">) {
 
       <CatchTabs active="/" />
 
-      <CatchForm />
+      <CatchForm suggestions={speciesSuggestions} />
 
       <div className="flex items-center justify-between gap-4">
         <h2 className="text-lg font-semibold">{heading}</h2>

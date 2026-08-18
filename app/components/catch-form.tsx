@@ -3,28 +3,63 @@
 import { useActionState, useEffect, useRef, useState } from "react";
 import { addCatch } from "@/app/actions/catches";
 import { FISH_SPECIES } from "@/lib/species";
+import type { SpeciesSuggestions } from "@/lib/species-suggestions";
 
-const OTHER_SPECIES = "__annat__";
 const inputClassName =
   "rounded-lg border border-black/10 bg-white px-3 py-2 text-sm dark:border-white/15 dark:bg-transparent";
 
-export default function CatchForm() {
+function SpeciesChips({
+  label,
+  species,
+  selected,
+  onSelect,
+}: {
+  label: string;
+  species: string[];
+  selected: string;
+  onSelect: (species: string) => void;
+}) {
+  if (species.length === 0) return null;
+
+  return (
+    <div className="flex flex-wrap items-center gap-1.5">
+      <span className="text-xs text-zinc-500 dark:text-zinc-400">{label}</span>
+      {species.map((s) => (
+        <button
+          key={s}
+          type="button"
+          onClick={() => onSelect(s)}
+          className={
+            "rounded-full border px-3 py-1 text-sm transition-colors " +
+            (selected === s
+              ? "border-foreground bg-foreground text-background"
+              : "border-black/10 hover:bg-black/5 dark:border-white/15 dark:hover:bg-white/10")
+          }
+        >
+          {s}
+        </button>
+      ))}
+    </div>
+  );
+}
+
+export default function CatchForm({
+  suggestions,
+}: {
+  suggestions: SpeciesSuggestions;
+}) {
   const [state, formAction, pending] = useActionState(addCatch, undefined);
   const wasPending = useRef(false);
 
   // Controlled so field values survive a failed submission — React resets
   // uncontrolled fields after every form action, success or not.
   const [species, setSpecies] = useState("");
-  const [customSpecies, setCustomSpecies] = useState(false);
-  const [customSpeciesValue, setCustomSpeciesValue] = useState("");
   const [lengthCm, setLengthCm] = useState("");
   const [weightKg, setWeightKg] = useState("");
 
   useEffect(() => {
     if (wasPending.current && !pending && !state?.error) {
       setSpecies("");
-      setCustomSpecies(false);
-      setCustomSpeciesValue("");
       setLengthCm("");
       setWeightKg("");
     }
@@ -38,59 +73,41 @@ export default function CatchForm() {
     >
       <h2 className="text-lg font-semibold">Logga en fångst</h2>
 
-      <div className="flex flex-col gap-1.5">
+      <div className="flex flex-col gap-2">
         <label htmlFor="species" className="text-sm font-medium">
           Art
         </label>
 
-        {customSpecies ? (
-          <input
-            id="species-other"
-            name="species"
-            type="text"
-            value={customSpeciesValue}
-            onChange={(e) => setCustomSpeciesValue(e.target.value)}
-            autoFocus
-            required
-            placeholder="Skriv artnamn"
-            className={inputClassName}
-          />
-        ) : (
-          <select
-            id="species"
-            name="species"
-            value={species}
-            required
-            onChange={(e) => {
-              setSpecies(e.target.value);
-              setCustomSpecies(e.target.value === OTHER_SPECIES);
-            }}
-            className={inputClassName}
-          >
-            <option value="" disabled>
-              Välj art
-            </option>
-            {FISH_SPECIES.map((s) => (
-              <option key={s} value={s}>
-                {s}
-              </option>
-            ))}
-            <option value={OTHER_SPECIES}>Annan art…</option>
-          </select>
-        )}
+        <SpeciesChips
+          label="Senaste"
+          species={suggestions.recent}
+          selected={species}
+          onSelect={setSpecies}
+        />
+        <SpeciesChips
+          label="Vanliga"
+          species={suggestions.common}
+          selected={species}
+          onSelect={setSpecies}
+        />
 
-        {customSpecies && (
-          <button
-            type="button"
-            onClick={() => {
-              setCustomSpecies(false);
-              setSpecies("");
-            }}
-            className="self-start text-xs text-zinc-500 underline dark:text-zinc-400"
-          >
-            Välj från listan istället
-          </button>
-        )}
+        <input
+          id="species"
+          name="species"
+          type="text"
+          list="species-catalog"
+          value={species}
+          onChange={(e) => setSpecies(e.target.value)}
+          required
+          autoComplete="off"
+          placeholder="Sök art eller skriv eget namn"
+          className={inputClassName}
+        />
+        <datalist id="species-catalog">
+          {FISH_SPECIES.map((s) => (
+            <option key={s} value={s} />
+          ))}
+        </datalist>
       </div>
 
       <div className="grid grid-cols-2 gap-4">
