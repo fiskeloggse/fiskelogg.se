@@ -1,16 +1,23 @@
 "use client";
 
-import { useActionState, useEffect, useRef } from "react";
+import { useActionState, useEffect, useRef, useState } from "react";
 import { addCatch } from "@/app/actions/catches";
+import { FISH_SPECIES } from "@/lib/species";
+
+const OTHER_SPECIES = "__annat__";
+const inputClassName =
+  "rounded-lg border border-black/10 bg-white px-3 py-2 text-sm dark:border-white/15 dark:bg-transparent";
 
 export default function CatchForm() {
   const [state, formAction, pending] = useActionState(addCatch, undefined);
   const formRef = useRef<HTMLFormElement>(null);
   const wasPending = useRef(false);
+  const [customSpecies, setCustomSpecies] = useState(false);
 
   useEffect(() => {
     if (wasPending.current && !pending && !state?.error) {
       formRef.current?.reset();
+      setCustomSpecies(false);
     }
     wasPending.current = pending;
   }, [pending, state]);
@@ -27,13 +34,43 @@ export default function CatchForm() {
         <label htmlFor="species" className="text-sm font-medium">
           Art <span className="font-normal text-zinc-500">(valfritt)</span>
         </label>
-        <input
-          id="species"
-          name="species"
-          type="text"
-          placeholder="T.ex. gädda"
-          className="rounded-lg border border-black/10 bg-white px-3 py-2 text-sm dark:border-white/15 dark:bg-transparent"
-        />
+
+        {customSpecies ? (
+          <input
+            id="species-other"
+            name="species"
+            type="text"
+            autoFocus
+            placeholder="Skriv artnamn"
+            className={inputClassName}
+          />
+        ) : (
+          <select
+            id="species"
+            name="species"
+            defaultValue=""
+            onChange={(e) => setCustomSpecies(e.target.value === OTHER_SPECIES)}
+            className={inputClassName}
+          >
+            <option value="">Välj art</option>
+            {FISH_SPECIES.map((species) => (
+              <option key={species} value={species}>
+                {species}
+              </option>
+            ))}
+            <option value={OTHER_SPECIES}>Annan art…</option>
+          </select>
+        )}
+
+        {customSpecies && (
+          <button
+            type="button"
+            onClick={() => setCustomSpecies(false)}
+            className="self-start text-xs text-zinc-500 underline dark:text-zinc-400"
+          >
+            Välj från listan istället
+          </button>
+        )}
       </div>
 
       <div className="grid grid-cols-2 gap-4">
@@ -49,13 +86,13 @@ export default function CatchForm() {
             step="0.1"
             min="0"
             required
-            className="rounded-lg border border-black/10 bg-white px-3 py-2 text-sm dark:border-white/15 dark:bg-transparent"
+            className={inputClassName}
           />
         </div>
 
         <div className="flex flex-col gap-1.5">
           <label htmlFor="weightKg" className="text-sm font-medium">
-            Vikt (kg)
+            Vikt (kg) <span className="font-normal text-zinc-500">(valfritt)</span>
           </label>
           <input
             id="weightKg"
@@ -64,8 +101,7 @@ export default function CatchForm() {
             inputMode="decimal"
             step="0.01"
             min="0"
-            required
-            className="rounded-lg border border-black/10 bg-white px-3 py-2 text-sm dark:border-white/15 dark:bg-transparent"
+            className={inputClassName}
           />
         </div>
       </div>

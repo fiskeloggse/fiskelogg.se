@@ -16,7 +16,8 @@ const CatchSchema = z.object({
   weightKg: z.coerce
     .number({ error: "Ange fiskens vikt." })
     .positive({ error: "Vikten måste vara större än noll." })
-    .max(1000, { error: "Det verkar vara en väldigt tung fisk." }),
+    .max(1000, { error: "Det verkar vara en väldigt tung fisk." })
+    .optional(),
 });
 
 export async function addCatch(
@@ -26,13 +27,17 @@ export async function addCatch(
   const user = await requireUser();
 
   const rawSpecies = formData.get("species");
+  const rawWeight = formData.get("weightKg");
   const parsed = CatchSchema.safeParse({
     species:
       typeof rawSpecies === "string" && rawSpecies.trim() !== ""
         ? rawSpecies
         : undefined,
     lengthCm: formData.get("lengthCm"),
-    weightKg: formData.get("weightKg"),
+    weightKg:
+      typeof rawWeight === "string" && rawWeight.trim() !== ""
+        ? rawWeight
+        : undefined,
   });
 
   if (!parsed.success) {
@@ -44,7 +49,7 @@ export async function addCatch(
 
   await sql`
     insert into catches (user_id, species, length_cm, weight_kg, caught_at)
-    values (${user.id}, ${species ?? null}, ${lengthCm}, ${weightKg}, ${caughtAt})
+    values (${user.id}, ${species ?? null}, ${lengthCm}, ${weightKg ?? null}, ${caughtAt})
   `;
 
   revalidatePath("/");

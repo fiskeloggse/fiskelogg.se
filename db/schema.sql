@@ -11,9 +11,12 @@ create table if not exists catches (
   user_id integer not null references users(id) on delete cascade,
   species text,
   length_cm real not null,
-  weight_kg real not null,
+  weight_kg real,
   caught_at timestamptz not null,
   created_at timestamptz not null default now()
 );
+
+-- Safe to re-run: no-op if the column is already nullable.
+alter table catches alter column weight_kg drop not null;
 
 create index if not exists catches_user_id_idx on catches (user_id);

@@ -1,0 +1,23 @@
+// Sveriges 20 vanligaste fiskarter bland sportfiskare.
+export const FISH_SPECIES = [
+  "Abborre",
+  "Gädda",
+  "Gös",
+  "Öring",
+  "Regnbåge",
+  "Lax",
+  "Röding",
+  "Mört",
+  "Braxen",
+  "Sarv",
+  "Id",
+  "Karp",
+  "Lake",
+  "Ål",
+  "Sik",
+  "Harr",
+  "Torsk",
+  "Makrill",
+  "Sej",
+  "Flundra",
+] as const;
