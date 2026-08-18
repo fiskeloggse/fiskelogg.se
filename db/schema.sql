@@ -35,3 +35,15 @@ alter table catches alter column weight_kg drop not null;
 
 create index if not exists catches_user_id_idx on catches (user_id);
 create index if not exists users_team_id_idx on users (team_id);
+
+create table if not exists bingo_cards (
+  id serial primary key,
+  team_id integer not null references teams(id) on delete cascade,
+  species text not null,
+  min_cm integer not null,
+  max_cm integer not null,
+  created_by integer references users(id) on delete set null,
+  created_at timestamptz not null default now()
+);
+
+create index if not exists bingo_cards_team_id_idx on bingo_cards (team_id);

@@ -16,6 +16,7 @@ const CatchSchema = z
       .max(100),
     lengthCm: z.coerce
       .number({ error: "Ange fiskens längd." })
+      .int({ error: "Längden anges i hela cm." })
       .positive({ error: "Längden måste vara större än noll." })
       .max(1000, { error: "Det verkar vara en väldigt stor fisk." })
       .optional(),

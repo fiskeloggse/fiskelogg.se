@@ -141,8 +141,8 @@ export default function CatchForm({
             id="lengthCm"
             name="lengthCm"
             type="number"
-            inputMode="decimal"
-            step="0.1"
+            inputMode="numeric"
+            step="1"
             min="0"
             value={lengthCm}
             onChange={(e) => setLengthCm(e.target.value)}
