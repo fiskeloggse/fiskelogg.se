@@ -2,10 +2,12 @@ import { deleteCatch } from "@/app/actions/catches";
 
 export type Catch = {
   id: number;
+  user_id: number;
   species: string | null;
   length_cm: number | null;
   weight_kg: number | null;
   caught_at: Date;
+  angler_name?: string;
 };
 
 function formatCaughtAt(date: Date) {
@@ -17,9 +19,11 @@ function formatCaughtAt(date: Date) {
 
 export default function CatchList({
   catches,
+  currentUserId,
   emptyMessage = "Inga fångster loggade än. Lägg till din första fisk!",
 }: {
   catches: Catch[];
+  currentUserId: number;
   emptyMessage?: string;
 }) {
   if (catches.length === 0) {
@@ -38,7 +42,15 @@ export default function CatchList({
           className="flex items-center justify-between gap-4 rounded-xl border border-black/10 bg-white p-4 dark:border-white/15 dark:bg-white/5"
         >
           <div>
-            <p className="font-medium">{item.species || "Okänd art"}</p>
+            <p className="font-medium">
+              {item.species || "Okänd art"}
+              {item.angler_name && (
+                <span className="font-normal text-zinc-400 dark:text-zinc-500">
+                  {" "}
+                  · {item.angler_name}
+                </span>
+              )}
+            </p>
             <p className="text-sm text-zinc-500 dark:text-zinc-400">
               {[
                 item.length_cm != null ? `${item.length_cm} cm` : null,
@@ -52,16 +64,18 @@ export default function CatchList({
             </p>
           </div>
 
-          <form action={deleteCatch}>
-            <input type="hidden" name="id" value={item.id} />
-            <button
-              type="submit"
-              aria-label="Ta bort fångst"
-              className="rounded-full px-3 py-1.5 text-sm text-zinc-500 transition-colors hover:bg-red-50 hover:text-red-600 dark:text-zinc-400 dark:hover:bg-red-950/40 dark:hover:text-red-400"
-            >
-              Ta bort
-            </button>
-          </form>
+          {item.user_id === currentUserId && (
+            <form action={deleteCatch}>
+              <input type="hidden" name="id" value={item.id} />
+              <button
+                type="submit"
+                aria-label="Ta bort fångst"
+                className="rounded-full px-3 py-1.5 text-sm text-zinc-500 transition-colors hover:bg-red-50 hover:text-red-600 dark:text-zinc-400 dark:hover:bg-red-950/40 dark:hover:text-red-400"
+              >
+                Ta bort
+              </button>
+            </form>
+          )}
         </li>
       ))}
     </ul>

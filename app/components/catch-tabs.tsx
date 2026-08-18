@@ -3,6 +3,7 @@ import Link from "next/link";
 const TABS = [
   { href: "/", label: "Fångster" },
   { href: "/personbasta", label: "Personbästa" },
+  { href: "/konto", label: "Konto" },
 ] as const;
 
 export default function CatchTabs({
