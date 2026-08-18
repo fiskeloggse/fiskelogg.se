@@ -32,7 +32,7 @@ export default function CatchForm() {
 
       <div className="flex flex-col gap-1.5">
         <label htmlFor="species" className="text-sm font-medium">
-          Art <span className="font-normal text-zinc-500">(valfritt)</span>
+          Art
         </label>
 
         {customSpecies ? (
@@ -41,6 +41,7 @@ export default function CatchForm() {
             name="species"
             type="text"
             autoFocus
+            required
             placeholder="Skriv artnamn"
             className={inputClassName}
           />
@@ -49,10 +50,13 @@ export default function CatchForm() {
             id="species"
             name="species"
             defaultValue=""
+            required
             onChange={(e) => setCustomSpecies(e.target.value === OTHER_SPECIES)}
             className={inputClassName}
           >
-            <option value="">Välj art</option>
+            <option value="" disabled>
+              Välj art
+            </option>
             {FISH_SPECIES.map((species) => (
               <option key={species} value={species}>
                 {species}

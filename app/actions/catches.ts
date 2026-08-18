@@ -8,7 +8,11 @@ import { requireUser } from "@/lib/dal";
 export type CatchState = { error: string } | undefined;
 
 const CatchSchema = z.object({
-  species: z.string().trim().max(100).optional(),
+  species: z
+    .string()
+    .trim()
+    .min(1, { error: "Välj eller ange en art." })
+    .max(100),
   lengthCm: z.coerce
     .number({ error: "Ange fiskens längd." })
     .positive({ error: "Längden måste vara större än noll." })
@@ -26,13 +30,9 @@ export async function addCatch(
 ): Promise<CatchState> {
   const user = await requireUser();
 
-  const rawSpecies = formData.get("species");
   const rawWeight = formData.get("weightKg");
   const parsed = CatchSchema.safeParse({
-    species:
-      typeof rawSpecies === "string" && rawSpecies.trim() !== ""
-        ? rawSpecies
-        : undefined,
+    species: formData.get("species"),
     lengthCm: formData.get("lengthCm"),
     weightKg:
       typeof rawWeight === "string" && rawWeight.trim() !== ""
@@ -49,7 +49,7 @@ export async function addCatch(
 
   await sql`
     insert into catches (user_id, species, length_cm, weight_kg, caught_at)
-    values (${user.id}, ${species ?? null}, ${lengthCm}, ${weightKg ?? null}, ${caughtAt})
+    values (${user.id}, ${species}, ${lengthCm}, ${weightKg ?? null}, ${caughtAt})
   `;
 
   revalidatePath("/");
