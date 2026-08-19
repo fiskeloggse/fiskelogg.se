@@ -9,6 +9,7 @@ export type Catch = {
   weight_kg: number | null;
   lake?: string | null;
   location?: string | null;
+  bait?: string | null;
   caught_at: Date;
   angler_name?: string;
 };
@@ -70,6 +71,11 @@ export default function CatchList({
               {place && (
                 <span className="text-xs text-zinc-400 dark:text-zinc-500">
                   {place}
+                </span>
+              )}
+              {item.bait && (
+                <span className="text-xs text-zinc-400 dark:text-zinc-500">
+                  {item.bait}
                 </span>
               )}
               <span className="text-xs text-zinc-400 dark:text-zinc-500">

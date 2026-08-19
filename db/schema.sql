@@ -37,6 +37,7 @@ create table if not exists catches (
 -- Safe to re-run: no-op if the columns already exist.
 alter table catches add column if not exists lake text;
 alter table catches add column if not exists location text;
+alter table catches add column if not exists bait text;
 
 -- Backfill any existing rows before enforcing NOT NULL (safe to re-run).
 update catches set species = 'Okänd art' where species is null;

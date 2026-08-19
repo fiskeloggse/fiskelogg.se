@@ -5,27 +5,28 @@ import Link from "next/link";
 import { addCatch, type CatchNotices } from "@/app/actions/catches";
 import { FISH_SPECIES } from "@/lib/species";
 import type { SpeciesSuggestions } from "@/lib/species-suggestions";
+import type { BaitSuggestions } from "@/lib/bait-suggestions";
 
 const inputClassName =
   "rounded-lg border border-black/10 bg-white px-3 py-2 text-sm dark:border-white/15 dark:bg-transparent";
 
-function SpeciesChips({
+function Chips({
   label,
-  species,
+  options,
   selected,
   onSelect,
 }: {
   label: string;
-  species: string[];
+  options: string[];
   selected: string;
-  onSelect: (species: string) => void;
+  onSelect: (value: string) => void;
 }) {
-  if (species.length === 0) return null;
+  if (options.length === 0) return null;
 
   return (
     <div className="flex flex-wrap items-center gap-1.5">
       <span className="text-xs text-zinc-500 dark:text-zinc-400">{label}</span>
-      {species.map((s) => (
+      {options.map((s) => (
         <button
           key={s}
           type="button"
@@ -62,16 +63,20 @@ function toDatetimeLocalMax() {
 
 export default function CatchForm({
   suggestions,
+  baitSuggestions,
   currentUserId,
   currentUserName,
   teamMembers,
   defaultLake,
+  defaultBait,
 }: {
   suggestions: SpeciesSuggestions;
+  baitSuggestions: BaitSuggestions;
   currentUserId: number;
   currentUserName: string;
   teamMembers: { id: number; name: string }[];
   defaultLake: string | null;
+  defaultBait: string | null;
 }) {
   const [state, formAction, pending] = useActionState(addCatch, undefined);
   const wasPending = useRef(false);
@@ -91,6 +96,7 @@ export default function CatchForm({
   const [weightKg, setWeightKg] = useState("");
   const [lake, setLake] = useState(defaultLake ?? "");
   const [location, setLocation] = useState("");
+  const [bait, setBait] = useState(defaultBait ?? "");
   const [caughtAtLocal, setCaughtAtLocal] = useState("");
 
   const errorMessage = state && "error" in state ? state.error : undefined;
@@ -232,15 +238,15 @@ export default function CatchForm({
               Art
             </label>
 
-            <SpeciesChips
+            <Chips
               label="Senaste"
-              species={suggestions.recent}
+              options={suggestions.recent}
               selected={species}
               onSelect={setSpecies}
             />
-            <SpeciesChips
+            <Chips
               label="Vanliga"
-              species={suggestions.common}
+              options={suggestions.common}
               selected={species}
               onSelect={setSpecies}
             />
@@ -331,6 +337,42 @@ export default function CatchForm({
                 className={inputClassName}
               />
             </div>
+          </div>
+
+          <div className="flex flex-col gap-2">
+            <label htmlFor="bait" className="text-sm font-medium">
+              Bete <span className="font-normal text-zinc-500">(valfritt)</span>
+            </label>
+
+            <Chips
+              label="Senaste"
+              options={baitSuggestions.recent}
+              selected={bait}
+              onSelect={setBait}
+            />
+            <Chips
+              label="Vanliga"
+              options={baitSuggestions.common}
+              selected={bait}
+              onSelect={setBait}
+            />
+
+            <input
+              id="bait"
+              name="bait"
+              type="text"
+              list="bait-catalog"
+              value={bait}
+              onChange={(e) => setBait(e.target.value)}
+              autoComplete="off"
+              placeholder="Sök bete eller skriv eget namn"
+              className={inputClassName}
+            />
+            <datalist id="bait-catalog">
+              {baitSuggestions.all.map((b) => (
+                <option key={b} value={b} />
+              ))}
+            </datalist>
           </div>
 
           {mode === "past" && (

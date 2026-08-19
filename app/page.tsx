@@ -2,8 +2,9 @@ import Link from "next/link";
 import sql from "@/lib/db";
 import { requireUser } from "@/lib/dal";
 import { getSpeciesSuggestions } from "@/lib/species-suggestions";
+import { getBaitSuggestions } from "@/lib/bait-suggestions";
 import { getTeamMembers, getTeamName } from "@/lib/team";
-import { getTodaysLastLake } from "@/lib/catches";
+import { getTodaysLastLake, getTodaysLastBait } from "@/lib/catches";
 import CatchForm from "@/app/components/catch-form";
 import CatchList, { type Catch } from "@/app/components/catch-list";
 import CatchViewSelect from "@/app/components/catch-view-select";
@@ -34,7 +35,7 @@ export default async function Home(props: PageProps<"/">) {
   const personalCatchesQuery =
     view === "today-longest"
       ? sql<Catch[]>`
-          select id, user_id, species, length_cm, weight_kg, lake, location, caught_at
+          select id, user_id, species, length_cm, weight_kg, lake, location, bait, caught_at
           from catches
           where user_id = ${user.id}
             and length_cm is not null
@@ -45,7 +46,7 @@ export default async function Home(props: PageProps<"/">) {
           limit ${CATCHES_LIMIT}
         `
       : sql<Catch[]>`
-          select id, user_id, species, length_cm, weight_kg, lake, location, caught_at
+          select id, user_id, species, length_cm, weight_kg, lake, location, bait, caught_at
           from catches
           where user_id = ${user.id}
             ${speciesCondition}
@@ -57,7 +58,7 @@ export default async function Home(props: PageProps<"/">) {
     ? Promise.resolve([] as Catch[])
     : view === "today-longest"
       ? sql<Catch[]>`
-          select c.id, c.user_id, c.species, c.length_cm, c.weight_kg, c.lake, c.location, c.caught_at,
+          select c.id, c.user_id, c.species, c.length_cm, c.weight_kg, c.lake, c.location, c.bait, c.caught_at,
             u.name as angler_name
           from catches c
           join users u on u.id = c.user_id
@@ -70,7 +71,7 @@ export default async function Home(props: PageProps<"/">) {
           limit ${CATCHES_LIMIT}
         `
       : sql<Catch[]>`
-          select c.id, c.user_id, c.species, c.length_cm, c.weight_kg, c.lake, c.location, c.caught_at,
+          select c.id, c.user_id, c.species, c.length_cm, c.weight_kg, c.lake, c.location, c.bait, c.caught_at,
             u.name as angler_name
           from catches c
           join users u on u.id = c.user_id
@@ -81,15 +82,25 @@ export default async function Home(props: PageProps<"/">) {
         `;
 
   // Independent queries — run together instead of one round trip at a time.
-  const [speciesSuggestions, teamMembers, teamName, defaultLake, personalCatches, teamCatches] =
-    await Promise.all([
-      getSpeciesSuggestions(user.id),
-      user.team_id ? getTeamMembers(user.team_id) : Promise.resolve([]),
-      user.team_id ? getTeamName(user.team_id) : Promise.resolve(null),
-      getTodaysLastLake(user.id, user.team_id),
-      personalCatchesQuery,
-      teamCatchesQuery,
-    ]);
+  const [
+    speciesSuggestions,
+    baitSuggestions,
+    teamMembers,
+    teamName,
+    defaultLake,
+    defaultBait,
+    personalCatches,
+    teamCatches,
+  ] = await Promise.all([
+    getSpeciesSuggestions(user.id),
+    getBaitSuggestions(user.id),
+    user.team_id ? getTeamMembers(user.team_id) : Promise.resolve([]),
+    user.team_id ? getTeamName(user.team_id) : Promise.resolve(null),
+    getTodaysLastLake(user.id, user.team_id),
+    getTodaysLastBait(user.id, user.team_id),
+    personalCatchesQuery,
+    teamCatchesQuery,
+  ]);
 
   const heading = view === "today-longest" ? "Dagens 5 längsta" : "5 senaste";
   const emptyMessage =
@@ -108,10 +119,12 @@ export default async function Home(props: PageProps<"/">) {
 
       <CatchForm
         suggestions={speciesSuggestions}
+        baitSuggestions={baitSuggestions}
         currentUserId={user.id}
         currentUserName={user.name}
         teamMembers={teamMembers}
         defaultLake={defaultLake}
+        defaultBait={defaultBait}
       />
 
       <div className="flex flex-wrap items-center justify-between gap-4">

@@ -34,12 +34,13 @@ export default function CatchTable({
         ← Bläddra sidledes för fler kolumner →
       </p>
       <div className="overflow-x-auto rounded-xl border border-black/10 dark:border-white/15">
-        <table className="w-full min-w-[600px] text-left text-sm">
+        <table className="w-full min-w-[680px] text-left text-sm">
         <thead>
           <tr className="border-b border-black/10 text-zinc-500 dark:border-white/15 dark:text-zinc-400">
             <th className="px-4 py-2 font-medium">Datum</th>
             <th className="px-4 py-2 font-medium">Art</th>
             <th className="px-4 py-2 font-medium">Plats</th>
+            <th className="px-4 py-2 font-medium">Bete</th>
             <th className="px-4 py-2 text-right font-medium">Längd (cm)</th>
             <th className="px-4 py-2 text-right font-medium">Vikt (kg)</th>
             <th className="px-4 py-2" />
@@ -65,6 +66,9 @@ export default function CatchTable({
                 <td className="px-4 py-2 text-zinc-500 dark:text-zinc-400">
                   {place || "–"}
                 </td>
+                <td className="px-4 py-2 text-zinc-500 dark:text-zinc-400">
+                  {item.bait || "–"}
+                </td>
                 <td className="px-4 py-2 text-right">{item.length_cm ?? "–"}</td>
                 <td className="px-4 py-2 text-right">{item.weight_kg ?? "–"}</td>
                 <td className="px-4 py-2 text-right">
@@ -82,7 +86,7 @@ export default function CatchTable({
         </tbody>
         <tfoot>
           <tr className="border-t border-black/10 font-medium dark:border-white/15">
-            <td className="px-4 py-2" colSpan={3}>
+            <td className="px-4 py-2" colSpan={4}>
               Totalt
             </td>
             <td className="px-4 py-2 text-right">{roundTo2(totalLength)} cm</td>

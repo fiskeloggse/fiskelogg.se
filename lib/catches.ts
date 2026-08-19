@@ -25,3 +25,25 @@ export async function getTodaysLastLake(
   `;
   return row?.lake ?? null;
 }
+
+// Used to prefill "Bete" when logging another catch the same day.
+export async function getTodaysLastBait(
+  userId: number,
+  teamId: number | null
+): Promise<string | null> {
+  const scopeCondition = teamId
+    ? sql`c.user_id in (select id from users where team_id = ${teamId})`
+    : sql`c.user_id = ${userId}`;
+
+  const [row] = await sql<{ bait: string | null }[]>`
+    select c.bait
+    from catches c
+    where ${scopeCondition}
+      and c.bait is not null
+      and (c.caught_at at time zone ${TIMEZONE})::date
+        = (now() at time zone ${TIMEZONE})::date
+    order by c.caught_at desc
+    limit 1
+  `;
+  return row?.bait ?? null;
+}

@@ -41,6 +41,7 @@ const CatchSchema = z
       .optional(),
     lake: z.string().trim().max(100).optional(),
     location: z.string().trim().max(100).optional(),
+    bait: z.string().trim().max(100).optional(),
     caughtAt: z.coerce
       .date({ error: "Ogiltigt datum." })
       .max(new Date(), { error: "Datumet kan inte vara i framtiden." })
@@ -62,6 +63,7 @@ export async function addCatch(
   const rawCaughtAt = formData.get("caughtAt");
   const rawLake = formData.get("lake");
   const rawLocation = formData.get("location");
+  const rawBait = formData.get("bait");
   const rawAnglerId = formData.get("anglerId");
   const parsed = CatchSchema.safeParse({
     anglerId:
@@ -82,6 +84,7 @@ export async function addCatch(
       typeof rawLocation === "string" && rawLocation.trim() !== ""
         ? rawLocation
         : undefined,
+    bait: typeof rawBait === "string" && rawBait.trim() !== "" ? rawBait : undefined,
     caughtAt:
       typeof rawCaughtAt === "string" && rawCaughtAt.trim() !== ""
         ? rawCaughtAt
@@ -92,7 +95,7 @@ export async function addCatch(
     return { error: parsed.error.issues[0]?.message ?? "Ogiltiga uppgifter." };
   }
 
-  const { anglerId, species, lengthCm, weightKg, lake, location, caughtAt } =
+  const { anglerId, species, lengthCm, weightKg, lake, location, bait, caughtAt } =
     parsed.data;
 
   // Logging for someone else is only allowed within your own team.
@@ -112,10 +115,10 @@ export async function addCatch(
   // matches itself elsewhere — personbästa, filters, and bingo all compare
   // by exact species string.
   const [inserted] = await sql<{ id: number; species: string }[]>`
-    insert into catches (user_id, species, length_cm, weight_kg, lake, location, caught_at)
+    insert into catches (user_id, species, length_cm, weight_kg, lake, location, bait, caught_at)
     values (
       ${anglerId}, initcap(${species}), ${lengthCm ?? null}, ${weightKg ?? null},
-      ${lake ?? null}, ${location ?? null}, ${caughtAt ?? new Date()}
+      ${lake ?? null}, ${location ?? null}, ${bait ?? null}, ${caughtAt ?? new Date()}
     )
     returning id, species
   `;
