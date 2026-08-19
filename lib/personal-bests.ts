@@ -72,3 +72,18 @@ export async function getPersonalBests(userId: number): Promise<PersonalBest[]> 
 
   return buildPersonalBests(longestRows, heaviestRows);
 }
+
+// The previous record for a species, excluding one catch (typically the one
+// just inserted) — used to tell whether that catch is a new personal best.
+export async function getPreviousBest(
+  userId: number,
+  species: string,
+  excludeCatchId: number
+): Promise<{ maxLength: number | null; maxWeight: number | null }> {
+  const [row] = await sql<{ max_length: number | null; max_weight: number | null }[]>`
+    select max(length_cm) as max_length, max(weight_kg) as max_weight
+    from catches
+    where user_id = ${userId} and species = ${species} and id <> ${excludeCatchId}
+  `;
+  return { maxLength: row?.max_length ?? null, maxWeight: row?.max_weight ?? null };
+}

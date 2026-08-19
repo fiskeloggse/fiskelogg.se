@@ -2,7 +2,7 @@
 
 import { useActionState, useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { addCatch } from "@/app/actions/catches";
+import { addCatch, type CatchNotices } from "@/app/actions/catches";
 import { FISH_SPECIES } from "@/lib/species";
 import type { SpeciesSuggestions } from "@/lib/species-suggestions";
 
@@ -44,6 +44,22 @@ function SpeciesChips({
   );
 }
 
+function personalBestText(pb: NonNullable<CatchNotices["personalBest"]>) {
+  if (pb.isLongest && pb.isHeaviest) {
+    return `${pb.lengthCm} cm & ${pb.weightKg} kg ${pb.species}`;
+  }
+  if (pb.isLongest) {
+    return `${pb.lengthCm} cm ${pb.species}`;
+  }
+  return `${pb.weightKg} kg ${pb.species}`;
+}
+
+function toDatetimeLocalMax() {
+  const now = new Date();
+  now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+  return now.toISOString().slice(0, 16);
+}
+
 export default function CatchForm({
   suggestions,
 }: {
@@ -51,17 +67,20 @@ export default function CatchForm({
 }) {
   const [state, formAction, pending] = useActionState(addCatch, undefined);
   const wasPending = useRef(false);
-  const [open, setOpen] = useState(false);
-  const [bingoNotice, setBingoNotice] = useState<{
-    species: string;
-    cm: number;
-  } | null>(null);
+  const [mode, setMode] = useState<"closed" | "now" | "past">("closed");
+  const [bingoNotice, setBingoNotice] = useState<
+    CatchNotices["bingoMatch"] | null
+  >(null);
+  const [personalBestNotice, setPersonalBestNotice] = useState<
+    CatchNotices["personalBest"] | null
+  >(null);
 
   // Controlled so field values survive a failed submission — React resets
   // uncontrolled fields after every form action, success or not.
   const [species, setSpecies] = useState("");
   const [lengthCm, setLengthCm] = useState("");
   const [weightKg, setWeightKg] = useState("");
+  const [caughtAtLocal, setCaughtAtLocal] = useState("");
 
   const errorMessage = state && "error" in state ? state.error : undefined;
 
@@ -70,9 +89,13 @@ export default function CatchForm({
       setSpecies("");
       setLengthCm("");
       setWeightKg("");
-      if (state && "bingoMatch" in state) {
+      setCaughtAtLocal("");
+      if (state && "bingoMatch" in state && state.bingoMatch) {
         // eslint-disable-next-line react-hooks/set-state-in-effect
         setBingoNotice(state.bingoMatch);
+      }
+      if (state && "personalBest" in state && state.personalBest) {
+        setPersonalBestNotice(state.personalBest);
       }
     }
     wasPending.current = pending;
@@ -84,46 +107,84 @@ export default function CatchForm({
     return () => clearTimeout(timer);
   }, [bingoNotice]);
 
+  useEffect(() => {
+    if (!personalBestNotice) return;
+    const timer = setTimeout(() => setPersonalBestNotice(null), 6000);
+    return () => clearTimeout(timer);
+  }, [personalBestNotice]);
+
   return (
     <>
-      {bingoNotice && (
-        <div className="fixed inset-x-4 bottom-4 z-50 mx-auto flex max-w-sm items-center justify-between gap-4 rounded-xl border border-black/10 bg-white p-4 shadow-lg dark:border-white/15 dark:bg-zinc-900">
-          <p className="text-sm">
-            🎯 Bingo! {bingoNotice.cm} cm {bingoNotice.species} bockade av en
-            ruta.{" "}
-            <Link href="/challenges" className="underline">
-              Visa bingobricka
-            </Link>
-          </p>
+      <div className="fixed inset-x-4 bottom-4 z-50 mx-auto flex max-w-sm flex-col gap-2">
+        {bingoNotice && (
+          <div className="flex items-center justify-between gap-4 rounded-xl border border-black/10 bg-white p-4 shadow-lg dark:border-white/15 dark:bg-zinc-900">
+            <p className="text-sm">
+              🎯 Bingo! {bingoNotice.cm} cm {bingoNotice.species} bockade av en
+              ruta.{" "}
+              <Link href="/challenges" className="underline">
+                Visa bingobricka
+              </Link>
+            </p>
+            <button
+              type="button"
+              onClick={() => setBingoNotice(null)}
+              aria-label="Stäng"
+              className="text-zinc-500 hover:text-foreground dark:text-zinc-400"
+            >
+              ×
+            </button>
+          </div>
+        )}
+
+        {personalBestNotice && (
+          <div className="flex items-center justify-between gap-4 rounded-xl border border-black/10 bg-white p-4 shadow-lg dark:border-white/15 dark:bg-zinc-900">
+            <p className="text-sm">
+              🏆 Nytt personbästa! {personalBestText(personalBestNotice)}.{" "}
+              <Link href="/personbasta" className="underline">
+                Visa personbästa
+              </Link>
+            </p>
+            <button
+              type="button"
+              onClick={() => setPersonalBestNotice(null)}
+              aria-label="Stäng"
+              className="text-zinc-500 hover:text-foreground dark:text-zinc-400"
+            >
+              ×
+            </button>
+          </div>
+        )}
+      </div>
+
+      {mode === "closed" ? (
+        <div className="flex flex-wrap gap-2">
           <button
             type="button"
-            onClick={() => setBingoNotice(null)}
-            aria-label="Stäng"
-            className="text-zinc-500 hover:text-foreground dark:text-zinc-400"
+            onClick={() => setMode("now")}
+            className="rounded-full bg-foreground px-4 py-2 text-sm font-medium text-background"
           >
-            ×
+            + Logga fångst
+          </button>
+          <button
+            type="button"
+            onClick={() => setMode("past")}
+            className="rounded-full border border-black/10 px-4 py-2 text-sm font-medium transition-colors hover:bg-black/5 dark:border-white/15 dark:hover:bg-white/10"
+          >
+            + Logga tidigare fångst
           </button>
         </div>
-      )}
-
-      {!open ? (
-        <button
-          type="button"
-          onClick={() => setOpen(true)}
-          className="rounded-full bg-foreground px-4 py-2 text-sm font-medium text-background"
-        >
-          + Logga fångst
-        </button>
       ) : (
         <form
           action={formAction}
           className="flex flex-col gap-4 rounded-xl border border-black/10 bg-white p-5 dark:border-white/15 dark:bg-white/5"
         >
           <div className="flex items-center justify-between">
-            <h2 className="text-lg font-semibold">Logga en fångst</h2>
+            <h2 className="text-lg font-semibold">
+              {mode === "past" ? "Logga en tidigare fångst" : "Logga en fångst"}
+            </h2>
             <button
               type="button"
-              onClick={() => setOpen(false)}
+              onClick={() => setMode("closed")}
               className="text-sm text-zinc-500 hover:text-foreground dark:text-zinc-400"
             >
               Avbryt
@@ -205,9 +266,33 @@ export default function CatchForm({
             </div>
           </div>
 
+          {mode === "past" && (
+            <div className="flex flex-col gap-1.5">
+              <label htmlFor="caughtAtLocal" className="text-sm font-medium">
+                Fångstdatum och tid
+              </label>
+              <input
+                id="caughtAtLocal"
+                type="datetime-local"
+                required
+                max={toDatetimeLocalMax()}
+                value={caughtAtLocal}
+                onChange={(e) => setCaughtAtLocal(e.target.value)}
+                className={inputClassName}
+              />
+              <input
+                type="hidden"
+                name="caughtAt"
+                value={caughtAtLocal ? new Date(caughtAtLocal).toISOString() : ""}
+              />
+            </div>
+          )}
+
           <p className="text-xs text-zinc-500 dark:text-zinc-400">
-            Ange minst en av längd eller vikt. Tidpunkten sätts automatiskt
-            till nu.
+            Ange minst en av längd eller vikt.{" "}
+            {mode === "past"
+              ? "Välj datum och tid för fångsten ovan."
+              : "Tidpunkten sätts automatiskt till nu."}
           </p>
 
           {errorMessage && (

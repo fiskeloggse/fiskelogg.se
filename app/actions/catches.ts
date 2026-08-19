@@ -5,11 +5,20 @@ import * as z from "zod";
 import sql from "@/lib/db";
 import { requireUser } from "@/lib/dal";
 import { findMatchingBingoCards } from "@/lib/bingo";
+import { getPreviousBest } from "@/lib/personal-bests";
 
-export type CatchState =
-  | { error: string }
-  | { bingoMatch: { species: string; cm: number } }
-  | undefined;
+export type CatchNotices = {
+  bingoMatch?: { species: string; cm: number };
+  personalBest?: {
+    species: string;
+    isLongest: boolean;
+    isHeaviest: boolean;
+    lengthCm?: number;
+    weightKg?: number;
+  };
+};
+
+export type CatchState = { error: string } | CatchNotices | undefined;
 
 const CatchSchema = z
   .object({
@@ -29,6 +38,10 @@ const CatchSchema = z
       .positive({ error: "Vikten måste vara större än noll." })
       .max(1000, { error: "Det verkar vara en väldigt tung fisk." })
       .optional(),
+    caughtAt: z.coerce
+      .date({ error: "Ogiltigt datum." })
+      .max(new Date(), { error: "Datumet kan inte vara i framtiden." })
+      .optional(),
   })
   .refine((data) => data.lengthCm !== undefined || data.weightKg !== undefined, {
     error: "Ange antingen längd eller vikt.",
@@ -43,6 +56,7 @@ export async function addCatch(
 
   const rawLength = formData.get("lengthCm");
   const rawWeight = formData.get("weightKg");
+  const rawCaughtAt = formData.get("caughtAt");
   const parsed = CatchSchema.safeParse({
     species: formData.get("species"),
     lengthCm:
@@ -53,26 +67,33 @@ export async function addCatch(
       typeof rawWeight === "string" && rawWeight.trim() !== ""
         ? rawWeight
         : undefined,
+    caughtAt:
+      typeof rawCaughtAt === "string" && rawCaughtAt.trim() !== ""
+        ? rawCaughtAt
+        : undefined,
   });
 
   if (!parsed.success) {
     return { error: parsed.error.issues[0]?.message ?? "Ogiltiga uppgifter." };
   }
 
-  const { species, lengthCm, weightKg } = parsed.data;
-  const caughtAt = new Date();
+  const { species, lengthCm, weightKg, caughtAt } = parsed.data;
 
   // Normalize casing (e.g. "gädda" -> "Gädda") so the same species always
   // matches itself elsewhere — personbästa, filters, and bingo all compare
   // by exact species string.
-  const [inserted] = await sql<{ species: string }[]>`
+  const [inserted] = await sql<{ id: number; species: string }[]>`
     insert into catches (user_id, species, length_cm, weight_kg, caught_at)
-    values (${user.id}, initcap(${species}), ${lengthCm ?? null}, ${weightKg ?? null}, ${caughtAt})
-    returning species
+    values (${user.id}, initcap(${species}), ${lengthCm ?? null}, ${weightKg ?? null}, ${caughtAt ?? new Date()})
+    returning id, species
   `;
 
   revalidatePath("/");
   revalidatePath("/challenges");
+  revalidatePath("/personbasta");
+  revalidatePath("/register");
+
+  const notices: CatchNotices = {};
 
   if (lengthCm !== undefined) {
     const matches = await findMatchingBingoCards(
@@ -82,8 +103,30 @@ export async function addCatch(
       lengthCm
     );
     if (matches.length > 0) {
-      return { bingoMatch: { species: inserted.species, cm: lengthCm } };
+      notices.bingoMatch = { species: inserted.species, cm: lengthCm };
     }
+  }
+
+  const previousBest = await getPreviousBest(user.id, inserted.species, inserted.id);
+  const isLongest =
+    lengthCm !== undefined &&
+    (previousBest.maxLength === null || lengthCm > previousBest.maxLength);
+  const isHeaviest =
+    weightKg !== undefined &&
+    (previousBest.maxWeight === null || weightKg > previousBest.maxWeight);
+
+  if (isLongest || isHeaviest) {
+    notices.personalBest = {
+      species: inserted.species,
+      isLongest,
+      isHeaviest,
+      lengthCm,
+      weightKg,
+    };
+  }
+
+  if (notices.bingoMatch || notices.personalBest) {
+    return notices;
   }
 }
 
