@@ -22,6 +22,7 @@ export type CatchState = { error: string } | CatchNotices | undefined;
 
 const CatchSchema = z
   .object({
+    anglerId: z.coerce.number({ error: "Ogiltig fiskare." }).int().positive(),
     species: z
       .string()
       .trim()
@@ -38,6 +39,8 @@ const CatchSchema = z
       .positive({ error: "Vikten måste vara större än noll." })
       .max(1000, { error: "Det verkar vara en väldigt tung fisk." })
       .optional(),
+    lake: z.string().trim().max(100).optional(),
+    location: z.string().trim().max(100).optional(),
     caughtAt: z.coerce
       .date({ error: "Ogiltigt datum." })
       .max(new Date(), { error: "Datumet kan inte vara i framtiden." })
@@ -57,7 +60,14 @@ export async function addCatch(
   const rawLength = formData.get("lengthCm");
   const rawWeight = formData.get("weightKg");
   const rawCaughtAt = formData.get("caughtAt");
+  const rawLake = formData.get("lake");
+  const rawLocation = formData.get("location");
+  const rawAnglerId = formData.get("anglerId");
   const parsed = CatchSchema.safeParse({
+    anglerId:
+      typeof rawAnglerId === "string" && rawAnglerId.trim() !== ""
+        ? rawAnglerId
+        : user.id,
     species: formData.get("species"),
     lengthCm:
       typeof rawLength === "string" && rawLength.trim() !== ""
@@ -66,6 +76,11 @@ export async function addCatch(
     weightKg:
       typeof rawWeight === "string" && rawWeight.trim() !== ""
         ? rawWeight
+        : undefined,
+    lake: typeof rawLake === "string" && rawLake.trim() !== "" ? rawLake : undefined,
+    location:
+      typeof rawLocation === "string" && rawLocation.trim() !== ""
+        ? rawLocation
         : undefined,
     caughtAt:
       typeof rawCaughtAt === "string" && rawCaughtAt.trim() !== ""
@@ -77,14 +92,31 @@ export async function addCatch(
     return { error: parsed.error.issues[0]?.message ?? "Ogiltiga uppgifter." };
   }
 
-  const { species, lengthCm, weightKg, caughtAt } = parsed.data;
+  const { anglerId, species, lengthCm, weightKg, lake, location, caughtAt } =
+    parsed.data;
+
+  // Logging for someone else is only allowed within your own team.
+  if (anglerId !== user.id) {
+    if (!user.team_id) {
+      return { error: "Du kan bara logga åt lagkamrater i ditt team." };
+    }
+    const [angler] = await sql<{ team_id: number | null }[]>`
+      select team_id from users where id = ${anglerId}
+    `;
+    if (!angler || angler.team_id !== user.team_id) {
+      return { error: "Den fiskaren är inte med i ditt team." };
+    }
+  }
 
   // Normalize casing (e.g. "gädda" -> "Gädda") so the same species always
   // matches itself elsewhere — personbästa, filters, and bingo all compare
   // by exact species string.
   const [inserted] = await sql<{ id: number; species: string }[]>`
-    insert into catches (user_id, species, length_cm, weight_kg, caught_at)
-    values (${user.id}, initcap(${species}), ${lengthCm ?? null}, ${weightKg ?? null}, ${caughtAt ?? new Date()})
+    insert into catches (user_id, species, length_cm, weight_kg, lake, location, caught_at)
+    values (
+      ${anglerId}, initcap(${species}), ${lengthCm ?? null}, ${weightKg ?? null},
+      ${lake ?? null}, ${location ?? null}, ${caughtAt ?? new Date()}
+    )
     returning id, species
   `;
 
@@ -95,9 +127,10 @@ export async function addCatch(
 
   const notices: CatchNotices = {};
 
+  // Verified above: when anglerId !== user.id, the angler is in user.team_id.
   if (lengthCm !== undefined) {
     const matches = await findMatchingBingoCards(
-      user.id,
+      anglerId,
       user.team_id,
       inserted.species,
       lengthCm
@@ -107,7 +140,7 @@ export async function addCatch(
     }
   }
 
-  const previousBest = await getPreviousBest(user.id, inserted.species, inserted.id);
+  const previousBest = await getPreviousBest(anglerId, inserted.species, inserted.id);
   const isLongest =
     lengthCm !== undefined &&
     (previousBest.maxLength === null || lengthCm > previousBest.maxLength);

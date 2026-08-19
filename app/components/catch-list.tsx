@@ -1,4 +1,5 @@
 import { deleteCatch } from "@/app/actions/catches";
+import ConfirmDeleteButton from "./confirm-delete-button";
 
 export type Catch = {
   id: number;
@@ -6,6 +7,8 @@ export type Catch = {
   species: string | null;
   length_cm: number | null;
   weight_kg: number | null;
+  lake?: string | null;
+  location?: string | null;
   caught_at: Date;
   angler_name?: string;
 };
@@ -43,11 +46,12 @@ export default function CatchList({
         ]
           .filter(Boolean)
           .join(" · ");
+        const place = [item.lake, item.location].filter(Boolean).join(", ");
 
         return (
           <li
             key={item.id}
-            className="flex items-center justify-between gap-3 px-3 py-2"
+            className="flex items-center justify-between gap-2 px-3 py-2"
           >
             <div className="flex min-w-0 flex-wrap items-baseline gap-x-2 gap-y-0.5 text-sm">
               <span className="truncate font-medium">
@@ -63,22 +67,23 @@ export default function CatchList({
                   {measurements}
                 </span>
               )}
+              {place && (
+                <span className="text-xs text-zinc-400 dark:text-zinc-500">
+                  {place}
+                </span>
+              )}
               <span className="text-xs text-zinc-400 dark:text-zinc-500">
                 {formatCaughtAt(item.caught_at)}
               </span>
             </div>
 
             {item.user_id === currentUserId && (
-              <form action={deleteCatch}>
-                <input type="hidden" name="id" value={item.id} />
-                <button
-                  type="submit"
-                  aria-label="Ta bort fångst"
-                  className="shrink-0 px-1 text-lg leading-none text-zinc-400 transition-colors hover:text-red-600 dark:text-zinc-500 dark:hover:text-red-400"
-                >
-                  ×
-                </button>
-              </form>
+              <ConfirmDeleteButton
+                action={deleteCatch}
+                id={item.id}
+                label="Ta bort fångst"
+                compact
+              />
             )}
           </li>
         );

@@ -62,8 +62,16 @@ function toDatetimeLocalMax() {
 
 export default function CatchForm({
   suggestions,
+  currentUserId,
+  currentUserName,
+  teamMembers,
+  defaultLake,
 }: {
   suggestions: SpeciesSuggestions;
+  currentUserId: number;
+  currentUserName: string;
+  teamMembers: { id: number; name: string }[];
+  defaultLake: string | null;
 }) {
   const [state, formAction, pending] = useActionState(addCatch, undefined);
   const wasPending = useRef(false);
@@ -77,9 +85,12 @@ export default function CatchForm({
 
   // Controlled so field values survive a failed submission — React resets
   // uncontrolled fields after every form action, success or not.
+  const [anglerId, setAnglerId] = useState(String(currentUserId));
   const [species, setSpecies] = useState("");
   const [lengthCm, setLengthCm] = useState("");
   const [weightKg, setWeightKg] = useState("");
+  const [lake, setLake] = useState(defaultLake ?? "");
+  const [location, setLocation] = useState("");
   const [caughtAtLocal, setCaughtAtLocal] = useState("");
 
   const errorMessage = state && "error" in state ? state.error : undefined;
@@ -89,6 +100,7 @@ export default function CatchForm({
       setSpecies("");
       setLengthCm("");
       setWeightKg("");
+      setLocation("");
       setCaughtAtLocal("");
       if (state && "bingoMatch" in state && state.bingoMatch) {
         // eslint-disable-next-line react-hooks/set-state-in-effect
@@ -191,6 +203,30 @@ export default function CatchForm({
             </button>
           </div>
 
+          {teamMembers.length > 0 && (
+            <div className="flex flex-col gap-1.5">
+              <label htmlFor="anglerId" className="text-sm font-medium">
+                Fiskare
+              </label>
+              <select
+                id="anglerId"
+                name="anglerId"
+                value={anglerId}
+                onChange={(e) => setAnglerId(e.target.value)}
+                className={inputClassName}
+              >
+                <option value={currentUserId}>{currentUserName} (du)</option>
+                {teamMembers
+                  .filter((m) => m.id !== currentUserId)
+                  .map((m) => (
+                    <option key={m.id} value={m.id}>
+                      {m.name}
+                    </option>
+                  ))}
+              </select>
+            </div>
+          )}
+
           <div className="flex flex-col gap-2">
             <label htmlFor="species" className="text-sm font-medium">
               Art
@@ -261,6 +297,37 @@ export default function CatchForm({
                 min="0"
                 value={weightKg}
                 onChange={(e) => setWeightKg(e.target.value)}
+                className={inputClassName}
+              />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <div className="flex flex-col gap-1.5">
+              <label htmlFor="lake" className="text-sm font-medium">
+                Sjö <span className="font-normal text-zinc-500">(valfritt)</span>
+              </label>
+              <input
+                id="lake"
+                name="lake"
+                type="text"
+                value={lake}
+                onChange={(e) => setLake(e.target.value)}
+                className={inputClassName}
+              />
+            </div>
+
+            <div className="flex flex-col gap-1.5">
+              <label htmlFor="location" className="text-sm font-medium">
+                Plats{" "}
+                <span className="font-normal text-zinc-500">(valfritt)</span>
+              </label>
+              <input
+                id="location"
+                name="location"
+                type="text"
+                value={location}
+                onChange={(e) => setLocation(e.target.value)}
                 className={inputClassName}
               />
             </div>

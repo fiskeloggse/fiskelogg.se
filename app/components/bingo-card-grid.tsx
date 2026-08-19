@@ -1,5 +1,6 @@
 import { deleteBingoCard } from "@/app/actions/bingo";
 import type { BingoCard, BingoCatch } from "@/lib/bingo";
+import ConfirmDeleteButton from "./confirm-delete-button";
 
 function formatDate(date: Date) {
   return date.toLocaleDateString("sv-SE", { dateStyle: "medium" });
@@ -24,7 +25,7 @@ function groupByDecade(min: number, max: number): [number, number[]][] {
 function BingoCell({ cm, matches }: { cm: number; matches: BingoCatch[] | undefined }) {
   if (!matches) {
     return (
-      <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-black/10 text-sm text-zinc-500 dark:bg-white/10 dark:text-zinc-400">
+      <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-black/10 text-xs text-zinc-500 sm:h-12 sm:w-12 sm:text-sm dark:bg-white/10 dark:text-zinc-400">
         {cm}
       </div>
     );
@@ -32,7 +33,7 @@ function BingoCell({ cm, matches }: { cm: number; matches: BingoCatch[] | undefi
 
   return (
     <details className="group relative">
-      <summary className="flex h-12 w-12 shrink-0 cursor-pointer list-none items-center justify-center rounded-lg bg-green-600 text-sm font-medium text-white transition-colors hover:bg-green-700">
+      <summary className="flex h-9 w-9 shrink-0 cursor-pointer list-none items-center justify-center rounded-lg bg-green-600 text-xs font-medium text-white transition-colors hover:bg-green-700 sm:h-12 sm:w-12 sm:text-sm">
         {cm}
       </summary>
       <div className="absolute z-10 mt-1 w-56 rounded-lg border border-black/10 bg-white p-3 text-sm shadow-lg dark:border-white/15 dark:bg-zinc-900">
@@ -69,7 +70,7 @@ export default function BingoCardGrid({
 
   return (
     <div className="flex flex-col gap-3 rounded-xl border border-black/10 bg-white p-5 dark:border-white/15 dark:bg-white/5">
-      <div className="flex items-center justify-between gap-4">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h2 className="text-lg font-semibold">
             {card.species} {card.min_cm}–{card.max_cm} cm
@@ -81,16 +82,16 @@ export default function BingoCardGrid({
             {doneCount} av {totalCount} rutor klara
           </p>
         </div>
-        <form action={deleteBingoCard}>
-          <input type="hidden" name="id" value={card.id} />
-          <button
-            type="submit"
-            className="rounded-full px-3 py-1.5 text-sm text-zinc-500 transition-colors hover:bg-red-50 hover:text-red-600 dark:text-zinc-400 dark:hover:bg-red-950/40 dark:hover:text-red-400"
-          >
-            Ta bort
-          </button>
-        </form>
+        <ConfirmDeleteButton
+          action={deleteBingoCard}
+          id={card.id}
+          label="Ta bort bingobricka"
+        />
       </div>
+
+      <p className="text-xs text-zinc-400 sm:hidden dark:text-zinc-500">
+        ← Bläddra sidledes för fler rutor →
+      </p>
 
       <div className="flex flex-col gap-2 overflow-x-auto">
         {decadeRows.map(([decade, cms]) => (

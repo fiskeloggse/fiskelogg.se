@@ -38,7 +38,7 @@ export default function DualRangeSlider({
         </span>
       </div>
 
-      <div className="relative h-5">
+      <div className="relative h-7">
         <div className="absolute top-1/2 h-1 w-full -translate-y-1/2 rounded-full bg-black/10 dark:bg-white/15" />
         <div
           className="absolute top-1/2 h-1 -translate-y-1/2 rounded-full bg-foreground"

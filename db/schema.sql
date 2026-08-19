@@ -23,9 +23,15 @@ create table if not exists catches (
   species text not null,
   length_cm real,
   weight_kg real,
+  lake text,
+  location text,
   caught_at timestamptz not null,
   created_at timestamptz not null default now()
 );
+
+-- Safe to re-run: no-op if the columns already exist.
+alter table catches add column if not exists lake text;
+alter table catches add column if not exists location text;
 
 -- Backfill any existing rows before enforcing NOT NULL (safe to re-run).
 update catches set species = 'Okänd art' where species is null;

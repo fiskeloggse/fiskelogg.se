@@ -2,6 +2,8 @@ import Link from "next/link";
 import sql from "@/lib/db";
 import { requireUser } from "@/lib/dal";
 import { getSpeciesSuggestions } from "@/lib/species-suggestions";
+import { getTeamMembers } from "@/lib/team";
+import { getTodaysLastLake } from "@/lib/catches";
 import CatchForm from "@/app/components/catch-form";
 import CatchList, { type Catch } from "@/app/components/catch-list";
 import CatchViewSelect from "@/app/components/catch-view-select";
@@ -23,6 +25,8 @@ export default async function Home(props: PageProps<"/">) {
     typeof searchParams.species === "string" ? searchParams.species : "";
 
   const speciesSuggestions = await getSpeciesSuggestions(user.id);
+  const teamMembers = user.team_id ? await getTeamMembers(user.team_id) : [];
+  const defaultLake = await getTodaysLastLake(user.id);
   const speciesCondition = speciesFilter
     ? sql`and species = ${speciesFilter}`
     : sql``;
@@ -33,7 +37,7 @@ export default async function Home(props: PageProps<"/">) {
   const personalCatches =
     view === "today-longest"
       ? await sql<Catch[]>`
-          select id, user_id, species, length_cm, weight_kg, caught_at
+          select id, user_id, species, length_cm, weight_kg, lake, location, caught_at
           from catches
           where user_id = ${user.id}
             and length_cm is not null
@@ -44,7 +48,7 @@ export default async function Home(props: PageProps<"/">) {
           limit ${CATCHES_LIMIT}
         `
       : await sql<Catch[]>`
-          select id, user_id, species, length_cm, weight_kg, caught_at
+          select id, user_id, species, length_cm, weight_kg, lake, location, caught_at
           from catches
           where user_id = ${user.id}
             ${speciesCondition}
@@ -55,7 +59,7 @@ export default async function Home(props: PageProps<"/">) {
   const teamCatches = user.team_id
     ? view === "today-longest"
       ? await sql<Catch[]>`
-          select c.id, c.user_id, c.species, c.length_cm, c.weight_kg, c.caught_at,
+          select c.id, c.user_id, c.species, c.length_cm, c.weight_kg, c.lake, c.location, c.caught_at,
             u.name as angler_name
           from catches c
           join users u on u.id = c.user_id
@@ -68,7 +72,7 @@ export default async function Home(props: PageProps<"/">) {
           limit ${CATCHES_LIMIT}
         `
       : await sql<Catch[]>`
-          select c.id, c.user_id, c.species, c.length_cm, c.weight_kg, c.caught_at,
+          select c.id, c.user_id, c.species, c.length_cm, c.weight_kg, c.lake, c.location, c.caught_at,
             u.name as angler_name
           from catches c
           join users u on u.id = c.user_id
@@ -94,7 +98,13 @@ export default async function Home(props: PageProps<"/">) {
 
       <CatchTabs active="/" showBingo={user.show_bingo} />
 
-      <CatchForm suggestions={speciesSuggestions} />
+      <CatchForm
+        suggestions={speciesSuggestions}
+        currentUserId={user.id}
+        currentUserName={user.name}
+        teamMembers={teamMembers}
+        defaultLake={defaultLake}
+      />
 
       <div className="flex flex-wrap items-center justify-between gap-4">
         <h2 className="text-lg font-semibold">{heading}</h2>

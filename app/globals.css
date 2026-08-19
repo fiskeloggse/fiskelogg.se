@@ -49,8 +49,8 @@ body {
 .dual-range-input::-webkit-slider-thumb {
   appearance: none;
   pointer-events: auto;
-  width: 16px;
-  height: 16px;
+  width: 24px;
+  height: 24px;
   border-radius: 9999px;
   background: var(--foreground);
   cursor: pointer;
@@ -58,8 +58,8 @@ body {
 
 .dual-range-input::-moz-range-thumb {
   pointer-events: auto;
-  width: 16px;
-  height: 16px;
+  width: 24px;
+  height: 24px;
   border: none;
   border-radius: 9999px;
   background: var(--foreground);

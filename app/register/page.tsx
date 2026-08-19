@@ -136,7 +136,7 @@ export default async function RegisterPage(props: PageProps<"/register">) {
     SORT_OPTIONS[0].column;
 
   const catches = await sql<Catch[]>`
-    select id, user_id, species, length_cm, weight_kg, caught_at
+    select id, user_id, species, length_cm, weight_kg, lake, location, caught_at
     from catches
     where user_id = ${user.id}
       ${speciesCondition}
