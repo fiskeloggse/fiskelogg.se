@@ -99,7 +99,7 @@ export default async function RegisterPage(props: PageProps<"/register">) {
     .map(Number)
     .filter((m) => Number.isInteger(m) && m >= 1 && m <= 12);
 
-  const speciesSuggestions = await getSpeciesSuggestions(user.id);
+  const speciesSuggestionsPromise = getSpeciesSuggestions(user.id);
 
   const speciesCondition = species ? sql`and species = ${species}` : sql``;
   const lengthMinCondition =
@@ -135,7 +135,7 @@ export default async function RegisterPage(props: PageProps<"/register">) {
     SORT_OPTIONS.find((option) => option.value === sort)?.column ??
     SORT_OPTIONS[0].column;
 
-  const catches = await sql<Catch[]>`
+  const catchesPromise = sql<Catch[]>`
     select id, user_id, species, length_cm, weight_kg, lake, location, caught_at
     from catches
     where user_id = ${user.id}
@@ -148,6 +148,11 @@ export default async function RegisterPage(props: PageProps<"/register">) {
       ${monthCondition}
     order by ${sql.unsafe(sortColumn)}
   `;
+
+  const [speciesSuggestions, catches] = await Promise.all([
+    speciesSuggestionsPromise,
+    catchesPromise,
+  ]);
 
   const hasFilters = Boolean(
     species ||

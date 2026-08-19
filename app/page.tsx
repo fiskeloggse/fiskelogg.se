@@ -24,10 +24,6 @@ export default async function Home(props: PageProps<"/">) {
   const speciesFilter =
     typeof searchParams.species === "string" ? searchParams.species : "";
 
-  const speciesSuggestions = await getSpeciesSuggestions(user.id);
-  const teamMembers = user.team_id ? await getTeamMembers(user.team_id) : [];
-  const teamName = user.team_id ? await getTeamName(user.team_id) : null;
-  const defaultLake = await getTodaysLastLake(user.id);
   const speciesCondition = speciesFilter
     ? sql`and species = ${speciesFilter}`
     : sql``;
@@ -35,9 +31,9 @@ export default async function Home(props: PageProps<"/">) {
     ? sql`and c.species = ${speciesFilter}`
     : sql``;
 
-  const personalCatches =
+  const personalCatchesQuery =
     view === "today-longest"
-      ? await sql<Catch[]>`
+      ? sql<Catch[]>`
           select id, user_id, species, length_cm, weight_kg, lake, location, caught_at
           from catches
           where user_id = ${user.id}
@@ -48,7 +44,7 @@ export default async function Home(props: PageProps<"/">) {
           order by length_cm desc
           limit ${CATCHES_LIMIT}
         `
-      : await sql<Catch[]>`
+      : sql<Catch[]>`
           select id, user_id, species, length_cm, weight_kg, lake, location, caught_at
           from catches
           where user_id = ${user.id}
@@ -57,9 +53,10 @@ export default async function Home(props: PageProps<"/">) {
           limit ${CATCHES_LIMIT}
         `;
 
-  const teamCatches = user.team_id
-    ? view === "today-longest"
-      ? await sql<Catch[]>`
+  const teamCatchesQuery = !user.team_id
+    ? Promise.resolve([] as Catch[])
+    : view === "today-longest"
+      ? sql<Catch[]>`
           select c.id, c.user_id, c.species, c.length_cm, c.weight_kg, c.lake, c.location, c.caught_at,
             u.name as angler_name
           from catches c
@@ -72,7 +69,7 @@ export default async function Home(props: PageProps<"/">) {
           order by c.length_cm desc
           limit ${CATCHES_LIMIT}
         `
-      : await sql<Catch[]>`
+      : sql<Catch[]>`
           select c.id, c.user_id, c.species, c.length_cm, c.weight_kg, c.lake, c.location, c.caught_at,
             u.name as angler_name
           from catches c
@@ -81,8 +78,18 @@ export default async function Home(props: PageProps<"/">) {
             ${teamSpeciesCondition}
           order by c.caught_at desc
           limit ${CATCHES_LIMIT}
-        `
-    : [];
+        `;
+
+  // Independent queries — run together instead of one round trip at a time.
+  const [speciesSuggestions, teamMembers, teamName, defaultLake, personalCatches, teamCatches] =
+    await Promise.all([
+      getSpeciesSuggestions(user.id),
+      user.team_id ? getTeamMembers(user.team_id) : Promise.resolve([]),
+      user.team_id ? getTeamName(user.team_id) : Promise.resolve(null),
+      getTodaysLastLake(user.id, user.team_id),
+      personalCatchesQuery,
+      teamCatchesQuery,
+    ]);
 
   const heading = view === "today-longest" ? "Dagens 5 längsta" : "5 senaste";
   const emptyMessage =

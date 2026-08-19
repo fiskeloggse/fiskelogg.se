@@ -128,19 +128,17 @@ export async function addCatch(
   const notices: CatchNotices = {};
 
   // Verified above: when anglerId !== user.id, the angler is in user.team_id.
-  if (lengthCm !== undefined) {
-    const matches = await findMatchingBingoCards(
-      anglerId,
-      user.team_id,
-      inserted.species,
-      lengthCm
-    );
-    if (matches.length > 0) {
-      notices.bingoMatch = { species: inserted.species, cm: lengthCm };
-    }
+  const [bingoMatches, previousBest] = await Promise.all([
+    lengthCm !== undefined
+      ? findMatchingBingoCards(anglerId, user.team_id, inserted.species, lengthCm)
+      : Promise.resolve([]),
+    getPreviousBest(anglerId, inserted.species, inserted.id),
+  ]);
+
+  if (bingoMatches.length > 0 && lengthCm !== undefined) {
+    notices.bingoMatch = { species: inserted.species, cm: lengthCm };
   }
 
-  const previousBest = await getPreviousBest(anglerId, inserted.species, inserted.id);
   const isLongest =
     lengthCm !== undefined &&
     (previousBest.maxLength === null || lengthCm > previousBest.maxLength);

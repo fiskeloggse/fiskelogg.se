@@ -15,8 +15,10 @@ export const metadata: Metadata = {
 
 export default async function KontoPage() {
   const user = await requireUser();
-  const teamMembers = user.team_id ? await getTeamMembers(user.team_id) : [];
-  const teamName = user.team_id ? await getTeamName(user.team_id) : null;
+  const [teamMembers, teamName] = await Promise.all([
+    user.team_id ? getTeamMembers(user.team_id) : Promise.resolve([]),
+    user.team_id ? getTeamName(user.team_id) : Promise.resolve(null),
+  ]);
 
   return (
     <main className="mx-auto flex w-full max-w-4xl flex-1 flex-col gap-8 px-4 py-10 sm:px-6">
