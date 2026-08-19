@@ -35,49 +35,54 @@ export default function CatchList({
   }
 
   return (
-    <ul className="flex flex-col gap-3">
-      {catches.map((item) => (
-        <li
-          key={item.id}
-          className="flex items-center justify-between gap-4 rounded-xl border border-black/10 bg-white p-4 dark:border-white/15 dark:bg-white/5"
-        >
-          <div>
-            <p className="font-medium">
-              {item.species || "Okänd art"}
+    <ul className="divide-y divide-black/10 rounded-xl border border-black/10 dark:divide-white/10 dark:border-white/15">
+      {catches.map((item) => {
+        const measurements = [
+          item.length_cm != null ? `${item.length_cm} cm` : null,
+          item.weight_kg != null ? `${item.weight_kg} kg` : null,
+        ]
+          .filter(Boolean)
+          .join(" · ");
+
+        return (
+          <li
+            key={item.id}
+            className="flex items-center justify-between gap-3 px-3 py-2"
+          >
+            <div className="flex min-w-0 flex-wrap items-baseline gap-x-2 gap-y-0.5 text-sm">
+              <span className="truncate font-medium">
+                {item.species || "Okänd art"}
+              </span>
               {item.angler_name && (
-                <span className="font-normal text-zinc-400 dark:text-zinc-500">
-                  {" "}
-                  · {item.angler_name}
+                <span className="text-xs text-zinc-400 dark:text-zinc-500">
+                  {item.angler_name}
                 </span>
               )}
-            </p>
-            <p className="text-sm text-zinc-500 dark:text-zinc-400">
-              {[
-                item.length_cm != null ? `${item.length_cm} cm` : null,
-                item.weight_kg != null ? `${item.weight_kg} kg` : null,
-              ]
-                .filter(Boolean)
-                .join(" · ")}
-            </p>
-            <p className="text-xs text-zinc-400 dark:text-zinc-500">
-              {formatCaughtAt(item.caught_at)}
-            </p>
-          </div>
+              {measurements && (
+                <span className="text-zinc-500 dark:text-zinc-400">
+                  {measurements}
+                </span>
+              )}
+              <span className="text-xs text-zinc-400 dark:text-zinc-500">
+                {formatCaughtAt(item.caught_at)}
+              </span>
+            </div>
 
-          {item.user_id === currentUserId && (
-            <form action={deleteCatch}>
-              <input type="hidden" name="id" value={item.id} />
-              <button
-                type="submit"
-                aria-label="Ta bort fångst"
-                className="rounded-full px-3 py-1.5 text-sm text-zinc-500 transition-colors hover:bg-red-50 hover:text-red-600 dark:text-zinc-400 dark:hover:bg-red-950/40 dark:hover:text-red-400"
-              >
-                Ta bort
-              </button>
-            </form>
-          )}
-        </li>
-      ))}
+            {item.user_id === currentUserId && (
+              <form action={deleteCatch}>
+                <input type="hidden" name="id" value={item.id} />
+                <button
+                  type="submit"
+                  aria-label="Ta bort fångst"
+                  className="shrink-0 px-1 text-lg leading-none text-zinc-400 transition-colors hover:text-red-600 dark:text-zinc-500 dark:hover:text-red-400"
+                >
+                  ×
+                </button>
+              </form>
+            )}
+          </li>
+        );
+      })}
     </ul>
   );
 }
