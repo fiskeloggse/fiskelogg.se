@@ -4,7 +4,7 @@ const ALL_TABS = [
   { href: "/", label: "Fångster" },
   { href: "/register", label: "Register" },
   { href: "/personbasta", label: "Personbästa" },
-  { href: "/bingo", label: "Bingo" },
+  { href: "/challenges", label: "Challenges" },
   { href: "/konto", label: "Konto" },
 ] as const;
 
@@ -17,7 +17,7 @@ export default function CatchTabs({
 }) {
   const tabs = showBingo
     ? ALL_TABS
-    : ALL_TABS.filter((tab) => tab.href !== "/bingo");
+    : ALL_TABS.filter((tab) => tab.href !== "/challenges");
 
   return (
     <div className="flex gap-2 border-b border-black/10 dark:border-white/15">

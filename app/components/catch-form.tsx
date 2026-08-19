@@ -91,7 +91,7 @@ export default function CatchForm({
           <p className="text-sm">
             🎯 Bingo! {bingoNotice.cm} cm {bingoNotice.species} bockade av en
             ruta.{" "}
-            <Link href="/bingo" className="underline">
+            <Link href="/challenges" className="underline">
               Visa bingobricka
             </Link>
           </p>

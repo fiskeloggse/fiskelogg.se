@@ -72,7 +72,7 @@ export async function addCatch(
   `;
 
   revalidatePath("/");
-  revalidatePath("/bingo");
+  revalidatePath("/challenges");
 
   if (lengthCm !== undefined) {
     const matches = await findMatchingBingoCards(

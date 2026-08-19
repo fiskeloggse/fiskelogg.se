@@ -59,7 +59,7 @@ export default async function KontoPage() {
               name="show_bingo"
               defaultChecked={user.show_bingo}
             />
-            Visa Bingo-fliken
+            Visa Challenges-fliken
           </label>
           <button
             type="submit"

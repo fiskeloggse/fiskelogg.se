@@ -61,7 +61,7 @@ export async function createBingoCard(
     values (${teamId}, initcap(${species}), ${minCm}, ${maxCm}, ${user.id})
   `;
 
-  revalidatePath("/bingo");
+  revalidatePath("/challenges");
 }
 
 export async function deleteBingoCard(formData: FormData) {
@@ -79,5 +79,5 @@ export async function deleteBingoCard(formData: FormData) {
       )
   `;
 
-  revalidatePath("/bingo");
+  revalidatePath("/challenges");
 }
