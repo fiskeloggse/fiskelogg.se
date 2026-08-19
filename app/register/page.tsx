@@ -5,7 +5,8 @@ import { requireUser } from "@/lib/dal";
 import { getSpeciesSuggestions } from "@/lib/species-suggestions";
 import { TIMEZONE } from "@/lib/constants";
 import CatchTabs from "@/app/components/catch-tabs";
-import CatchList, { type Catch } from "@/app/components/catch-list";
+import { type Catch } from "@/app/components/catch-list";
+import CatchTable from "@/app/components/catch-table";
 import DualRangeSlider from "@/app/components/dual-range-slider";
 
 export const metadata: Metadata = {
@@ -322,7 +323,7 @@ export default async function RegisterPage(props: PageProps<"/register">) {
         <h2 className="text-lg font-semibold">
           {catches.length} {catches.length === 1 ? "fångst" : "fångster"}
         </h2>
-        <CatchList catches={catches} currentUserId={user.id} />
+        <CatchTable catches={catches} currentUserId={user.id} />
       </div>
     </main>
   );
