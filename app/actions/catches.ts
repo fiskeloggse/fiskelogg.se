@@ -62,9 +62,13 @@ export async function addCatch(
   const { species, lengthCm, weightKg } = parsed.data;
   const caughtAt = new Date();
 
-  await sql`
+  // Normalize casing (e.g. "gädda" -> "Gädda") so the same species always
+  // matches itself elsewhere — personbästa, filters, and bingo all compare
+  // by exact species string.
+  const [inserted] = await sql<{ species: string }[]>`
     insert into catches (user_id, species, length_cm, weight_kg, caught_at)
-    values (${user.id}, ${species}, ${lengthCm ?? null}, ${weightKg ?? null}, ${caughtAt})
+    values (${user.id}, initcap(${species}), ${lengthCm ?? null}, ${weightKg ?? null}, ${caughtAt})
+    returning species
   `;
 
   revalidatePath("/");
@@ -74,11 +78,11 @@ export async function addCatch(
     const matches = await findMatchingBingoCards(
       user.id,
       user.team_id,
-      species,
+      inserted.species,
       lengthCm
     );
     if (matches.length > 0) {
-      return { bingoMatch: { species, cm: lengthCm } };
+      return { bingoMatch: { species: inserted.species, cm: lengthCm } };
     }
   }
 }

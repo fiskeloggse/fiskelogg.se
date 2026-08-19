@@ -31,6 +31,10 @@ create table if not exists catches (
 update catches set species = 'Okänd art' where species is null;
 alter table catches alter column species set not null;
 
+-- Normalize casing (e.g. "gädda" -> "Gädda") so the same species always
+-- matches itself in personbästa, filters, and bingo. Safe to re-run.
+update catches set species = initcap(species) where species <> initcap(species);
+
 -- Safe to re-run: no-op if the columns are already nullable.
 alter table catches alter column length_cm drop not null;
 alter table catches alter column weight_kg drop not null;
@@ -51,6 +55,8 @@ create table if not exists bingo_cards (
 -- Safe to re-run: no-op if the column is already nullable. Bingo cards can
 -- now be solo (team_id null, scoped to created_by) or team-wide.
 alter table bingo_cards alter column team_id drop not null;
+
+update bingo_cards set species = initcap(species) where species <> initcap(species);
 
 create index if not exists bingo_cards_team_id_idx on bingo_cards (team_id);
 create index if not exists bingo_cards_created_by_idx on bingo_cards (created_by);

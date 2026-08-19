@@ -58,7 +58,7 @@ export async function createBingoCard(
 
   await sql`
     insert into bingo_cards (team_id, species, min_cm, max_cm, created_by)
-    values (${teamId}, ${species}, ${minCm}, ${maxCm}, ${user.id})
+    values (${teamId}, initcap(${species}), ${minCm}, ${maxCm}, ${user.id})
   `;
 
   revalidatePath("/bingo");
