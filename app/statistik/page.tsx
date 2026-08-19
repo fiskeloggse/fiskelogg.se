@@ -8,12 +8,14 @@ import {
   getStatsPerLake,
   getStatsPerSpecies,
   getStatsStreak,
+  getStatsTop5PerSpecies,
   getStatsTotals,
   type StatsBestDay,
   type StatsLakeRow,
   type StatsLeaderboardRow,
   type StatsMonthRow,
   type StatsSpeciesRow,
+  type StatsTop5SpeciesRow,
   type StatsTotals,
 } from "@/lib/stats";
 import CatchTabs from "@/app/components/catch-tabs";
@@ -25,6 +27,7 @@ import {
   MonthlyWidget,
   SpeciesWidget,
   StreakWidget,
+  Top5Widget,
   TotalsWidget,
 } from "@/app/components/stats-widgets";
 
@@ -38,7 +41,7 @@ export default async function StatistikPage() {
     (user.stats_widgets as StatsWidgetKey[] | null) ?? STATS_WIDGET_KEYS;
   const has = (key: StatsWidgetKey) => selected.includes(key);
 
-  const [totals, species, monthly, lakes, leaderboard, streak, bestDay] =
+  const [totals, species, monthly, lakes, top5, leaderboard, streak, bestDay] =
     await Promise.all([
       has("totals")
         ? getStatsTotals(user.id, user.team_id)
@@ -52,6 +55,9 @@ export default async function StatistikPage() {
       has("lakes")
         ? getStatsPerLake(user.id, user.team_id)
         : Promise.resolve(null as StatsLakeRow[] | null),
+      has("top5")
+        ? getStatsTop5PerSpecies(user.id, user.team_id)
+        : Promise.resolve(null as StatsTop5SpeciesRow[] | null),
       has("leaderboard") && user.team_id
         ? getStatsLeaderboard(user.team_id)
         : Promise.resolve(null as StatsLeaderboardRow[] | null),
@@ -87,6 +93,7 @@ export default async function StatistikPage() {
           {species && <SpeciesWidget rows={species} />}
           {monthly && <MonthlyWidget rows={monthly} />}
           {lakes && <LakesWidget rows={lakes} />}
+          {top5 && <Top5Widget rows={top5} hasTeam={!!user.team_id} />}
           {has("leaderboard") && (
             <LeaderboardWidget
               rows={leaderboard ?? []}

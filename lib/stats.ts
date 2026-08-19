@@ -125,6 +125,67 @@ export async function getStatsPerLake(
   `;
 }
 
+export type StatsTop5Catch = {
+  lengthCm: number;
+  weightKg: number | null;
+  caughtAt: string;
+  anglerName: string;
+};
+
+export type StatsTop5SpeciesRow = {
+  species: string;
+  catches: StatsTop5Catch[];
+};
+
+export async function getStatsTop5PerSpecies(
+  userId: number,
+  teamId: number | null
+): Promise<StatsTop5SpeciesRow[]> {
+  const rows = await sql<
+    {
+      species: string;
+      length_cm: number;
+      weight_kg: number | null;
+      caught_at: string;
+      angler_name: string;
+    }[]
+  >`
+    select species, length_cm, weight_kg, caught_at, angler_name
+    from (
+      select
+        c.species,
+        c.length_cm,
+        c.weight_kg,
+        c.caught_at,
+        u.name as angler_name,
+        row_number() over (
+          partition by c.species
+          order by c.length_cm desc nulls last, c.caught_at desc
+        ) as rn
+      from catches c
+      join users u on u.id = c.user_id
+      where ${scopeCondition(userId, teamId)}
+        and c.length_cm is not null
+    ) ranked
+    where rn <= 5
+    order by species, length_cm desc
+  `;
+
+  const bySpecies = new Map<string, StatsTop5SpeciesRow>();
+  for (const r of rows) {
+    if (!bySpecies.has(r.species)) {
+      bySpecies.set(r.species, { species: r.species, catches: [] });
+    }
+    bySpecies.get(r.species)!.catches.push({
+      lengthCm: r.length_cm,
+      weightKg: r.weight_kg,
+      caughtAt: r.caught_at,
+      anglerName: r.angler_name,
+    });
+  }
+  return Array.from(bySpecies.values());
+}
+
 export type StatsLeaderboardRow = {
   userId: number;
   name: string;

@@ -4,6 +4,7 @@ import type {
   StatsLeaderboardRow,
   StatsMonthRow,
   StatsSpeciesRow,
+  StatsTop5SpeciesRow,
   StatsTotals,
 } from "@/lib/stats";
 
@@ -174,6 +175,40 @@ export function LakesWidget({ rows }: { rows: StatsLakeRow[] }) {
               <span className="w-6 shrink-0 text-right text-zinc-500 dark:text-zinc-400">
                 {r.count}
               </span>
+            </div>
+          ))}
+        </div>
+      )}
+    </Card>
+  );
+}
+
+export function Top5Widget({
+  rows,
+  hasTeam,
+}: {
+  rows: StatsTop5SpeciesRow[];
+  hasTeam: boolean;
+}) {
+  return (
+    <Card title="Topp 5 per art">
+      {rows.length === 0 ? (
+        <Empty>Inga fångster med längd loggade än.</Empty>
+      ) : (
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+          {rows.map((r) => (
+            <div key={r.species}>
+              <p className="text-sm font-medium">{r.species}</p>
+              <ol className="mt-1 flex flex-col gap-0.5 text-sm text-zinc-500 dark:text-zinc-400">
+                {r.catches.map((c, i) => (
+                  <li key={i}>
+                    <span className="text-foreground">{c.lengthCm} cm</span>
+                    {" · "}
+                    {formatDate(c.caughtAt)}
+                    {hasTeam && ` · ${c.anglerName}`}
+                  </li>
+                ))}
+              </ol>
             </div>
           ))}
         </div>
