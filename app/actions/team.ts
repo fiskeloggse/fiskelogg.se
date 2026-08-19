@@ -63,3 +63,31 @@ export async function leaveTeam() {
   revalidatePath("/konto");
   revalidatePath("/");
 }
+
+const TeamNameSchema = z.object({
+  name: z
+    .string()
+    .trim()
+    .min(1, { error: "Ange ett teamnamn." })
+    .max(60, { error: "Teamnamnet är för långt (max 60 tecken)." }),
+});
+
+export async function updateTeamName(
+  _prevState: TeamState,
+  formData: FormData
+): Promise<TeamState> {
+  const user = await requireUser();
+  if (!user.team_id) {
+    return { error: "Du är inte med i något team." };
+  }
+
+  const parsed = TeamNameSchema.safeParse({ name: formData.get("name") });
+  if (!parsed.success) {
+    return { error: parsed.error.issues[0]?.message ?? "Ogiltigt namn." };
+  }
+
+  await sql`update teams set name = ${parsed.data.name} where id = ${user.team_id}`;
+
+  revalidatePath("/konto");
+  revalidatePath("/");
+}

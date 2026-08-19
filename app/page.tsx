@@ -2,7 +2,7 @@ import Link from "next/link";
 import sql from "@/lib/db";
 import { requireUser } from "@/lib/dal";
 import { getSpeciesSuggestions } from "@/lib/species-suggestions";
-import { getTeamMembers } from "@/lib/team";
+import { getTeamMembers, getTeamName } from "@/lib/team";
 import { getTodaysLastLake } from "@/lib/catches";
 import CatchForm from "@/app/components/catch-form";
 import CatchList, { type Catch } from "@/app/components/catch-list";
@@ -26,6 +26,7 @@ export default async function Home(props: PageProps<"/">) {
 
   const speciesSuggestions = await getSpeciesSuggestions(user.id);
   const teamMembers = user.team_id ? await getTeamMembers(user.team_id) : [];
+  const teamName = user.team_id ? await getTeamName(user.team_id) : null;
   const defaultLake = await getTodaysLastLake(user.id);
   const speciesCondition = speciesFilter
     ? sql`and species = ${speciesFilter}`
@@ -133,7 +134,7 @@ export default async function Home(props: PageProps<"/">) {
 
         <div className="flex flex-col gap-3">
           <h3 className="text-sm font-medium text-zinc-500 dark:text-zinc-400">
-            Team
+            {teamName || "Team"}
           </h3>
           {user.team_id ? (
             <>

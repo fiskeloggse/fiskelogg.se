@@ -1,7 +1,11 @@
 create table if not exists teams (
   id serial primary key,
+  name text,
   created_at timestamptz not null default now()
 );
+
+-- Safe to re-run: no-op if the column already exists.
+alter table teams add column if not exists name text;
 
 create table if not exists users (
   id serial primary key,

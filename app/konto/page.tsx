@@ -1,11 +1,12 @@
 import type { Metadata } from "next";
 import { requireUser } from "@/lib/dal";
-import { getTeamMembers } from "@/lib/team";
+import { getTeamMembers, getTeamName } from "@/lib/team";
 import { logout } from "@/app/actions/auth";
 import { leaveTeam } from "@/app/actions/team";
 import { updatePreferences } from "@/app/actions/preferences";
 import CatchTabs from "@/app/components/catch-tabs";
 import InviteForm from "@/app/components/invite-form";
+import TeamNameForm from "@/app/components/team-name-form";
 import ThemeToggle from "@/app/components/theme-toggle";
 
 export const metadata: Metadata = {
@@ -15,6 +16,7 @@ export const metadata: Metadata = {
 export default async function KontoPage() {
   const user = await requireUser();
   const teamMembers = user.team_id ? await getTeamMembers(user.team_id) : [];
+  const teamName = user.team_id ? await getTeamName(user.team_id) : null;
 
   return (
     <main className="mx-auto flex w-full max-w-4xl flex-1 flex-col gap-8 px-4 py-10 sm:px-6">
@@ -71,7 +73,11 @@ export default async function KontoPage() {
       </div>
 
       <div className="flex flex-col gap-4 rounded-xl border border-black/10 bg-white p-5 dark:border-white/15 dark:bg-white/5">
-        <h2 className="text-lg font-semibold">Team</h2>
+        <h2 className="text-lg font-semibold">
+          {teamName || "Team"}
+        </h2>
+
+        {user.team_id && <TeamNameForm currentName={teamName} />}
 
         {teamMembers.length > 0 ? (
           <ul className="flex flex-col gap-1 text-sm">
