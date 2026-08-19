@@ -4,6 +4,7 @@ const ALL_TABS = [
   { href: "/", label: "Fångster" },
   { href: "/register", label: "Register" },
   { href: "/personbasta", label: "Personbästa" },
+  { href: "/statistik", label: "Statistik" },
   { href: "/challenges", label: "Challenges" },
   { href: "/konto", label: "Konto" },
 ] as const;

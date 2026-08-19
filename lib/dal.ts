@@ -10,6 +10,7 @@ export type User = {
   name: string;
   team_id: number | null;
   show_bingo: boolean;
+  stats_widgets: string[] | null;
 };
 
 export const getCurrentUser = cache(async (): Promise<User | null> => {
@@ -17,7 +18,7 @@ export const getCurrentUser = cache(async (): Promise<User | null> => {
   if (!session) return null;
 
   const [user] = await sql<User[]>`
-    select id, email, name, team_id, show_bingo from users where id = ${session.userId}
+    select id, email, name, team_id, show_bingo, stats_widgets from users where id = ${session.userId}
   `;
 
   return user ?? null;

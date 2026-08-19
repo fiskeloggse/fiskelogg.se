@@ -20,6 +20,7 @@ create table if not exists users (
 -- Safe to re-run: no-op if the columns already exist.
 alter table users add column if not exists team_id integer references teams(id) on delete set null;
 alter table users add column if not exists show_bingo boolean not null default true;
+alter table users add column if not exists stats_widgets text[];
 
 create table if not exists catches (
   id serial primary key,
