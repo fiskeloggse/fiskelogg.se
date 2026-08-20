@@ -21,6 +21,7 @@ create table if not exists users (
 alter table users add column if not exists team_id integer references teams(id) on delete set null;
 alter table users add column if not exists show_bingo boolean not null default true;
 alter table users add column if not exists stats_widgets text[];
+alter table users add column if not exists quick_log_fields text[];
 
 create table if not exists catches (
   id serial primary key,
@@ -38,6 +39,7 @@ create table if not exists catches (
 alter table catches add column if not exists lake text;
 alter table catches add column if not exists location text;
 alter table catches add column if not exists bait text;
+alter table catches add column if not exists deleted_at timestamptz;
 
 -- Backfill any existing rows before enforcing NOT NULL (safe to re-run).
 update catches set species = 'Okänd art' where species is null;
@@ -52,6 +54,7 @@ alter table catches alter column length_cm drop not null;
 alter table catches alter column weight_kg drop not null;
 
 create index if not exists catches_user_id_idx on catches (user_id);
+create index if not exists catches_deleted_at_idx on catches (deleted_at);
 create index if not exists users_team_id_idx on users (team_id);
 
 create table if not exists bingo_cards (

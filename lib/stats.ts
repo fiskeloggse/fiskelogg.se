@@ -3,9 +3,10 @@ import sql from "./db";
 import { TIMEZONE } from "./constants";
 
 function scopeCondition(userId: number, teamId: number | null) {
-  return teamId
+  const userCondition = teamId
     ? sql`c.user_id in (select id from users where team_id = ${teamId})`
     : sql`c.user_id = ${userId}`;
+  return sql`${userCondition} and c.deleted_at is null`;
 }
 
 export type StatsSummary = {

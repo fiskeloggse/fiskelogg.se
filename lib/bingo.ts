@@ -41,6 +41,7 @@ export async function getBingoCatches(
         from catches c
         join users u on u.id = c.user_id
         where u.team_id = ${card.team_id}
+          and c.deleted_at is null
           and c.species = ${card.species}
           and c.length_cm is not null
           and round(c.length_cm) between ${card.min_cm} and ${card.max_cm}
@@ -52,6 +53,7 @@ export async function getBingoCatches(
         from catches c
         join users u on u.id = c.user_id
         where c.user_id = ${card.created_by}
+          and c.deleted_at is null
           and c.species = ${card.species}
           and c.length_cm is not null
           and round(c.length_cm) between ${card.min_cm} and ${card.max_cm}

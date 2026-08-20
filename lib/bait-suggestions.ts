@@ -15,7 +15,7 @@ export async function getBaitSuggestions(
   >`
     select bait, count(*)::int as catch_count, max(caught_at) as last_caught
     from catches
-    where user_id = ${userId} and bait is not null
+    where user_id = ${userId} and bait is not null and deleted_at is null
     group by bait
   `;
 

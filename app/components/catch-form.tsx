@@ -6,6 +6,7 @@ import { addCatch, type CatchNotices } from "@/app/actions/catches";
 import { FISH_SPECIES } from "@/lib/species";
 import type { SpeciesSuggestions } from "@/lib/species-suggestions";
 import type { BaitSuggestions } from "@/lib/bait-suggestions";
+import { QUICK_LOG_FIELD_KEYS } from "@/lib/constants";
 import ImportCatchesForm from "./import-catches-form";
 
 const inputClassName =
@@ -70,6 +71,7 @@ export default function CatchForm({
   teamMembers,
   defaultLake,
   defaultBait,
+  quickLogFields,
 }: {
   suggestions: SpeciesSuggestions;
   baitSuggestions: BaitSuggestions;
@@ -78,12 +80,27 @@ export default function CatchForm({
   teamMembers: { id: number; name: string }[];
   defaultLake: string | null;
   defaultBait: string | null;
+  quickLogFields: string[] | null;
 }) {
   const [state, formAction, pending] = useActionState(addCatch, undefined);
   const wasPending = useRef(false);
   const [mode, setMode] = useState<"closed" | "now" | "past" | "import">(
     "closed"
   );
+  const [showMore, setShowMore] = useState(false);
+
+  const quickFields = quickLogFields ?? QUICK_LOG_FIELD_KEYS;
+  const showWeight = quickFields.includes("weightKg");
+  const showLake = quickFields.includes("lake");
+  const showLocation = quickFields.includes("location");
+  const showBait = quickFields.includes("bait");
+  const showAngler = quickFields.includes("anglerId");
+  const hasHiddenFields =
+    !showWeight ||
+    !showLake ||
+    !showLocation ||
+    !showBait ||
+    (teamMembers.length > 0 && !showAngler);
   const [bingoNotice, setBingoNotice] = useState<
     CatchNotices["bingoMatch"] | null
   >(null);
@@ -222,7 +239,7 @@ export default function CatchForm({
           </div>
 
           {teamMembers.length > 0 && (
-            <div className="flex flex-col gap-1.5">
+            <div className={showAngler || showMore ? "flex flex-col gap-1.5" : "hidden"}>
               <label htmlFor="anglerId" className="text-sm font-medium">
                 Fiskare
               </label>
@@ -282,76 +299,72 @@ export default function CatchForm({
             </datalist>
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
-            <div className="flex flex-col gap-1.5">
-              <label htmlFor="lengthCm" className="text-sm font-medium">
-                Längd (cm){" "}
-                <span className="font-normal text-zinc-500">(valfritt)</span>
-              </label>
-              <input
-                id="lengthCm"
-                name="lengthCm"
-                type="number"
-                inputMode="numeric"
-                step="1"
-                min="0"
-                value={lengthCm}
-                onChange={(e) => setLengthCm(e.target.value)}
-                className={inputClassName}
-              />
-            </div>
-
-            <div className="flex flex-col gap-1.5">
-              <label htmlFor="weightKg" className="text-sm font-medium">
-                Vikt (kg){" "}
-                <span className="font-normal text-zinc-500">(valfritt)</span>
-              </label>
-              <input
-                id="weightKg"
-                name="weightKg"
-                type="number"
-                inputMode="decimal"
-                step="0.01"
-                min="0"
-                value={weightKg}
-                onChange={(e) => setWeightKg(e.target.value)}
-                className={inputClassName}
-              />
-            </div>
+          <div className="flex flex-col gap-1.5">
+            <label htmlFor="lengthCm" className="text-sm font-medium">
+              Längd (cm){" "}
+              <span className="font-normal text-zinc-500">(valfritt)</span>
+            </label>
+            <input
+              id="lengthCm"
+              name="lengthCm"
+              type="number"
+              inputMode="numeric"
+              step="1"
+              min="0"
+              value={lengthCm}
+              onChange={(e) => setLengthCm(e.target.value)}
+              className={inputClassName}
+            />
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
-            <div className="flex flex-col gap-1.5">
-              <label htmlFor="lake" className="text-sm font-medium">
-                Sjö <span className="font-normal text-zinc-500">(valfritt)</span>
-              </label>
-              <input
-                id="lake"
-                name="lake"
-                type="text"
-                value={lake}
-                onChange={(e) => setLake(e.target.value)}
-                className={inputClassName}
-              />
-            </div>
-
-            <div className="flex flex-col gap-1.5">
-              <label htmlFor="location" className="text-sm font-medium">
-                Plats{" "}
-                <span className="font-normal text-zinc-500">(valfritt)</span>
-              </label>
-              <input
-                id="location"
-                name="location"
-                type="text"
-                value={location}
-                onChange={(e) => setLocation(e.target.value)}
-                className={inputClassName}
-              />
-            </div>
+          <div className={showWeight || showMore ? "flex flex-col gap-1.5" : "hidden"}>
+            <label htmlFor="weightKg" className="text-sm font-medium">
+              Vikt (kg){" "}
+              <span className="font-normal text-zinc-500">(valfritt)</span>
+            </label>
+            <input
+              id="weightKg"
+              name="weightKg"
+              type="number"
+              inputMode="decimal"
+              step="0.01"
+              min="0"
+              value={weightKg}
+              onChange={(e) => setWeightKg(e.target.value)}
+              className={inputClassName}
+            />
           </div>
 
-          <div className="flex flex-col gap-2">
+          <div className={showLake || showMore ? "flex flex-col gap-1.5" : "hidden"}>
+            <label htmlFor="lake" className="text-sm font-medium">
+              Sjö <span className="font-normal text-zinc-500">(valfritt)</span>
+            </label>
+            <input
+              id="lake"
+              name="lake"
+              type="text"
+              value={lake}
+              onChange={(e) => setLake(e.target.value)}
+              className={inputClassName}
+            />
+          </div>
+
+          <div className={showLocation || showMore ? "flex flex-col gap-1.5" : "hidden"}>
+            <label htmlFor="location" className="text-sm font-medium">
+              Plats{" "}
+              <span className="font-normal text-zinc-500">(valfritt)</span>
+            </label>
+            <input
+              id="location"
+              name="location"
+              type="text"
+              value={location}
+              onChange={(e) => setLocation(e.target.value)}
+              className={inputClassName}
+            />
+          </div>
+
+          <div className={showBait || showMore ? "flex flex-col gap-2" : "hidden"}>
             <label htmlFor="bait" className="text-sm font-medium">
               Bete <span className="font-normal text-zinc-500">(valfritt)</span>
             </label>
@@ -386,6 +399,16 @@ export default function CatchForm({
               ))}
             </datalist>
           </div>
+
+          {hasHiddenFields && (
+            <button
+              type="button"
+              onClick={() => setShowMore((v) => !v)}
+              className="self-start text-sm text-zinc-500 underline hover:text-foreground dark:text-zinc-400"
+            >
+              {showMore ? "Färre fält" : "Fler fält"}
+            </button>
+          )}
 
           {mode === "past" && (
             <div className="flex flex-col gap-1.5">

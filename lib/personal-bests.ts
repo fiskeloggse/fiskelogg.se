@@ -59,13 +59,13 @@ export async function getPersonalBests(userId: number): Promise<PersonalBest[]> 
     sql<LongestRow[]>`
       select distinct on (species) id, species, length_cm, caught_at
       from catches
-      where user_id = ${userId} and length_cm is not null
+      where user_id = ${userId} and deleted_at is null and length_cm is not null
       order by species, length_cm desc, caught_at asc
     `,
     sql<HeaviestRow[]>`
       select distinct on (species) id, species, weight_kg, caught_at
       from catches
-      where user_id = ${userId} and weight_kg is not null
+      where user_id = ${userId} and deleted_at is null and weight_kg is not null
       order by species, weight_kg desc, caught_at asc
     `,
   ]);
@@ -83,7 +83,7 @@ export async function getPreviousBest(
   const [row] = await sql<{ max_length: number | null; max_weight: number | null }[]>`
     select max(length_cm) as max_length, max(weight_kg) as max_weight
     from catches
-    where user_id = ${userId} and species = ${species} and id <> ${excludeCatchId}
+    where user_id = ${userId} and deleted_at is null and species = ${species} and id <> ${excludeCatchId}
   `;
   return { maxLength: row?.max_length ?? null, maxWeight: row?.max_weight ?? null };
 }

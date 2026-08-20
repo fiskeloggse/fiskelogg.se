@@ -17,6 +17,7 @@ export async function getTodaysLastLake(
     select c.lake
     from catches c
     where ${scopeCondition}
+      and c.deleted_at is null
       and c.lake is not null
       and (c.caught_at at time zone ${TIMEZONE})::date
         = (now() at time zone ${TIMEZONE})::date
@@ -39,6 +40,7 @@ export async function getTodaysLastBait(
     select c.bait
     from catches c
     where ${scopeCondition}
+      and c.deleted_at is null
       and c.bait is not null
       and (c.caught_at at time zone ${TIMEZONE})::date
         = (now() at time zone ${TIMEZONE})::date
@@ -50,7 +52,7 @@ export async function getTodaysLastBait(
 
 export async function getOwnCatchCount(userId: number): Promise<number> {
   const [row] = await sql<{ count: number }[]>`
-    select count(*)::int as count from catches where user_id = ${userId}
+    select count(*)::int as count from catches where user_id = ${userId} and deleted_at is null
   `;
   return row?.count ?? 0;
 }

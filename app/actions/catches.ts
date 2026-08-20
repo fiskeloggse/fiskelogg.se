@@ -164,29 +164,39 @@ export async function addCatch(
   }
 }
 
+// Soft delete — moves the catch to the trash (papperskorg) instead of
+// removing it outright, so it can be restored or purged later.
 export async function deleteCatch(formData: FormData) {
   const user = await requireUser();
   const id = Number(formData.get("id"));
   if (!id) return;
 
-  await sql`delete from catches where id = ${id} and user_id = ${user.id}`;
+  await sql`
+    update catches set deleted_at = now()
+    where id = ${id} and user_id = ${user.id} and deleted_at is null
+  `;
 
   revalidatePath("/");
   revalidatePath("/challenges");
   revalidatePath("/personbasta");
   revalidatePath("/register");
+  revalidatePath("/register/papperskorg");
   revalidatePath("/statistik");
 }
 
 export async function deleteAllCatches() {
   const user = await requireUser();
 
-  await sql`delete from catches where user_id = ${user.id}`;
+  await sql`
+    update catches set deleted_at = now()
+    where user_id = ${user.id} and deleted_at is null
+  `;
 
   revalidatePath("/");
   revalidatePath("/challenges");
   revalidatePath("/personbasta");
   revalidatePath("/register");
+  revalidatePath("/register/papperskorg");
   revalidatePath("/statistik");
   revalidatePath("/konto");
 }
@@ -272,7 +282,7 @@ export async function updateCatch(
       location = ${location ?? null},
       bait = ${bait ?? null},
       caught_at = ${caughtAt}
-    where id = ${id} and user_id = ${user.id}
+    where id = ${id} and user_id = ${user.id} and deleted_at is null
   `;
 
   if (result.count === 0) {

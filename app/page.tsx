@@ -7,6 +7,7 @@ import { getTeamMembers, getTeamName } from "@/lib/team";
 import { getTodaysLastLake, getTodaysLastBait } from "@/lib/catches";
 import CatchForm from "@/app/components/catch-form";
 import CatchList, { type Catch } from "@/app/components/catch-list";
+import CompactLengthList from "@/app/components/compact-length-list";
 import CatchViewSelect from "@/app/components/catch-view-select";
 import CatchSpeciesFilter from "@/app/components/catch-species-filter";
 import CatchTabs from "@/app/components/catch-tabs";
@@ -38,6 +39,7 @@ export default async function Home(props: PageProps<"/">) {
           select id, user_id, species, length_cm, weight_kg, lake, location, bait, caught_at
           from catches
           where user_id = ${user.id}
+            and deleted_at is null
             and length_cm is not null
             and (caught_at at time zone ${TIMEZONE})::date
               = (now() at time zone ${TIMEZONE})::date
@@ -49,6 +51,7 @@ export default async function Home(props: PageProps<"/">) {
           select id, user_id, species, length_cm, weight_kg, lake, location, bait, caught_at
           from catches
           where user_id = ${user.id}
+            and deleted_at is null
             ${speciesCondition}
           order by caught_at desc
           limit ${CATCHES_LIMIT}
@@ -63,6 +66,7 @@ export default async function Home(props: PageProps<"/">) {
           from catches c
           join users u on u.id = c.user_id
           where u.team_id = ${user.team_id}
+            and c.deleted_at is null
             and c.length_cm is not null
             and (c.caught_at at time zone ${TIMEZONE})::date
               = (now() at time zone ${TIMEZONE})::date
@@ -76,6 +80,7 @@ export default async function Home(props: PageProps<"/">) {
           from catches c
           join users u on u.id = c.user_id
           where u.team_id = ${user.team_id}
+            and c.deleted_at is null
             ${teamSpeciesCondition}
           order by c.caught_at desc
           limit ${CATCHES_LIMIT}
@@ -105,6 +110,7 @@ export default async function Home(props: PageProps<"/">) {
   const heading = view === "today-longest" ? "Dagens 5 längsta" : "5 senaste";
   const emptyMessage =
     view === "today-longest" ? "Inga fångster loggade idag än." : undefined;
+  const showCompact = view === "today-longest" && Boolean(speciesFilter);
 
   return (
     <main className="mx-auto flex w-full max-w-4xl flex-1 flex-col gap-8 px-4 py-10 sm:px-6">
@@ -125,6 +131,7 @@ export default async function Home(props: PageProps<"/">) {
         teamMembers={teamMembers}
         defaultLake={defaultLake}
         defaultBait={defaultBait}
+        quickLogFields={user.quick_log_fields}
       />
 
       <div className="flex flex-wrap items-center justify-between gap-4">
@@ -140,15 +147,21 @@ export default async function Home(props: PageProps<"/">) {
           <h3 className="text-sm font-medium text-zinc-500 dark:text-zinc-400">
             Du
           </h3>
-          <CatchList
-            catches={personalCatches}
-            currentUserId={user.id}
-            emptyMessage={emptyMessage}
-          />
-          {view === "today-longest" && personalCatches.length > 0 && (
-            <p className="text-sm font-medium">
-              Totalt: {totalLength(personalCatches)} cm
-            </p>
+          {showCompact ? (
+            <CompactLengthList catches={personalCatches} emptyMessage={emptyMessage} />
+          ) : (
+            <>
+              <CatchList
+                catches={personalCatches}
+                currentUserId={user.id}
+                emptyMessage={emptyMessage}
+              />
+              {view === "today-longest" && personalCatches.length > 0 && (
+                <p className="text-sm font-medium">
+                  Totalt: {totalLength(personalCatches)} cm
+                </p>
+              )}
+            </>
           )}
         </div>
 
@@ -157,18 +170,22 @@ export default async function Home(props: PageProps<"/">) {
             {teamName || "Team"}
           </h3>
           {user.team_id ? (
-            <>
-              <CatchList
-                catches={teamCatches}
-                currentUserId={user.id}
-                emptyMessage={emptyMessage}
-              />
-              {view === "today-longest" && teamCatches.length > 0 && (
-                <p className="text-sm font-medium">
-                  Totalt: {totalLength(teamCatches)} cm
-                </p>
-              )}
-            </>
+            showCompact ? (
+              <CompactLengthList catches={teamCatches} emptyMessage={emptyMessage} />
+            ) : (
+              <>
+                <CatchList
+                  catches={teamCatches}
+                  currentUserId={user.id}
+                  emptyMessage={emptyMessage}
+                />
+                {view === "today-longest" && teamCatches.length > 0 && (
+                  <p className="text-sm font-medium">
+                    Totalt: {totalLength(teamCatches)} cm
+                  </p>
+                )}
+              </>
+            )
           ) : (
             <p className="rounded-xl border border-dashed border-black/15 p-6 text-center text-sm text-zinc-500 dark:border-white/15 dark:text-zinc-400">
               Inget team än.{" "}

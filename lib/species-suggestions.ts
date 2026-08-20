@@ -15,7 +15,7 @@ export async function getSpeciesSuggestions(
   >`
     select species, count(*)::int as catch_count, max(caught_at) as last_caught
     from catches
-    where user_id = ${userId}
+    where user_id = ${userId} and deleted_at is null
     group by species
   `;
 
