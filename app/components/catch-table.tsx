@@ -13,6 +13,10 @@ import {
 import { LENGTH_MAX, LENGTH_MIN, WEIGHT_MAX, WEIGHT_MIN } from "@/lib/constants";
 
 function formatDate(date: Date) {
+  return date.toLocaleDateString("sv-SE", { day: "numeric", month: "short" });
+}
+
+function formatDateFull(date: Date) {
   return date.toLocaleDateString("sv-SE", { dateStyle: "medium" });
 }
 
@@ -46,40 +50,39 @@ export default function CatchTable({
       )}
 
       <div className="flex flex-col gap-1.5">
-        <p className="text-xs text-zinc-400 sm:hidden dark:text-zinc-500">
-          ← Bläddra sidledes för fler kolumner →
-        </p>
         <div className="overflow-x-auto rounded-xl border border-black/10 dark:border-white/15">
-          <table className="w-full min-w-[680px] text-left text-sm">
+          <table className="w-full text-left text-sm">
             <thead>
               <tr className="border-b border-black/10 text-zinc-500 dark:border-white/15 dark:text-zinc-400">
-                <th className="px-4 py-2 font-medium">
+                <th className="px-1 py-2 font-medium">
                   <DateColumnFilter />
                 </th>
-                <th className="px-4 py-2 font-medium">
+                <th className="px-1 py-2 font-medium">
                   <SelectColumnFilter
                     label="Art"
                     paramName="species"
                     options={speciesOptions}
                   />
                 </th>
-                <th className="px-4 py-2 font-medium">
+                <th className="px-1 py-2 font-medium">
                   <SelectColumnFilter
                     label="Plats"
                     paramName="lake"
                     options={lakeOptions}
+                    widthClass="w-14"
                   />
                 </th>
-                <th className="px-4 py-2 font-medium">
+                <th className="px-1 py-2 font-medium">
                   <SelectColumnFilter
                     label="Bete"
                     paramName="bait"
                     options={baitOptions}
+                    widthClass="w-14"
                   />
                 </th>
-                <th className="px-4 py-2 text-right font-medium">
+                <th className="px-1 py-2 text-right font-medium">
                   <RangeColumnFilter
-                    label="Längd (cm)"
+                    label="Längd"
                     minParam="lengthMin"
                     maxParam="lengthMax"
                     min={LENGTH_MIN}
@@ -89,9 +92,9 @@ export default function CatchTable({
                     sortDesc="length-desc"
                   />
                 </th>
-                <th className="px-4 py-2 text-right font-medium">
+                <th className="px-1 py-2 text-right font-medium">
                   <RangeColumnFilter
-                    label="Vikt (kg)"
+                    label="Vikt"
                     minParam="weightMin"
                     maxParam="weightMax"
                     min={WEIGHT_MIN}
@@ -101,7 +104,7 @@ export default function CatchTable({
                     sortDesc="weight-desc"
                   />
                 </th>
-                <th className="px-4 py-2" />
+                <th className="px-1 py-2" />
               </tr>
             </thead>
             <tbody className="divide-y divide-black/10 dark:divide-white/10">
@@ -109,7 +112,7 @@ export default function CatchTable({
                 <tr>
                   <td
                     colSpan={7}
-                    className="px-4 py-6 text-center text-zinc-500 dark:text-zinc-400"
+                    className="px-2 py-6 text-center text-zinc-500 dark:text-zinc-400"
                   >
                     Inga fångster matchar filtret.
                   </td>
@@ -126,10 +129,13 @@ export default function CatchTable({
                         item.id === editingId ? "bg-black/5 dark:bg-white/10" : undefined
                       }
                     >
-                      <td className="px-4 py-2 whitespace-nowrap text-zinc-500 dark:text-zinc-400">
+                      <td
+                        className="px-1 py-2 whitespace-nowrap text-zinc-500 dark:text-zinc-400"
+                        title={formatDateFull(item.caught_at)}
+                      >
                         {formatDate(item.caught_at)}
                       </td>
-                      <td className="px-4 py-2">
+                      <td className="px-1 py-2">
                         {item.species || "Okänd art"}
                         {item.angler_name && (
                           <span className="text-zinc-400 dark:text-zinc-500">
@@ -138,30 +144,36 @@ export default function CatchTable({
                           </span>
                         )}
                       </td>
-                      <td className="px-4 py-2 text-zinc-500 dark:text-zinc-400">
+                      <td className="px-1 py-2 text-zinc-500 dark:text-zinc-400">
                         {place || "–"}
                       </td>
-                      <td className="px-4 py-2 text-zinc-500 dark:text-zinc-400">
+                      <td className="px-1 py-2 text-zinc-500 dark:text-zinc-400">
                         {item.bait || "–"}
                       </td>
-                      <td className="px-4 py-2 text-right">{item.length_cm ?? "–"}</td>
-                      <td className="px-4 py-2 text-right">{item.weight_kg ?? "–"}</td>
-                      <td className="px-4 py-2 text-right whitespace-nowrap">
+                      <td className="px-1 py-2 text-right">{item.length_cm ?? "–"}</td>
+                      <td className="px-1 py-2 text-right">{item.weight_kg ?? "–"}</td>
+                      <td className="px-1 py-2 text-right whitespace-nowrap">
                         {item.user_id === currentUserId && (
-                          <div className="flex items-center justify-end gap-2">
+                          <div className="flex items-center justify-end">
                             <button
                               type="button"
                               onClick={() =>
                                 setEditingId(item.id === editingId ? null : item.id)
                               }
-                              className="text-sm text-zinc-500 underline transition-colors hover:text-foreground dark:text-zinc-400"
+                              aria-label={
+                                item.id === editingId
+                                  ? "Avbryt redigering"
+                                  : "Redigera fångst"
+                              }
+                              className="shrink-0 px-0.5 text-base leading-none text-zinc-400 transition-colors hover:text-foreground dark:text-zinc-500"
                             >
-                              {item.id === editingId ? "Redigerar" : "Redigera"}
+                              {item.id === editingId ? "×" : "✏️"}
                             </button>
                             <ConfirmDeleteButton
                               action={deleteCatch}
                               id={item.id}
                               label="Ta bort fångst"
+                              compact
                             />
                           </div>
                         )}
@@ -173,15 +185,19 @@ export default function CatchTable({
             </tbody>
             <tfoot>
               <tr className="border-t border-black/10 font-medium dark:border-white/15">
-                <td className="px-4 py-2" colSpan={4}>
+                <td className="px-1 py-2" colSpan={4}>
                   Totalt · {catches.length}{" "}
                   {catches.length === 1 ? "fångst" : "fångster"}
                 </td>
-                <td className="px-4 py-2 text-right whitespace-nowrap">
-                  {roundTo2(totalLength)} cm ({roundTo2(totalLength / 100)} m)
+                <td className="px-1 py-2 text-right">
+                  {roundTo2(totalLength)} cm
+                  <br />
+                  <span className="font-normal text-zinc-500 dark:text-zinc-400">
+                    ({roundTo2(totalLength / 100)} m)
+                  </span>
                 </td>
-                <td className="px-4 py-2 text-right">{roundTo2(totalWeight)} kg</td>
-                <td className="px-4 py-2" />
+                <td className="px-1 py-2 text-right">{roundTo2(totalWeight)} kg</td>
+                <td className="px-1 py-2" />
               </tr>
             </tfoot>
           </table>

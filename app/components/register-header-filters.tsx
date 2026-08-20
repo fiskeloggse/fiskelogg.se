@@ -115,10 +115,12 @@ export function SelectColumnFilter({
   label,
   paramName,
   options,
+  widthClass = "w-11",
 }: {
   label: string;
   paramName: string;
   options: string[];
+  widthClass?: string;
 }) {
   const searchParams = useSearchParams();
   const apply = useApply();
@@ -134,8 +136,10 @@ export function SelectColumnFilter({
         })
       }
       aria-label={`Filtrera på ${label.toLowerCase()}`}
+      title={current || label}
       className={
-        "cursor-pointer rounded bg-transparent font-medium outline-none " +
+        widthClass +
+        " cursor-pointer overflow-hidden rounded bg-transparent font-medium text-ellipsis whitespace-nowrap outline-none " +
         (current ? "text-foreground" : "")
       }
     >
