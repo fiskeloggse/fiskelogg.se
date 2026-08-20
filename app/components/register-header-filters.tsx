@@ -1,0 +1,341 @@
+"use client";
+
+import { useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { MONTHS } from "@/lib/constants";
+
+const inputClassName =
+  "rounded-lg border border-black/10 bg-white px-2 py-1.5 text-sm dark:border-white/15 dark:bg-transparent";
+
+const POPOVER_WIDTH = 224; // matches w-56
+
+// The table this lives in scrolls horizontally (overflow-x-auto), which
+// clips any absolutely-positioned child. Portal the panel to <body> and
+// position it with fixed coordinates from the trigger's bounding rect so
+// it's never cut off, especially on narrow mobile viewports.
+function HeaderPopover({
+  label,
+  active,
+  children,
+}: {
+  label: string;
+  active: boolean;
+  children: (close: () => void) => React.ReactNode;
+}) {
+  const [open, setOpen] = useState(false);
+  const [coords, setCoords] = useState<{ top: number; left: number } | null>(null);
+  const triggerRef = useRef<HTMLButtonElement>(null);
+  const panelRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!open) return;
+    function handlePointerDown(e: MouseEvent) {
+      const target = e.target as Node;
+      if (
+        panelRef.current?.contains(target) ||
+        triggerRef.current?.contains(target)
+      ) {
+        return;
+      }
+      setOpen(false);
+    }
+    function handleScroll() {
+      setOpen(false);
+    }
+    document.addEventListener("mousedown", handlePointerDown);
+    // Opening focuses the trigger, which can itself trigger the browser's
+    // native "scroll focused element into view" — attach the scroll-closer
+    // a tick later so that settles first instead of closing what we just opened.
+    const timer = window.setTimeout(() => {
+      window.addEventListener("scroll", handleScroll, true);
+    }, 150);
+    return () => {
+      document.removeEventListener("mousedown", handlePointerDown);
+      window.clearTimeout(timer);
+      window.removeEventListener("scroll", handleScroll, true);
+    };
+  }, [open]);
+
+  function toggle() {
+    if (!open && triggerRef.current) {
+      const rect = triggerRef.current.getBoundingClientRect();
+      const left = Math.min(
+        Math.max(8, rect.left),
+        window.innerWidth - POPOVER_WIDTH - 8
+      );
+      setCoords({ top: rect.bottom + 4, left });
+    }
+    setOpen((v) => !v);
+  }
+
+  return (
+    <>
+      <button
+        ref={triggerRef}
+        type="button"
+        onClick={toggle}
+        className={
+          "cursor-pointer font-medium " +
+          (active ? "text-foreground" : "hover:text-foreground")
+        }
+      >
+        {label}
+        {active && " •"}
+      </button>
+      {open &&
+        coords &&
+        createPortal(
+          <div
+            ref={panelRef}
+            style={{ top: coords.top, left: coords.left, width: POPOVER_WIDTH }}
+            className="fixed z-50 rounded-lg border border-black/10 bg-white p-3 text-sm font-normal normal-case shadow-lg dark:border-white/15 dark:bg-zinc-900"
+          >
+            {children(() => setOpen(false))}
+          </div>,
+          document.body
+        )}
+    </>
+  );
+}
+
+function useApply() {
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+
+  return function apply(mutate: (params: URLSearchParams) => void) {
+    const params = new URLSearchParams(searchParams);
+    mutate(params);
+    router.replace(`${pathname}?${params.toString()}`);
+  };
+}
+
+export function SelectColumnFilter({
+  label,
+  paramName,
+  options,
+}: {
+  label: string;
+  paramName: string;
+  options: string[];
+}) {
+  const searchParams = useSearchParams();
+  const apply = useApply();
+  const current = searchParams.get(paramName) ?? "";
+
+  return (
+    <select
+      value={current}
+      onChange={(e) =>
+        apply((params) => {
+          if (e.target.value) params.set(paramName, e.target.value);
+          else params.delete(paramName);
+        })
+      }
+      aria-label={`Filtrera på ${label.toLowerCase()}`}
+      className={
+        "cursor-pointer rounded bg-transparent font-medium outline-none " +
+        (current ? "text-foreground" : "")
+      }
+    >
+      <option value="">{label}</option>
+      {options.map((o) => (
+        <option key={o} value={o}>
+          {o}
+        </option>
+      ))}
+    </select>
+  );
+}
+
+export function RangeColumnFilter({
+  label,
+  minParam,
+  maxParam,
+  min,
+  max,
+  unit,
+  sortAsc,
+  sortDesc,
+}: {
+  label: string;
+  minParam: string;
+  maxParam: string;
+  min: number;
+  max: number;
+  unit: string;
+  sortAsc: string;
+  sortDesc: string;
+}) {
+  const searchParams = useSearchParams();
+  const apply = useApply();
+  const currentMin = searchParams.get(minParam);
+  const currentMax = searchParams.get(maxParam);
+  const [localMin, setLocalMin] = useState(currentMin ?? "");
+  const [localMax, setLocalMax] = useState(currentMax ?? "");
+  const active = Boolean(currentMin || currentMax);
+  const currentSort = searchParams.get("sort") ?? "date-desc";
+  const isAsc = currentSort === sortAsc;
+
+  return (
+    <HeaderPopover label={label} active={active}>
+      {(close) => (
+        <div className="flex flex-col gap-2 text-sm">
+          <div className="flex items-center gap-2">
+            <label className="flex flex-1 flex-col gap-1">
+              Min
+              <input
+                type="number"
+                inputMode="decimal"
+                placeholder={String(min)}
+                value={localMin}
+                onChange={(e) => setLocalMin(e.target.value)}
+                className={inputClassName}
+              />
+            </label>
+            <label className="flex flex-1 flex-col gap-1">
+              Max
+              <input
+                type="number"
+                inputMode="decimal"
+                placeholder={String(max)}
+                value={localMax}
+                onChange={(e) => setLocalMax(e.target.value)}
+                className={inputClassName}
+              />
+            </label>
+          </div>
+          <p className="text-xs text-zinc-500 dark:text-zinc-400">{unit}</p>
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={() => {
+                apply((params) => {
+                  if (localMin) params.set(minParam, localMin);
+                  else params.delete(minParam);
+                  if (localMax) params.set(maxParam, localMax);
+                  else params.delete(maxParam);
+                });
+                close();
+              }}
+              className="rounded-full bg-foreground px-3 py-1.5 text-xs font-medium text-background"
+            >
+              Filtrera
+            </button>
+            <button
+              type="button"
+              onClick={() =>
+                apply((params) => {
+                  params.set("sort", isAsc ? sortDesc : sortAsc);
+                })
+              }
+              className="text-xs text-zinc-500 underline hover:text-foreground dark:text-zinc-400"
+            >
+              {isAsc ? "Störst först" : "Minst först"}
+            </button>
+          </div>
+        </div>
+      )}
+    </HeaderPopover>
+  );
+}
+
+export function DateColumnFilter() {
+  const searchParams = useSearchParams();
+  const apply = useApply();
+  const currentFrom = searchParams.get("from") ?? "";
+  const currentTo = searchParams.get("to") ?? "";
+  const currentMonths = searchParams.getAll("month");
+  const [from, setFrom] = useState(currentFrom);
+  const [to, setTo] = useState(currentTo);
+  const [months, setMonths] = useState<string[]>(currentMonths);
+  const active = Boolean(currentFrom || currentTo || currentMonths.length > 0);
+  const currentSort = searchParams.get("sort") ?? "date-desc";
+  const isDateAsc = currentSort === "date-asc";
+
+  return (
+    <HeaderPopover label="Datum" active={active}>
+      {(close) => (
+        <div className="flex flex-col gap-2 text-sm">
+          <label className="flex flex-col gap-1">
+            Från
+            <input
+              type="date"
+              value={from}
+              onChange={(e) => setFrom(e.target.value)}
+              className={inputClassName}
+            />
+          </label>
+          <label className="flex flex-col gap-1">
+            Till
+            <input
+              type="date"
+              value={to}
+              onChange={(e) => setTo(e.target.value)}
+              className={inputClassName}
+            />
+          </label>
+          <p className="text-xs text-zinc-500 dark:text-zinc-400">
+            Filtrerar på årstid (dag/månad), året spelar ingen roll.
+          </p>
+          <div className="flex flex-wrap gap-1">
+            {MONTHS.map((m) => {
+              const value = String(m.value);
+              const checked = months.includes(value);
+              return (
+                <label key={m.value} className="cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={checked}
+                    onChange={(e) =>
+                      setMonths((prev) =>
+                        e.target.checked
+                          ? [...prev, value]
+                          : prev.filter((v) => v !== value)
+                      )
+                    }
+                    className="peer sr-only"
+                  />
+                  <span className="block rounded-full border border-black/10 px-2 py-0.5 text-xs transition-colors peer-checked:border-foreground peer-checked:bg-foreground peer-checked:text-background dark:border-white/15">
+                    {m.label.slice(0, 3)}
+                  </span>
+                </label>
+              );
+            })}
+          </div>
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={() => {
+                apply((params) => {
+                  if (from) params.set("from", from);
+                  else params.delete("from");
+                  if (to) params.set("to", to);
+                  else params.delete("to");
+                  params.delete("month");
+                  months.forEach((m) => params.append("month", m));
+                });
+                close();
+              }}
+              className="rounded-full bg-foreground px-3 py-1.5 text-xs font-medium text-background"
+            >
+              Filtrera
+            </button>
+            <button
+              type="button"
+              onClick={() =>
+                apply((params) => {
+                  params.set("sort", isDateAsc ? "date-desc" : "date-asc");
+                })
+              }
+              className="text-xs text-zinc-500 underline hover:text-foreground dark:text-zinc-400"
+            >
+              {isDateAsc ? "Nyast först" : "Äldst först"}
+            </button>
+          </div>
+        </div>
+      )}
+    </HeaderPopover>
+  );
+}

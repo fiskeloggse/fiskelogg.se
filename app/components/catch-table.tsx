@@ -1,11 +1,16 @@
 "use client";
 
 import { useState } from "react";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { deleteCatch } from "@/app/actions/catches";
 import type { Catch } from "./catch-list";
 import ConfirmDeleteButton from "./confirm-delete-button";
 import EditCatchForm from "./edit-catch-form";
+import {
+  DateColumnFilter,
+  RangeColumnFilter,
+  SelectColumnFilter,
+} from "./register-header-filters";
+import { LENGTH_MAX, LENGTH_MIN, WEIGHT_MAX, WEIGHT_MIN } from "@/lib/constants";
 
 function formatDate(date: Date) {
   return date.toLocaleDateString("sv-SE", { dateStyle: "medium" });
@@ -15,42 +20,18 @@ function roundTo2(n: number) {
   return Math.round(n * 100) / 100;
 }
 
-function ArtColumnFilter({ speciesOptions }: { speciesOptions: string[] }) {
-  const router = useRouter();
-  const pathname = usePathname();
-  const searchParams = useSearchParams();
-  const current = searchParams.get("species") ?? "";
-
-  return (
-    <select
-      value={current}
-      onChange={(e) => {
-        const params = new URLSearchParams(searchParams);
-        if (e.target.value) params.set("species", e.target.value);
-        else params.delete("species");
-        router.replace(`${pathname}?${params.toString()}`);
-      }}
-      aria-label="Filtrera på art"
-      className="cursor-pointer rounded bg-transparent font-medium outline-none"
-    >
-      <option value="">Art</option>
-      {speciesOptions.map((s) => (
-        <option key={s} value={s}>
-          {s}
-        </option>
-      ))}
-    </select>
-  );
-}
-
 export default function CatchTable({
   catches,
   currentUserId,
   speciesOptions,
+  lakeOptions,
+  baitOptions,
 }: {
   catches: Catch[];
   currentUserId: number;
   speciesOptions: string[];
+  lakeOptions: string[];
+  baitOptions: string[];
 }) {
   const [editingId, setEditingId] = useState<number | null>(null);
 
@@ -72,14 +53,54 @@ export default function CatchTable({
           <table className="w-full min-w-[680px] text-left text-sm">
             <thead>
               <tr className="border-b border-black/10 text-zinc-500 dark:border-white/15 dark:text-zinc-400">
-                <th className="px-4 py-2 font-medium">Datum</th>
                 <th className="px-4 py-2 font-medium">
-                  <ArtColumnFilter speciesOptions={speciesOptions} />
+                  <DateColumnFilter />
                 </th>
-                <th className="px-4 py-2 font-medium">Plats</th>
-                <th className="px-4 py-2 font-medium">Bete</th>
-                <th className="px-4 py-2 text-right font-medium">Längd (cm)</th>
-                <th className="px-4 py-2 text-right font-medium">Vikt (kg)</th>
+                <th className="px-4 py-2 font-medium">
+                  <SelectColumnFilter
+                    label="Art"
+                    paramName="species"
+                    options={speciesOptions}
+                  />
+                </th>
+                <th className="px-4 py-2 font-medium">
+                  <SelectColumnFilter
+                    label="Plats"
+                    paramName="lake"
+                    options={lakeOptions}
+                  />
+                </th>
+                <th className="px-4 py-2 font-medium">
+                  <SelectColumnFilter
+                    label="Bete"
+                    paramName="bait"
+                    options={baitOptions}
+                  />
+                </th>
+                <th className="px-4 py-2 text-right font-medium">
+                  <RangeColumnFilter
+                    label="Längd (cm)"
+                    minParam="lengthMin"
+                    maxParam="lengthMax"
+                    min={LENGTH_MIN}
+                    max={LENGTH_MAX}
+                    unit="cm"
+                    sortAsc="length-asc"
+                    sortDesc="length-desc"
+                  />
+                </th>
+                <th className="px-4 py-2 text-right font-medium">
+                  <RangeColumnFilter
+                    label="Vikt (kg)"
+                    minParam="weightMin"
+                    maxParam="weightMax"
+                    min={WEIGHT_MIN}
+                    max={WEIGHT_MAX}
+                    unit="kg"
+                    sortAsc="weight-asc"
+                    sortDesc="weight-desc"
+                  />
+                </th>
                 <th className="px-4 py-2" />
               </tr>
             </thead>

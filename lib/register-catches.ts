@@ -1,12 +1,9 @@
 import "server-only";
 import sql from "./db";
-import { TIMEZONE } from "./constants";
+import { LENGTH_MAX, LENGTH_MIN, TIMEZONE, WEIGHT_MAX, WEIGHT_MIN } from "./constants";
 import type { Catch } from "@/app/components/catch-list";
 
-export const LENGTH_MIN = 0;
-export const LENGTH_MAX = 150;
-export const WEIGHT_MIN = 0;
-export const WEIGHT_MAX = 20;
+export { LENGTH_MIN, LENGTH_MAX, WEIGHT_MIN, WEIGHT_MAX };
 
 // Sorterar alltid på hela tidsstämpeln (inklusive år) — till skillnad från
 // datum från/till och fångstmånad, som medvetet bortser från år.
@@ -35,23 +32,10 @@ export const SORT_OPTIONS = [
   },
 ] as const;
 
-export const MONTHS = [
-  { value: 1, label: "Januari" },
-  { value: 2, label: "Februari" },
-  { value: 3, label: "Mars" },
-  { value: 4, label: "April" },
-  { value: 5, label: "Maj" },
-  { value: 6, label: "Juni" },
-  { value: 7, label: "Juli" },
-  { value: 8, label: "Augusti" },
-  { value: 9, label: "September" },
-  { value: 10, label: "Oktober" },
-  { value: 11, label: "November" },
-  { value: 12, label: "December" },
-] as const;
-
 export type RegisterFilters = {
   species: string;
+  lake: string;
+  bait: string;
   from: string;
   to: string;
   lengthMin: number;
@@ -85,6 +69,8 @@ export function parseRegisterFilters(params: URLSearchParams): RegisterFilters {
 
   return {
     species: params.get("species") ?? "",
+    lake: params.get("lake") ?? "",
+    bait: params.get("bait") ?? "",
     from: params.get("from") ?? "",
     to: params.get("to") ?? "",
     lengthMin: lengthMinRaw ? Number(lengthMinRaw) : LENGTH_MIN,
@@ -102,6 +88,8 @@ export function parseRegisterFilters(params: URLSearchParams): RegisterFilters {
 export function hasActiveFilters(filters: RegisterFilters): boolean {
   return Boolean(
     filters.species ||
+      filters.lake ||
+      filters.bait ||
       filters.from ||
       filters.to ||
       filters.lengthMin > LENGTH_MIN ||
@@ -124,6 +112,8 @@ export async function getFilteredCatches(
   const speciesCondition = filters.species
     ? sql`and species = ${filters.species}`
     : sql``;
+  const lakeCondition = filters.lake ? sql`and lake = ${filters.lake}` : sql``;
+  const baitCondition = filters.bait ? sql`and bait = ${filters.bait}` : sql``;
   const lengthMinCondition =
     filters.lengthMin > LENGTH_MIN ? sql`and length_cm >= ${filters.lengthMin}` : sql``;
   const lengthMaxCondition =
@@ -163,6 +153,8 @@ export async function getFilteredCatches(
     where user_id = ${userId}
       and deleted_at is null
       ${speciesCondition}
+      ${lakeCondition}
+      ${baitCondition}
       ${lengthMinCondition}
       ${lengthMaxCondition}
       ${weightMinCondition}
@@ -171,4 +163,22 @@ export async function getFilteredCatches(
       ${monthCondition}
     order by ${sql.unsafe(sortColumn)}
   `;
+}
+
+export async function getDistinctLakes(userId: number): Promise<string[]> {
+  const rows = await sql<{ lake: string }[]>`
+    select distinct lake from catches
+    where user_id = ${userId} and deleted_at is null and lake is not null and lake <> ''
+    order by lake
+  `;
+  return rows.map((r) => r.lake);
+}
+
+export async function getDistinctBaits(userId: number): Promise<string[]> {
+  const rows = await sql<{ bait: string }[]>`
+    select distinct bait from catches
+    where user_id = ${userId} and deleted_at is null and bait is not null and bait <> ''
+    order by bait
+  `;
+  return rows.map((r) => r.bait);
 }
