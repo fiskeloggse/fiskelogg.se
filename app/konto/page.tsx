@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { requireUser } from "@/lib/dal";
 import { getTeamMembers, getTeamName } from "@/lib/team";
+import { getOwnCatchCount } from "@/lib/catches";
 import { logout } from "@/app/actions/auth";
 import { leaveTeam } from "@/app/actions/team";
 import { updatePreferences } from "@/app/actions/preferences";
@@ -8,6 +9,7 @@ import CatchTabs from "@/app/components/catch-tabs";
 import InviteForm from "@/app/components/invite-form";
 import TeamNameForm from "@/app/components/team-name-form";
 import ThemeToggle from "@/app/components/theme-toggle";
+import DeleteAllCatchesForm from "@/app/components/delete-all-catches-form";
 
 export const metadata: Metadata = {
   title: "Konto – Fisklogg",
@@ -15,9 +17,10 @@ export const metadata: Metadata = {
 
 export default async function KontoPage() {
   const user = await requireUser();
-  const [teamMembers, teamName] = await Promise.all([
+  const [teamMembers, teamName, catchCount] = await Promise.all([
     user.team_id ? getTeamMembers(user.team_id) : Promise.resolve([]),
     user.team_id ? getTeamName(user.team_id) : Promise.resolve(null),
+    getOwnCatchCount(user.id),
   ]);
 
   return (
@@ -120,6 +123,13 @@ export default async function KontoPage() {
             </button>
           </form>
         )}
+      </div>
+
+      <div className="flex flex-col gap-4 rounded-xl border border-red-200 bg-white p-5 dark:border-red-900/50 dark:bg-white/5">
+        <h2 className="text-lg font-semibold text-red-600 dark:text-red-400">
+          Farozon
+        </h2>
+        <DeleteAllCatchesForm catchCount={catchCount} />
       </div>
     </main>
   );

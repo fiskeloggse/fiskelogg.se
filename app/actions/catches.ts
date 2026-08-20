@@ -172,4 +172,118 @@ export async function deleteCatch(formData: FormData) {
   await sql`delete from catches where id = ${id} and user_id = ${user.id}`;
 
   revalidatePath("/");
+  revalidatePath("/challenges");
+  revalidatePath("/personbasta");
+  revalidatePath("/register");
+  revalidatePath("/statistik");
+}
+
+export async function deleteAllCatches() {
+  const user = await requireUser();
+
+  await sql`delete from catches where user_id = ${user.id}`;
+
+  revalidatePath("/");
+  revalidatePath("/challenges");
+  revalidatePath("/personbasta");
+  revalidatePath("/register");
+  revalidatePath("/statistik");
+  revalidatePath("/konto");
+}
+
+const EditCatchSchema = z
+  .object({
+    species: z
+      .string()
+      .trim()
+      .min(1, { error: "Välj eller ange en art." })
+      .max(100),
+    lengthCm: z.coerce
+      .number({ error: "Ange fiskens längd." })
+      .int({ error: "Längden anges i hela cm." })
+      .positive({ error: "Längden måste vara större än noll." })
+      .max(1000, { error: "Det verkar vara en väldigt stor fisk." })
+      .optional(),
+    weightKg: z.coerce
+      .number({ error: "Ange fiskens vikt." })
+      .positive({ error: "Vikten måste vara större än noll." })
+      .max(1000, { error: "Det verkar vara en väldigt tung fisk." })
+      .optional(),
+    lake: z.string().trim().max(100).optional(),
+    location: z.string().trim().max(100).optional(),
+    bait: z.string().trim().max(100).optional(),
+    caughtAt: z.coerce
+      .date({ error: "Ogiltigt datum." })
+      .max(new Date(), { error: "Datumet kan inte vara i framtiden." }),
+  })
+  .refine((data) => data.lengthCm !== undefined || data.weightKg !== undefined, {
+    error: "Ange antingen längd eller vikt.",
+    path: ["lengthCm"],
+  });
+
+export type EditCatchState = { error: string } | { success: true } | undefined;
+
+export async function updateCatch(
+  _prevState: EditCatchState,
+  formData: FormData
+): Promise<EditCatchState> {
+  const user = await requireUser();
+
+  const id = Number(formData.get("id"));
+  if (!id) return { error: "Ogiltig fångst." };
+
+  const rawLength = formData.get("lengthCm");
+  const rawWeight = formData.get("weightKg");
+  const rawLake = formData.get("lake");
+  const rawLocation = formData.get("location");
+  const rawBait = formData.get("bait");
+  const parsed = EditCatchSchema.safeParse({
+    species: formData.get("species"),
+    lengthCm:
+      typeof rawLength === "string" && rawLength.trim() !== ""
+        ? rawLength
+        : undefined,
+    weightKg:
+      typeof rawWeight === "string" && rawWeight.trim() !== ""
+        ? rawWeight
+        : undefined,
+    lake: typeof rawLake === "string" && rawLake.trim() !== "" ? rawLake : undefined,
+    location:
+      typeof rawLocation === "string" && rawLocation.trim() !== ""
+        ? rawLocation
+        : undefined,
+    bait: typeof rawBait === "string" && rawBait.trim() !== "" ? rawBait : undefined,
+    caughtAt: formData.get("caughtAt"),
+  });
+
+  if (!parsed.success) {
+    return { error: parsed.error.issues[0]?.message ?? "Ogiltiga uppgifter." };
+  }
+
+  const { species, lengthCm, weightKg, lake, location, bait, caughtAt } =
+    parsed.data;
+
+  const result = await sql`
+    update catches set
+      species = initcap(${species}),
+      length_cm = ${lengthCm ?? null},
+      weight_kg = ${weightKg ?? null},
+      lake = ${lake ?? null},
+      location = ${location ?? null},
+      bait = ${bait ?? null},
+      caught_at = ${caughtAt}
+    where id = ${id} and user_id = ${user.id}
+  `;
+
+  if (result.count === 0) {
+    return { error: "Fångsten kunde inte hittas." };
+  }
+
+  revalidatePath("/");
+  revalidatePath("/challenges");
+  revalidatePath("/personbasta");
+  revalidatePath("/register");
+  revalidatePath("/statistik");
+
+  return { success: true };
 }

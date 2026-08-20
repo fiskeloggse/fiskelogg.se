@@ -47,3 +47,10 @@ export async function getTodaysLastBait(
   `;
   return row?.bait ?? null;
 }
+
+export async function getOwnCatchCount(userId: number): Promise<number> {
+  const [row] = await sql<{ count: number }[]>`
+    select count(*)::int as count from catches where user_id = ${userId}
+  `;
+  return row?.count ?? 0;
+}

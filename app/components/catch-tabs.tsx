@@ -1,7 +1,7 @@
 import Link from "next/link";
 
 const ALL_TABS = [
-  { href: "/", label: "Fångster" },
+  { href: "/", label: "Logga fisk" },
   { href: "/register", label: "Register" },
   { href: "/personbasta", label: "Personbästa" },
   { href: "/statistik", label: "Statistik" },
