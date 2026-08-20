@@ -129,16 +129,23 @@ export function SelectColumnFilter({
   const searchParams = useSearchParams();
   const apply = useApply();
   const current = searchParams.get(paramName) ?? "";
+  // A select shows whichever option's value matches its own value, so a
+  // plain empty-value option can't show the label closed and "Alla" open
+  // at the same time. A hidden placeholder (unclickable, so it never shows
+  // in the open list) stands in for the closed-state label; the real
+  // (visible) empty-value option below it is what the open list shows.
+  const PLACEHOLDER = "__placeholder__";
 
   return (
     <select
-      value={current}
-      onChange={(e) =>
+      value={current === "" ? PLACEHOLDER : current}
+      onChange={(e) => {
+        const value = e.target.value === PLACEHOLDER ? "" : e.target.value;
         apply((params) => {
-          if (e.target.value) params.set(paramName, e.target.value);
+          if (value) params.set(paramName, value);
           else params.delete(paramName);
-        })
-      }
+        });
+      }}
       aria-label={`Filtrera på ${label.toLowerCase()}`}
       title={current || label}
       className={
@@ -149,6 +156,9 @@ export function SelectColumnFilter({
         (current ? "text-foreground" : "")
       }
     >
+      <option value={PLACEHOLDER} hidden>
+        {label}
+      </option>
       <option value="">Alla</option>
       {options.map((o) => (
         <option key={o} value={o}>
