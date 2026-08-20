@@ -153,9 +153,12 @@ export default function CatchTable({
             <tfoot>
               <tr className="border-t border-black/10 font-medium dark:border-white/15">
                 <td className="px-4 py-2" colSpan={4}>
-                  Totalt
+                  Totalt · {catches.length}{" "}
+                  {catches.length === 1 ? "fångst" : "fångster"}
                 </td>
-                <td className="px-4 py-2 text-right">{roundTo2(totalLength)} cm</td>
+                <td className="px-4 py-2 text-right whitespace-nowrap">
+                  {roundTo2(totalLength)} cm ({roundTo2(totalLength / 100)} m)
+                </td>
                 <td className="px-4 py-2 text-right">{roundTo2(totalWeight)} kg</td>
                 <td className="px-4 py-2" />
               </tr>

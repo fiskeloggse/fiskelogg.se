@@ -1,28 +1,20 @@
 import type { Metadata } from "next";
 import { requireUser } from "@/lib/dal";
-import { getFishingDaysByYearMonth, getStatsSummary } from "@/lib/stats";
+import { getFishingDaysByDate, getLakeBreakdown, getSpeciesBreakdown } from "@/lib/stats";
 import CatchTabs from "@/app/components/catch-tabs";
-import FishingDaysChart from "@/app/components/fishing-days-chart";
+import StatsDashboard from "@/app/components/stats-dashboard";
 
 export const metadata: Metadata = {
   title: "Statistik – Fisklogg",
 };
 
-function StatCard({ label, value }: { label: string; value: number }) {
-  return (
-    <div className="rounded-xl border border-black/10 bg-white p-5 dark:border-white/15 dark:bg-white/5">
-      <p className="text-2xl font-semibold">{value}</p>
-      <p className="text-sm text-zinc-500 dark:text-zinc-400">{label}</p>
-    </div>
-  );
-}
-
 export default async function StatistikPage() {
   const user = await requireUser();
 
-  const [summary, fishingDaysByYearMonth] = await Promise.all([
-    getStatsSummary(user.id, user.team_id),
-    getFishingDaysByYearMonth(user.id, user.team_id),
+  const [speciesBreakdown, lakeBreakdown, fishingDays] = await Promise.all([
+    getSpeciesBreakdown(user.id, user.team_id),
+    getLakeBreakdown(user.id, user.team_id),
+    getFishingDaysByDate(user.id, user.team_id),
   ]);
 
   return (
@@ -36,16 +28,11 @@ export default async function StatistikPage() {
 
       <CatchTabs active="/statistik" showBingo={user.show_bingo} />
 
-      <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
-        <StatCard label="Antal arter" value={summary.species} />
-        <StatCard label="Antal sjöar" value={summary.lakes} />
-        <StatCard label="Antal fiskedagar" value={summary.fishingDays} />
-        <StatCard label="Antal fiskar" value={summary.catches} />
-      </div>
-
-      <div className="rounded-xl border border-black/10 bg-white p-5 dark:border-white/15 dark:bg-white/5">
-        <FishingDaysChart data={fishingDaysByYearMonth} />
-      </div>
+      <StatsDashboard
+        speciesBreakdown={speciesBreakdown}
+        lakeBreakdown={lakeBreakdown}
+        fishingDays={fishingDays}
+      />
     </main>
   );
 }

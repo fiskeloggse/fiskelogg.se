@@ -9,50 +9,50 @@ function scopeCondition(userId: number, teamId: number | null) {
   return sql`${userCondition} and c.deleted_at is null`;
 }
 
-export type StatsSummary = {
-  species: number;
-  lakes: number;
-  fishingDays: number;
-  catches: number;
-};
+export type SpeciesBreakdownRow = { species: string; count: number };
 
-export async function getStatsSummary(
+export async function getSpeciesBreakdown(
   userId: number,
   teamId: number | null
-): Promise<StatsSummary> {
-  const [row] = await sql<
-    { species: number; lakes: number; fishing_days: number; catches: number }[]
-  >`
+): Promise<SpeciesBreakdownRow[]> {
+  return sql<SpeciesBreakdownRow[]>`
+    select species, count(*)::int as count
+    from catches c
+    where ${scopeCondition(userId, teamId)}
+    group by species
+    order by count desc, species asc
+  `;
+}
+
+export type LakeBreakdownRow = { lake: string; count: number };
+
+export async function getLakeBreakdown(
+  userId: number,
+  teamId: number | null
+): Promise<LakeBreakdownRow[]> {
+  return sql<LakeBreakdownRow[]>`
+    select lake, count(*)::int as count
+    from catches c
+    where ${scopeCondition(userId, teamId)}
+      and lake is not null and lake <> ''
+    group by lake
+    order by count desc, lake asc
+  `;
+}
+
+export type FishingDayRow = { date: string; catches: number };
+
+export async function getFishingDaysByDate(
+  userId: number,
+  teamId: number | null
+): Promise<FishingDayRow[]> {
+  return sql<FishingDayRow[]>`
     select
-      count(distinct species)::int as species,
-      count(distinct lake) filter (where lake is not null)::int as lakes,
-      count(distinct (caught_at at time zone ${TIMEZONE})::date)::int as fishing_days,
+      (caught_at at time zone ${TIMEZONE})::date::text as date,
       count(*)::int as catches
     from catches c
     where ${scopeCondition(userId, teamId)}
-  `;
-  return {
-    species: row.species,
-    lakes: row.lakes,
-    fishingDays: row.fishing_days,
-    catches: row.catches,
-  };
-}
-
-export type FishingDaysRow = { year: number; month: number; days: number };
-
-export async function getFishingDaysByYearMonth(
-  userId: number,
-  teamId: number | null
-): Promise<FishingDaysRow[]> {
-  return sql<FishingDaysRow[]>`
-    select
-      extract(year from (caught_at at time zone ${TIMEZONE}))::int as year,
-      extract(month from (caught_at at time zone ${TIMEZONE}))::int as month,
-      count(distinct (caught_at at time zone ${TIMEZONE})::date)::int as days
-    from catches c
-    where ${scopeCondition(userId, teamId)}
-    group by year, month
-    order by year, month
+    group by date
+    order by date
   `;
 }

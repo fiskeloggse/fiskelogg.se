@@ -191,7 +191,12 @@ export default async function RegisterPage(props: PageProps<"/register">) {
             {catches.length} {catches.length === 1 ? "fångst" : "fångster"}
           </h2>
           <div className="flex items-center gap-4 text-sm">
-            <a href={exportHref} className="text-zinc-500 underline dark:text-zinc-400">
+            <a
+              href={exportHref}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-zinc-500 underline dark:text-zinc-400"
+            >
               Exportera
             </a>
             <Link
