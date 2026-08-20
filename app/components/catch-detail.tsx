@@ -82,6 +82,14 @@ export default function CatchDetail({ item }: { item: Catch }) {
             <p className="text-zinc-500 dark:text-zinc-400">Bete</p>
             <p className="text-lg font-medium">{item.bait || "–"}</p>
           </div>
+          {item.comment && (
+            <div className="col-span-2">
+              <p className="text-zinc-500 dark:text-zinc-400">Kommentar</p>
+              <p className="text-lg font-medium whitespace-pre-wrap">
+                {item.comment}
+              </p>
+            </div>
+          )}
           {item.latitude != null && item.longitude != null && (
             <div className="col-span-2">
               <p className="text-zinc-500 dark:text-zinc-400">Position</p>

@@ -23,7 +23,6 @@ export async function restoreCatches(formData: FormData) {
 
   revalidatePath("/");
   revalidatePath("/challenges");
-  revalidatePath("/personbasta");
   revalidatePath("/register");
   revalidatePath("/register/papperskorg");
   revalidatePath("/statistik");

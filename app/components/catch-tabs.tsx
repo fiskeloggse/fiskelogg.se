@@ -2,11 +2,11 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useRef } from "react";
 
 const ALL_TABS = [
   { href: "/", label: "Logga fisk" },
   { href: "/register", label: "Register" },
-  { href: "/personbasta", label: "Personbästa" },
   { href: "/statistik", label: "Statistik" },
   { href: "/challenges", label: "Challenges" },
   { href: "/konto", label: "Konto" },
@@ -23,6 +23,7 @@ export default function CatchTabs({
   showBingo?: boolean;
 }) {
   const pathname = usePathname();
+  const detailsRef = useRef<HTMLDetailsElement>(null);
   const tabs = showBingo
     ? ALL_TABS
     : ALL_TABS.filter((tab) => tab.href !== "/challenges");
@@ -31,7 +32,7 @@ export default function CatchTabs({
   return (
     <div>
       {/* Mobile: dropdown menu */}
-      <details className="group sm:hidden">
+      <details ref={detailsRef} className="group sm:hidden">
         <summary className="flex cursor-pointer list-none items-center justify-between px-1 py-2.5 text-sm font-medium">
           <span>{activeLabel}</span>
           <span className="text-zinc-400 transition-transform group-open:rotate-180 dark:text-zinc-500">
@@ -43,6 +44,9 @@ export default function CatchTabs({
             <Link
               key={tab.href}
               href={tab.href}
+              onClick={() => {
+                if (detailsRef.current) detailsRef.current.open = false;
+              }}
               className={
                 "px-1 py-2.5 text-sm font-medium " +
                 (isActive(pathname, tab.href)

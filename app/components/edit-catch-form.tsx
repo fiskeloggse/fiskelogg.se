@@ -160,6 +160,19 @@ export default function EditCatchForm({
       </div>
 
       <div className="flex flex-col gap-1.5">
+        <label htmlFor={`comment-${item.id}`} className="text-sm font-medium">
+          Kommentar
+        </label>
+        <textarea
+          id={`comment-${item.id}`}
+          name="comment"
+          rows={2}
+          defaultValue={item.comment ?? ""}
+          className={inputClassName}
+        />
+      </div>
+
+      <div className="flex flex-col gap-1.5">
         <div className="flex items-center justify-between">
           <span className="text-sm font-medium">Position</span>
           <button

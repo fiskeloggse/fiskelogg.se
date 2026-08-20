@@ -50,7 +50,6 @@ export async function importCatches(
 
     revalidatePath("/");
     revalidatePath("/challenges");
-    revalidatePath("/personbasta");
     revalidatePath("/register");
     revalidatePath("/statistik");
   }

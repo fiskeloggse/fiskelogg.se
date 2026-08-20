@@ -42,6 +42,7 @@ const CatchSchema = z
     lake: z.string().trim().max(100).optional(),
     location: z.string().trim().max(100).optional(),
     bait: z.string().trim().max(100).optional(),
+    comment: z.string().trim().max(1000).optional(),
     latitude: z.coerce.number().min(-90).max(90).optional(),
     longitude: z.coerce.number().min(-180).max(180).optional(),
     caughtAt: z.coerce
@@ -66,6 +67,7 @@ export async function addCatch(
   const rawLake = formData.get("lake");
   const rawLocation = formData.get("location");
   const rawBait = formData.get("bait");
+  const rawComment = formData.get("comment");
   const rawLatitude = formData.get("latitude");
   const rawLongitude = formData.get("longitude");
   const rawAnglerId = formData.get("anglerId");
@@ -89,6 +91,10 @@ export async function addCatch(
         ? rawLocation
         : undefined,
     bait: typeof rawBait === "string" && rawBait.trim() !== "" ? rawBait : undefined,
+    comment:
+      typeof rawComment === "string" && rawComment.trim() !== ""
+        ? rawComment
+        : undefined,
     latitude:
       typeof rawLatitude === "string" && rawLatitude.trim() !== ""
         ? rawLatitude
@@ -115,6 +121,7 @@ export async function addCatch(
     lake,
     location,
     bait,
+    comment,
     latitude,
     longitude,
     caughtAt,
@@ -138,11 +145,11 @@ export async function addCatch(
   // by exact species string.
   const [inserted] = await sql<{ id: number; species: string }[]>`
     insert into catches (
-      user_id, species, length_cm, weight_kg, lake, location, bait, latitude, longitude, caught_at
+      user_id, species, length_cm, weight_kg, lake, location, bait, comment, latitude, longitude, caught_at
     )
     values (
       ${anglerId}, initcap(${species}), ${lengthCm ?? null}, ${weightKg ?? null},
-      ${lake ?? null}, ${location ?? null}, ${bait ?? null},
+      ${lake ?? null}, ${location ?? null}, ${bait ?? null}, ${comment ?? null},
       ${latitude ?? null}, ${longitude ?? null}, ${caughtAt ?? new Date()}
     )
     returning id, species
@@ -150,7 +157,7 @@ export async function addCatch(
 
   revalidatePath("/");
   revalidatePath("/challenges");
-  revalidatePath("/personbasta");
+  revalidatePath("/statistik");
   revalidatePath("/register");
 
   const notices: CatchNotices = {};
@@ -203,7 +210,6 @@ export async function deleteCatch(formData: FormData) {
 
   revalidatePath("/");
   revalidatePath("/challenges");
-  revalidatePath("/personbasta");
   revalidatePath("/register");
   revalidatePath("/register/papperskorg");
   revalidatePath(`/register/${id}`);
@@ -226,7 +232,6 @@ export async function deleteCatches(formData: FormData) {
 
   revalidatePath("/");
   revalidatePath("/challenges");
-  revalidatePath("/personbasta");
   revalidatePath("/register");
   revalidatePath("/register/papperskorg");
   revalidatePath("/statistik");
@@ -242,7 +247,6 @@ export async function deleteAllCatches() {
 
   revalidatePath("/");
   revalidatePath("/challenges");
-  revalidatePath("/personbasta");
   revalidatePath("/register");
   revalidatePath("/register/papperskorg");
   revalidatePath("/statistik");
@@ -270,6 +274,7 @@ const EditCatchSchema = z
     lake: z.string().trim().max(100).optional(),
     location: z.string().trim().max(100).optional(),
     bait: z.string().trim().max(100).optional(),
+    comment: z.string().trim().max(1000).optional(),
     latitude: z.coerce.number().min(-90).max(90).optional(),
     longitude: z.coerce.number().min(-180).max(180).optional(),
     caughtAt: z.coerce
@@ -297,6 +302,7 @@ export async function updateCatch(
   const rawLake = formData.get("lake");
   const rawLocation = formData.get("location");
   const rawBait = formData.get("bait");
+  const rawComment = formData.get("comment");
   const rawLatitude = formData.get("latitude");
   const rawLongitude = formData.get("longitude");
   const parsed = EditCatchSchema.safeParse({
@@ -315,6 +321,10 @@ export async function updateCatch(
         ? rawLocation
         : undefined,
     bait: typeof rawBait === "string" && rawBait.trim() !== "" ? rawBait : undefined,
+    comment:
+      typeof rawComment === "string" && rawComment.trim() !== ""
+        ? rawComment
+        : undefined,
     latitude:
       typeof rawLatitude === "string" && rawLatitude.trim() !== ""
         ? rawLatitude
@@ -337,6 +347,7 @@ export async function updateCatch(
     lake,
     location,
     bait,
+    comment,
     latitude,
     longitude,
     caughtAt,
@@ -350,6 +361,7 @@ export async function updateCatch(
       lake = ${lake ?? null},
       location = ${location ?? null},
       bait = ${bait ?? null},
+      comment = ${comment ?? null},
       latitude = ${latitude ?? null},
       longitude = ${longitude ?? null},
       caught_at = ${caughtAt}
@@ -362,7 +374,6 @@ export async function updateCatch(
 
   revalidatePath("/");
   revalidatePath("/challenges");
-  revalidatePath("/personbasta");
   revalidatePath("/register");
   revalidatePath(`/register/${id}`);
   revalidatePath("/statistik");

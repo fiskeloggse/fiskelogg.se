@@ -9,6 +9,7 @@ export type Catch = {
   lake?: string | null;
   location?: string | null;
   bait?: string | null;
+  comment?: string | null;
   latitude?: number | null;
   longitude?: number | null;
   caught_at: Date;

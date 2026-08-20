@@ -2,7 +2,9 @@
 
 import { useState } from "react";
 import type { FishingDayRow, LakeBreakdownRow, SpeciesBreakdownRow } from "@/lib/stats";
+import type { PersonalBest } from "@/lib/personal-bests";
 import FishingDaysExplorer from "./fishing-days-explorer";
+import PersonalBests from "./personal-bests";
 
 function StatCard({
   label,
@@ -64,14 +66,18 @@ export default function StatsDashboard({
   speciesBreakdown,
   lakeBreakdown,
   fishingDays,
+  personalBests,
+  initialExpanded = null,
 }: {
   speciesBreakdown: SpeciesBreakdownRow[];
   lakeBreakdown: LakeBreakdownRow[];
   fishingDays: FishingDayRow[];
+  personalBests: PersonalBest[];
+  initialExpanded?: "species" | null;
 }) {
   const [view, setView] = useState<"overview" | "fishingdays">("overview");
   const [expanded, setExpanded] = useState<"species" | "lakes" | "fish" | null>(
-    null
+    initialExpanded
   );
 
   const speciesCount = speciesBreakdown.length;
@@ -123,13 +129,22 @@ export default function StatsDashboard({
       </div>
 
       {expanded === "species" && (
-        <div className="rounded-xl border border-black/10 bg-white p-5 dark:border-white/15 dark:bg-white/5">
-          <h2 className="text-lg font-semibold">Alla arter</h2>
-          {speciesRows.length === 0 ? (
-            <Empty>Inga fångster loggade än.</Empty>
-          ) : (
-            <BarChart rows={speciesRows} />
-          )}
+        <div className="flex flex-col gap-6 rounded-xl border border-black/10 bg-white p-5 dark:border-white/15 dark:bg-white/5">
+          <div>
+            <h2 className="text-lg font-semibold">Alla arter</h2>
+            {speciesRows.length === 0 ? (
+              <Empty>Inga fångster loggade än.</Empty>
+            ) : (
+              <BarChart rows={speciesRows} />
+            )}
+          </div>
+
+          <div>
+            <h2 className="text-lg font-semibold">Personbästa</h2>
+            <div className="mt-3">
+              <PersonalBests bests={personalBests} />
+            </div>
+          </div>
         </div>
       )}
 

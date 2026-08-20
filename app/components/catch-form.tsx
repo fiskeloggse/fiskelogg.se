@@ -97,11 +97,13 @@ export default function CatchForm({
   const showLocation = quickFields.includes("location");
   const showBait = quickFields.includes("bait");
   const showAngler = quickFields.includes("anglerId");
+  const showComment = quickFields.includes("comment");
   const hasHiddenFields =
     !showWeight ||
     !showLake ||
     !showLocation ||
     !showBait ||
+    !showComment ||
     (teamMembers.length > 0 && !showAngler);
   const [bingoNotice, setBingoNotice] = useState<
     CatchNotices["bingoMatch"] | null
@@ -119,6 +121,7 @@ export default function CatchForm({
   const [lake, setLake] = useState(defaultLake ?? "");
   const [location, setLocation] = useState("");
   const [bait, setBait] = useState(defaultBait ?? "");
+  const [comment, setComment] = useState("");
   const [caughtAtLocal, setCaughtAtLocal] = useState("");
   const [useGps, setUseGps] = useState(gpsDefaultEnabled);
   const [gpsStatus, setGpsStatus] = useState<"idle" | "loading" | "success" | "error">(
@@ -158,6 +161,7 @@ export default function CatchForm({
       setLengthCm("");
       setWeightKg("");
       setLocation("");
+      setComment("");
       setCaughtAtLocal("");
       if (state && "bingoMatch" in state && state.bingoMatch) {
         // eslint-disable-next-line react-hooks/set-state-in-effect
@@ -209,7 +213,7 @@ export default function CatchForm({
           <div className="flex items-center justify-between gap-4 rounded-xl border border-black/10 bg-white p-4 shadow-lg dark:border-white/15 dark:bg-zinc-900">
             <p className="text-sm">
               🏆 Nytt personbästa! {personalBestText(personalBestNotice)}.{" "}
-              <Link href="/personbasta" className="underline">
+              <Link href="/statistik?expand=species" className="underline">
                 Visa personbästa
               </Link>
             </p>
@@ -429,6 +433,21 @@ export default function CatchForm({
                 <option key={b} value={b} />
               ))}
             </datalist>
+          </div>
+
+          <div className={showComment || showMore ? "flex flex-col gap-1.5" : "hidden"}>
+            <label htmlFor="comment" className="text-sm font-medium">
+              Kommentar{" "}
+              <span className="font-normal text-zinc-500">(valfritt)</span>
+            </label>
+            <textarea
+              id="comment"
+              name="comment"
+              rows={2}
+              value={comment}
+              onChange={(e) => setComment(e.target.value)}
+              className={inputClassName}
+            />
           </div>
 
           {hasHiddenFields && (

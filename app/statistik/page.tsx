@@ -1,19 +1,23 @@
 import type { Metadata } from "next";
 import { requireUser } from "@/lib/dal";
 import { getFishingDaysByDate, getLakeBreakdown, getSpeciesBreakdown } from "@/lib/stats";
+import { getPersonalBests } from "@/lib/personal-bests";
 import StatsDashboard from "@/app/components/stats-dashboard";
 
 export const metadata: Metadata = {
   title: "Statistik – Fisklogg",
 };
 
-export default async function StatistikPage() {
+export default async function StatistikPage(props: PageProps<"/statistik">) {
   const user = await requireUser();
+  const searchParams = await props.searchParams;
+  const initialExpanded = searchParams.expand === "species" ? "species" : null;
 
-  const [speciesBreakdown, lakeBreakdown, fishingDays] = await Promise.all([
+  const [speciesBreakdown, lakeBreakdown, fishingDays, personalBests] = await Promise.all([
     getSpeciesBreakdown(user.id, user.team_id),
     getLakeBreakdown(user.id, user.team_id),
     getFishingDaysByDate(user.id, user.team_id),
+    getPersonalBests(user.id),
   ]);
 
   return (
@@ -22,6 +26,8 @@ export default async function StatistikPage() {
         speciesBreakdown={speciesBreakdown}
         lakeBreakdown={lakeBreakdown}
         fishingDays={fishingDays}
+        personalBests={personalBests}
+        initialExpanded={initialExpanded}
       />
     </main>
   );
