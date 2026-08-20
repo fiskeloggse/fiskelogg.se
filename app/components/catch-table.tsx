@@ -100,7 +100,7 @@ export default function CatchTable({
                 {showPlats && (
                   <th className="px-1 py-2 font-medium">
                     <SelectColumnFilter
-                      label="Plats"
+                      label="Sjö"
                       paramName="lake"
                       options={lakeOptions}
                       widthClass="w-14"

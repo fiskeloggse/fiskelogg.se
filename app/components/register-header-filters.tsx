@@ -142,7 +142,9 @@ export function SelectColumnFilter({
       aria-label={`Filtrera på ${label.toLowerCase()}`}
       title={current || label}
       className={
-        widthClass +
+        // Widen once a value is picked so it doesn't get clipped to a
+        // couple of letters — the compact width is only for the label.
+        (current ? "w-24" : widthClass) +
         " cursor-pointer overflow-hidden rounded bg-transparent font-medium text-ellipsis whitespace-nowrap outline-none " +
         (current ? "text-foreground" : "")
       }
