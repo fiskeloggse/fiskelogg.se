@@ -184,8 +184,13 @@ export default function CatchTable({
                       )}
                       {showMatt && (
                         <td className="px-1 py-2 text-right whitespace-nowrap">
-                          {item.length_cm ?? "–"}/
-                          {item.weight_kg != null ? formatSv(item.weight_kg) : "–"}
+                          {item.length_cm != null ? `${item.length_cm} cm` : "–"}
+                          <br />
+                          <span className="text-xs text-zinc-400 dark:text-zinc-500">
+                            {item.weight_kg != null
+                              ? `${formatSv(item.weight_kg)} kg`
+                              : "–"}
+                          </span>
                         </td>
                       )}
                       {showBete && (
@@ -237,10 +242,14 @@ export default function CatchTable({
                 </td>
                 {showMatt && (
                   <td className="px-1 py-2 text-right whitespace-nowrap">
-                    {roundTo2(totalLength)}/{formatSv(totalWeight)}
+                    {roundTo2(totalLength)} cm
                     <br />
-                    <span className="font-normal text-zinc-500 dark:text-zinc-400">
+                    <span className="text-xs font-normal text-zinc-400 dark:text-zinc-500">
                       ({formatSv(totalLength / 100)} m)
+                    </span>
+                    <br />
+                    <span className="text-xs font-normal text-zinc-400 dark:text-zinc-500">
+                      {formatSv(totalWeight)} kg
                     </span>
                   </td>
                 )}
