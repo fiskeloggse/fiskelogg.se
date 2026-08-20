@@ -72,6 +72,7 @@ export default function CatchForm({
   defaultLake,
   defaultBait,
   quickLogFields,
+  gpsDefaultEnabled,
 }: {
   suggestions: SpeciesSuggestions;
   baitSuggestions: BaitSuggestions;
@@ -81,6 +82,7 @@ export default function CatchForm({
   defaultLake: string | null;
   defaultBait: string | null;
   quickLogFields: string[] | null;
+  gpsDefaultEnabled: boolean;
 }) {
   const [state, formAction, pending] = useActionState(addCatch, undefined);
   const wasPending = useRef(false);
@@ -118,8 +120,37 @@ export default function CatchForm({
   const [location, setLocation] = useState("");
   const [bait, setBait] = useState(defaultBait ?? "");
   const [caughtAtLocal, setCaughtAtLocal] = useState("");
+  const [useGps, setUseGps] = useState(gpsDefaultEnabled);
+  const [gpsStatus, setGpsStatus] = useState<"idle" | "loading" | "success" | "error">(
+    "idle"
+  );
+  const [gpsCoords, setGpsCoords] = useState<{ lat: number; lng: number } | null>(null);
 
   const errorMessage = state && "error" in state ? state.error : undefined;
+
+  useEffect(() => {
+    if (!useGps || mode !== "now" || gpsCoords || gpsStatus === "loading") return;
+    if (!navigator.geolocation) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setGpsStatus("error");
+      return;
+    }
+    setGpsStatus("loading");
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        setGpsCoords({
+          lat: position.coords.latitude,
+          lng: position.coords.longitude,
+        });
+        setGpsStatus("success");
+      },
+      () => {
+        setGpsStatus("error");
+      },
+      { enableHighAccuracy: true, timeout: 10000 }
+    );
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [useGps, mode]);
 
   useEffect(() => {
     if (wasPending.current && !pending && !errorMessage) {
@@ -408,6 +439,46 @@ export default function CatchForm({
             >
               {showMore ? "Färre fält" : "Fler fält"}
             </button>
+          )}
+
+          {mode === "now" && (
+            <div className="flex flex-col gap-1">
+              <label className="flex items-center gap-2 text-sm">
+                <input
+                  type="checkbox"
+                  checked={useGps}
+                  onChange={(e) => {
+                    setUseGps(e.target.checked);
+                    if (!e.target.checked) {
+                      setGpsCoords(null);
+                      setGpsStatus("idle");
+                    }
+                  }}
+                />
+                Bifoga GPS-position
+              </label>
+              {gpsStatus === "loading" && (
+                <p className="text-xs text-zinc-500 dark:text-zinc-400">
+                  Hämtar position…
+                </p>
+              )}
+              {gpsStatus === "success" && (
+                <p className="text-xs text-zinc-500 dark:text-zinc-400">
+                  ✓ Position hämtad.
+                </p>
+              )}
+              {gpsStatus === "error" && (
+                <p className="text-xs text-red-600 dark:text-red-400">
+                  Kunde inte hämta position. Fångsten loggas ändå.
+                </p>
+              )}
+              {gpsCoords && (
+                <>
+                  <input type="hidden" name="latitude" value={gpsCoords.lat} />
+                  <input type="hidden" name="longitude" value={gpsCoords.lng} />
+                </>
+              )}
+            </div>
           )}
 
           {mode === "past" && (

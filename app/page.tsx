@@ -122,6 +122,7 @@ export default async function Home(props: PageProps<"/">) {
         defaultLake={defaultLake}
         defaultBait={defaultBait}
         quickLogFields={user.quick_log_fields}
+        gpsDefaultEnabled={user.gps_default_enabled}
       />
 
       <div className="flex flex-wrap items-center justify-between gap-4">

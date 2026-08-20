@@ -188,7 +188,7 @@ export async function getCatchById(
   id: number
 ): Promise<Catch | null> {
   const [row] = await sql<Catch[]>`
-    select id, user_id, species, length_cm, weight_kg, lake, location, bait, caught_at
+    select id, user_id, species, length_cm, weight_kg, lake, location, bait, latitude, longitude, caught_at
     from catches
     where id = ${id} and user_id = ${userId} and deleted_at is null
   `;

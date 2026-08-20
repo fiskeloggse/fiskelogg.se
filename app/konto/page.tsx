@@ -59,6 +59,14 @@ export default async function KontoPage() {
             />
             Visa Challenges-fliken
           </label>
+          <label className="flex items-center gap-2 text-sm">
+            <input
+              type="checkbox"
+              name="gps_default_enabled"
+              defaultChecked={user.gps_default_enabled}
+            />
+            Förbocka GPS-position vid loggning
+          </label>
           <button
             type="submit"
             className="self-start rounded-full bg-foreground px-4 py-2 text-sm font-medium text-background"

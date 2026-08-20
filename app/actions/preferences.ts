@@ -13,8 +13,12 @@ import {
 export async function updatePreferences(formData: FormData) {
   const user = await requireUser();
   const showBingo = formData.get("show_bingo") === "on";
+  const gpsDefaultEnabled = formData.get("gps_default_enabled") === "on";
 
-  await sql`update users set show_bingo = ${showBingo} where id = ${user.id}`;
+  await sql`
+    update users set show_bingo = ${showBingo}, gps_default_enabled = ${gpsDefaultEnabled}
+    where id = ${user.id}
+  `;
 
   revalidatePath("/", "layout");
 }

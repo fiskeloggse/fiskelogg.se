@@ -23,6 +23,7 @@ alter table users add column if not exists show_bingo boolean not null default t
 alter table users add column if not exists stats_widgets text[];
 alter table users add column if not exists quick_log_fields text[];
 alter table users add column if not exists visible_register_columns text[];
+alter table users add column if not exists gps_default_enabled boolean not null default false;
 
 create table if not exists catches (
   id serial primary key,
@@ -41,6 +42,8 @@ alter table catches add column if not exists lake text;
 alter table catches add column if not exists location text;
 alter table catches add column if not exists bait text;
 alter table catches add column if not exists deleted_at timestamptz;
+alter table catches add column if not exists latitude double precision;
+alter table catches add column if not exists longitude double precision;
 
 -- Backfill any existing rows before enforcing NOT NULL (safe to re-run).
 update catches set species = 'Okänd art' where species is null;
