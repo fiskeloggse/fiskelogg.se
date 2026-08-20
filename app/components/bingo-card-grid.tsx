@@ -80,6 +80,9 @@ export default function BingoCardGrid({
           </h2>
           <p className="text-sm text-zinc-500 dark:text-zinc-400">
             {doneCount} av {totalCount} rutor klara
+            {card.from_date && card.to_date && (
+              <> · {formatDate(card.from_date)}–{formatDate(card.to_date)}</>
+            )}
           </p>
         </div>
         <ConfirmDeleteButton

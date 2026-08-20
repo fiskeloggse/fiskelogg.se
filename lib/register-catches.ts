@@ -148,7 +148,7 @@ export async function getFilteredCatches(
     SORT_OPTIONS[0].column;
 
   return sql<Catch[]>`
-    select id, user_id, species, length_cm, weight_kg, lake, location, bait, caught_at
+    select id, user_id, species, length_cm, weight_kg, lake, location, bait, latitude, longitude, caught_at
     from catches
     where user_id = ${userId}
       and deleted_at is null

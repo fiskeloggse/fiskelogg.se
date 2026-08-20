@@ -98,12 +98,14 @@ export default function CatchForm({
   const showBait = quickFields.includes("bait");
   const showAngler = quickFields.includes("anglerId");
   const showComment = quickFields.includes("comment");
+  const showGps = quickFields.includes("gps");
   const hasHiddenFields =
     !showWeight ||
     !showLake ||
     !showLocation ||
     !showBait ||
     !showComment ||
+    !showGps ||
     (teamMembers.length > 0 && !showAngler);
   const [bingoNotice, setBingoNotice] = useState<
     CatchNotices["bingoMatch"] | null
@@ -461,7 +463,7 @@ export default function CatchForm({
           )}
 
           {mode === "now" && (
-            <div className="flex flex-col gap-1">
+            <div className={showGps || showMore ? "flex flex-col gap-1" : "hidden"}>
               <label className="flex items-center gap-2 text-sm">
                 <input
                   type="checkbox"

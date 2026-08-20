@@ -21,6 +21,12 @@ const BingoSchema = z
       .int({ error: "Endast hela cm." })
       .min(0)
       .max(1000),
+    fromDate: z
+      .string()
+      .regex(/^\d{4}-\d{2}-\d{2}$/, { error: "Ange ett startdatum." }),
+    toDate: z
+      .string()
+      .regex(/^\d{4}-\d{2}-\d{2}$/, { error: "Ange ett slutdatum." }),
   })
   .refine((data) => data.maxCm >= data.minCm, {
     error: "Högsta längd måste vara minst lika stor som lägsta.",
@@ -29,6 +35,10 @@ const BingoSchema = z
   .refine((data) => data.maxCm - data.minCm <= 200, {
     error: "Intervallet är för stort (max 200 cm).",
     path: ["maxCm"],
+  })
+  .refine((data) => data.toDate >= data.fromDate, {
+    error: "Slutdatumet måste vara efter startdatumet.",
+    path: ["toDate"],
   });
 
 export async function createBingoCard(
@@ -42,13 +52,15 @@ export async function createBingoCard(
     species: formData.get("species"),
     minCm: formData.get("minCm"),
     maxCm: formData.get("maxCm"),
+    fromDate: formData.get("fromDate"),
+    toDate: formData.get("toDate"),
   });
 
   if (!parsed.success) {
     return { error: parsed.error.issues[0]?.message ?? "Ogiltiga uppgifter." };
   }
 
-  const { mode, species, minCm, maxCm } = parsed.data;
+  const { mode, species, minCm, maxCm, fromDate, toDate } = parsed.data;
 
   if (mode === "team" && !user.team_id) {
     return { error: "Du måste vara med i ett team för en team-bricka." };
@@ -57,8 +69,8 @@ export async function createBingoCard(
   const teamId = mode === "team" ? user.team_id : null;
 
   await sql`
-    insert into bingo_cards (team_id, species, min_cm, max_cm, created_by)
-    values (${teamId}, initcap(${species}), ${minCm}, ${maxCm}, ${user.id})
+    insert into bingo_cards (team_id, species, min_cm, max_cm, created_by, from_date, to_date)
+    values (${teamId}, initcap(${species}), ${minCm}, ${maxCm}, ${user.id}, ${fromDate}, ${toDate})
   `;
 
   revalidatePath("/challenges");

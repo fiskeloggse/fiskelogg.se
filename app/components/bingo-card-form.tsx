@@ -90,6 +90,34 @@ export default function BingoCardForm({ hasTeam }: { hasTeam: boolean }) {
         </div>
       </div>
 
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <div className="flex flex-col gap-1.5">
+          <label htmlFor="fromDate" className="text-sm font-medium">
+            Fångster från
+          </label>
+          <input
+            id="fromDate"
+            name="fromDate"
+            type="date"
+            required
+            className={inputClassName}
+          />
+        </div>
+
+        <div className="flex flex-col gap-1.5">
+          <label htmlFor="toDate" className="text-sm font-medium">
+            Fångster till
+          </label>
+          <input
+            id="toDate"
+            name="toDate"
+            type="date"
+            required
+            className={inputClassName}
+          />
+        </div>
+      </div>
+
       {state?.error && (
         <p role="alert" className="text-sm text-red-600 dark:text-red-400">
           {state.error}

@@ -76,6 +76,11 @@ create table if not exists bingo_cards (
 -- now be solo (team_id null, scoped to created_by) or team-wide.
 alter table bingo_cards alter column team_id drop not null;
 
+-- Date range a catch must fall within to count for this card. Nullable so
+-- existing cards (created before this feature) keep matching unrestricted.
+alter table bingo_cards add column if not exists from_date date;
+alter table bingo_cards add column if not exists to_date date;
+
 update bingo_cards set species = initcap(species) where species <> initcap(species);
 
 create index if not exists bingo_cards_team_id_idx on bingo_cards (team_id);

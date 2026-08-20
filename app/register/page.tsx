@@ -12,6 +12,7 @@ import {
 } from "@/lib/register-catches";
 import CatchTable from "@/app/components/catch-table";
 import ColumnVisibilityToggle from "@/app/components/column-visibility-toggle";
+import RegisterMapToggle from "@/app/components/register-map-toggle";
 import { REGISTER_COLUMN_KEYS } from "@/lib/constants";
 
 export const metadata: Metadata = {
@@ -33,6 +34,10 @@ export default async function RegisterPage(props: PageProps<"/register">) {
   ]);
 
   const exportHref = `/register/export?${params.toString()}`;
+  const mapCatches = catches.filter(
+    (c): c is typeof c & { latitude: number; longitude: number } =>
+      c.latitude != null && c.longitude != null
+  );
 
   return (
     <main className="mx-auto flex w-full max-w-4xl flex-1 flex-col gap-8 px-4 py-10 sm:px-6">
@@ -73,6 +78,7 @@ export default async function RegisterPage(props: PageProps<"/register">) {
           Klicka på en kolumnrubrik i tabellen för att filtrera eller sortera
           på den kolumnen.
         </p>
+        <RegisterMapToggle catches={mapCatches} />
         <CatchTable
           catches={catches}
           currentUserId={user.id}

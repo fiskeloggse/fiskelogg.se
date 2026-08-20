@@ -165,7 +165,13 @@ export async function addCatch(
   // Verified above: when anglerId !== user.id, the angler is in user.team_id.
   const [bingoMatches, previousBest] = await Promise.all([
     lengthCm !== undefined
-      ? findMatchingBingoCards(anglerId, user.team_id, inserted.species, lengthCm)
+      ? findMatchingBingoCards(
+          anglerId,
+          user.team_id,
+          inserted.species,
+          lengthCm,
+          caughtAt ?? new Date()
+        )
       : Promise.resolve([]),
     getPreviousBest(anglerId, inserted.species, inserted.id),
   ]);
