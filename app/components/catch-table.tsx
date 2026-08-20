@@ -46,6 +46,7 @@ export default function CatchTable({
 }) {
   const router = useRouter();
   const [editingId, setEditingId] = useState<number | null>(null);
+  const [editMode, setEditMode] = useState(false);
 
   const visible = visibleColumns ?? REGISTER_COLUMN_KEYS;
   const showDatum = visible.includes("datum");
@@ -56,7 +57,8 @@ export default function CatchTable({
   const labelSpan =
     [showDatum, showArt, showPlats, showBete].filter(Boolean).length || 1;
   const totalColumns =
-    [showDatum, showArt, showPlats, showMatt, showBete].filter(Boolean).length + 1;
+    [showDatum, showArt, showPlats, showMatt, showBete].filter(Boolean).length +
+    (editMode ? 1 : 0);
 
   const totalLength = catches.reduce((sum, c) => sum + (c.length_cm ?? 0), 0);
   const totalWeight = catches.reduce((sum, c) => sum + (c.weight_kg ?? 0), 0);
@@ -69,6 +71,13 @@ export default function CatchTable({
       )}
 
       <div className="flex flex-col gap-1.5">
+        <button
+          type="button"
+          onClick={() => setEditMode((v) => !v)}
+          className="self-end text-sm text-zinc-500 underline hover:text-foreground dark:text-zinc-400"
+        >
+          {editMode ? "Klar" : "Redigera"}
+        </button>
         <div className="overflow-x-auto rounded-xl border border-black/10 dark:border-white/15">
           <table className="w-full text-left text-sm">
             <thead>
@@ -112,7 +121,7 @@ export default function CatchTable({
                     />
                   </th>
                 )}
-                <th className="px-1 py-2" />
+                {editMode && <th className="px-1 py-2" />}
               </tr>
             </thead>
             <tbody className="divide-y divide-black/10 dark:divide-white/10">
@@ -174,35 +183,37 @@ export default function CatchTable({
                           {item.bait || "–"}
                         </td>
                       )}
-                      <td className="px-1 py-2 text-right whitespace-nowrap">
-                        {item.user_id === currentUserId && (
-                          <div
-                            className="flex items-center justify-end"
-                            onClick={(e) => e.stopPropagation()}
-                          >
-                            <button
-                              type="button"
-                              onClick={() =>
-                                setEditingId(item.id === editingId ? null : item.id)
-                              }
-                              aria-label={
-                                item.id === editingId
-                                  ? "Avbryt redigering"
-                                  : "Redigera fångst"
-                              }
-                              className="shrink-0 px-0.5 text-base leading-none text-zinc-400 transition-colors hover:text-foreground dark:text-zinc-500"
+                      {editMode && (
+                        <td className="px-1 py-2 text-right whitespace-nowrap">
+                          {item.user_id === currentUserId && (
+                            <div
+                              className="flex items-center justify-end"
+                              onClick={(e) => e.stopPropagation()}
                             >
-                              {item.id === editingId ? "×" : "✏️"}
-                            </button>
-                            <ConfirmDeleteButton
-                              action={deleteCatch}
-                              id={item.id}
-                              label="Ta bort fångst"
-                              compact
-                            />
-                          </div>
-                        )}
-                      </td>
+                              <button
+                                type="button"
+                                onClick={() =>
+                                  setEditingId(item.id === editingId ? null : item.id)
+                                }
+                                aria-label={
+                                  item.id === editingId
+                                    ? "Avbryt redigering"
+                                    : "Redigera fångst"
+                                }
+                                className="shrink-0 px-0.5 text-base leading-none text-zinc-400 transition-colors hover:text-foreground dark:text-zinc-500"
+                              >
+                                {item.id === editingId ? "×" : "✏️"}
+                              </button>
+                              <ConfirmDeleteButton
+                                action={deleteCatch}
+                                id={item.id}
+                                label="Ta bort fångst"
+                                compact
+                              />
+                            </div>
+                          )}
+                        </td>
+                      )}
                     </tr>
                   );
                 })
@@ -223,7 +234,7 @@ export default function CatchTable({
                     </span>
                   </td>
                 )}
-                <td className="px-1 py-2" />
+                {editMode && <td className="px-1 py-2" />}
               </tr>
             </tfoot>
           </table>
