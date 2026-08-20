@@ -7,10 +7,9 @@ import ConfirmDeleteButton from "./confirm-delete-button";
 import EditCatchForm from "./edit-catch-form";
 import {
   DateColumnFilter,
-  RangeColumnFilter,
+  MeasurementColumnFilter,
   SelectColumnFilter,
 } from "./register-header-filters";
-import { LENGTH_MAX, LENGTH_MIN, WEIGHT_MAX, WEIGHT_MIN } from "@/lib/constants";
 
 function formatDate(date: Date) {
   return date.toLocaleDateString("sv-SE", { day: "numeric", month: "short" });
@@ -22,6 +21,10 @@ function formatDateFull(date: Date) {
 
 function roundTo2(n: number) {
   return Math.round(n * 100) / 100;
+}
+
+function formatSv(n: number): string {
+  return roundTo2(n).toString().replace(".", ",");
 }
 
 export default function CatchTable({
@@ -73,28 +76,7 @@ export default function CatchTable({
                   />
                 </th>
                 <th className="px-1 py-2 text-right font-medium">
-                  <RangeColumnFilter
-                    label="Längd"
-                    minParam="lengthMin"
-                    maxParam="lengthMax"
-                    min={LENGTH_MIN}
-                    max={LENGTH_MAX}
-                    unit="cm"
-                    sortAsc="length-asc"
-                    sortDesc="length-desc"
-                  />
-                </th>
-                <th className="px-1 py-2 text-right font-medium">
-                  <RangeColumnFilter
-                    label="Vikt"
-                    minParam="weightMin"
-                    maxParam="weightMax"
-                    min={WEIGHT_MIN}
-                    max={WEIGHT_MAX}
-                    unit="kg"
-                    sortAsc="weight-asc"
-                    sortDesc="weight-desc"
-                  />
+                  <MeasurementColumnFilter />
                 </th>
                 <th className="px-1 py-2 font-medium">
                   <SelectColumnFilter
@@ -111,7 +93,7 @@ export default function CatchTable({
               {catches.length === 0 ? (
                 <tr>
                   <td
-                    colSpan={7}
+                    colSpan={6}
                     className="px-2 py-6 text-center text-zinc-500 dark:text-zinc-400"
                   >
                     Inga fångster matchar filtret.
@@ -147,8 +129,10 @@ export default function CatchTable({
                       <td className="px-1 py-2 text-zinc-500 dark:text-zinc-400">
                         {place || "–"}
                       </td>
-                      <td className="px-1 py-2 text-right">{item.length_cm ?? "–"}</td>
-                      <td className="px-1 py-2 text-right">{item.weight_kg ?? "–"}</td>
+                      <td className="px-1 py-2 text-right whitespace-nowrap">
+                        {item.length_cm ?? "–"}/
+                        {item.weight_kg != null ? formatSv(item.weight_kg) : "–"}
+                      </td>
                       <td className="px-1 py-2 text-zinc-500 dark:text-zinc-400">
                         {item.bait || "–"}
                       </td>
@@ -189,14 +173,13 @@ export default function CatchTable({
                   Totalt · {catches.length}{" "}
                   {catches.length === 1 ? "fångst" : "fångster"}
                 </td>
-                <td className="px-1 py-2 text-right">
-                  {roundTo2(totalLength)} cm
+                <td className="px-1 py-2 text-right whitespace-nowrap">
+                  {roundTo2(totalLength)}/{formatSv(totalWeight)}
                   <br />
                   <span className="font-normal text-zinc-500 dark:text-zinc-400">
-                    ({roundTo2(totalLength / 100)} m)
+                    ({formatSv(totalLength / 100)} m)
                   </span>
                 </td>
-                <td className="px-1 py-2 text-right">{roundTo2(totalWeight)} kg</td>
                 <td className="px-1 py-2" />
                 <td className="px-1 py-2" />
               </tr>

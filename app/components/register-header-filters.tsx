@@ -3,7 +3,8 @@
 import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { MONTHS } from "@/lib/constants";
+import { LENGTH_MAX, LENGTH_MIN, MONTHS, WEIGHT_MAX, WEIGHT_MIN } from "@/lib/constants";
+import DualRangeSlider from "./dual-range-slider";
 
 const inputClassName =
   "rounded-lg border border-black/10 bg-white px-2 py-1.5 text-sm dark:border-white/15 dark:bg-transparent";
@@ -153,91 +154,114 @@ export function SelectColumnFilter({
   );
 }
 
-export function RangeColumnFilter({
+function SortToggle({
   label,
-  minParam,
-  maxParam,
-  min,
-  max,
-  unit,
   sortAsc,
   sortDesc,
 }: {
   label: string;
-  minParam: string;
-  maxParam: string;
-  min: number;
-  max: number;
-  unit: string;
   sortAsc: string;
   sortDesc: string;
 }) {
   const searchParams = useSearchParams();
   const apply = useApply();
-  const currentMin = searchParams.get(minParam);
-  const currentMax = searchParams.get(maxParam);
-  const [localMin, setLocalMin] = useState(currentMin ?? "");
-  const [localMax, setLocalMax] = useState(currentMax ?? "");
-  const active = Boolean(currentMin || currentMax);
   const currentSort = searchParams.get("sort") ?? "date-desc";
   const isAsc = currentSort === sortAsc;
+  const isActive = isAsc || currentSort === sortDesc;
 
   return (
-    <HeaderPopover label={label} active={active}>
+    <button
+      type="button"
+      onClick={() => apply((params) => params.set("sort", isAsc ? sortDesc : sortAsc))}
+      className={
+        "text-xs underline hover:text-foreground " +
+        (isActive
+          ? "text-foreground"
+          : "text-zinc-500 dark:text-zinc-400")
+      }
+    >
+      {label}: {isAsc ? "störst först" : "minst först"}
+    </button>
+  );
+}
+
+// Combines Längd and Vikt into one column ("90/4,5") with a single popup
+// holding a dual-range slider per measurement, plus a sort toggle each.
+export function MeasurementColumnFilter() {
+  const searchParams = useSearchParams();
+  const apply = useApply();
+  const currentLengthMin = searchParams.get("lengthMin");
+  const currentLengthMax = searchParams.get("lengthMax");
+  const currentWeightMin = searchParams.get("weightMin");
+  const currentWeightMax = searchParams.get("weightMax");
+  const [lengthRange, setLengthRange] = useState<[number, number]>([
+    currentLengthMin ? Number(currentLengthMin) : LENGTH_MIN,
+    currentLengthMax ? Number(currentLengthMax) : LENGTH_MAX,
+  ]);
+  const [weightRange, setWeightRange] = useState<[number, number]>([
+    currentWeightMin ? Number(currentWeightMin) : WEIGHT_MIN,
+    currentWeightMax ? Number(currentWeightMax) : WEIGHT_MAX,
+  ]);
+  const active = Boolean(
+    currentLengthMin || currentLengthMax || currentWeightMin || currentWeightMax
+  );
+
+  return (
+    <HeaderPopover label="cm/kg" active={active}>
       {(close) => (
-        <div className="flex flex-col gap-2 text-sm">
-          <div className="flex items-center gap-2">
-            <label className="flex flex-1 flex-col gap-1">
-              Min
-              <input
-                type="number"
-                inputMode="decimal"
-                placeholder={String(min)}
-                value={localMin}
-                onChange={(e) => setLocalMin(e.target.value)}
-                className={inputClassName}
-              />
-            </label>
-            <label className="flex flex-1 flex-col gap-1">
-              Max
-              <input
-                type="number"
-                inputMode="decimal"
-                placeholder={String(max)}
-                value={localMax}
-                onChange={(e) => setLocalMax(e.target.value)}
-                className={inputClassName}
-              />
-            </label>
-          </div>
-          <p className="text-xs text-zinc-500 dark:text-zinc-400">{unit}</p>
-          <div className="flex items-center gap-2">
-            <button
-              type="button"
-              onClick={() => {
-                apply((params) => {
-                  if (localMin) params.set(minParam, localMin);
-                  else params.delete(minParam);
-                  if (localMax) params.set(maxParam, localMax);
-                  else params.delete(maxParam);
-                });
-                close();
-              }}
-              className="rounded-full bg-foreground px-3 py-1.5 text-xs font-medium text-background"
-            >
-              Filtrera
-            </button>
-            <button
-              type="button"
-              onClick={() =>
-                apply((params) => {
-                  params.set("sort", isAsc ? sortDesc : sortAsc);
-                })
-              }
-              className="text-xs text-zinc-500 underline hover:text-foreground dark:text-zinc-400"
-            >
-              {isAsc ? "Störst först" : "Minst först"}
-            </button>
+        <div className="flex flex-col gap-3 text-sm">
+          <DualRangeSlider
+            label="Längd"
+            min={LENGTH_MIN}
+            max={LENGTH_MAX}
+            step={1}
+            value={lengthRange}
+            onChange={setLengthRange}
+            unit="cm"
+          />
+          <DualRangeSlider
+            label="Vikt"
+            min={WEIGHT_MIN}
+            max={WEIGHT_MAX}
+            step={0.1}
+            value={weightRange}
+            onChange={setWeightRange}
+            unit="kg"
+          />
+          <button
+            type="button"
+            onClick={() => {
+              apply((params) => {
+                if (lengthRange[0] > LENGTH_MIN) {
+                  params.set("lengthMin", String(lengthRange[0]));
+                } else {
+                  params.delete("lengthMin");
+                }
+                if (lengthRange[1] < LENGTH_MAX) {
+                  params.set("lengthMax", String(lengthRange[1]));
+                } else {
+                  params.delete("lengthMax");
+                }
+                if (weightRange[0] > WEIGHT_MIN) {
+                  params.set("weightMin", String(weightRange[0]));
+                } else {
+                  params.delete("weightMin");
+                }
+                if (weightRange[1] < WEIGHT_MAX) {
+                  params.set("weightMax", String(weightRange[1]));
+                } else {
+                  params.delete("weightMax");
+                }
+              });
+              close();
+            }}
+            className="self-start rounded-full bg-foreground px-3 py-1.5 text-xs font-medium text-background"
+          >
+            Filtrera
+          </button>
+          <div className="flex flex-col items-start gap-1">
+            <SortToggle label="Längd" sortAsc="length-asc" sortDesc="length-desc" />
+            <SortToggle label="Vikt" sortAsc="weight-asc" sortDesc="weight-desc" />
           </div>
         </div>
       )}

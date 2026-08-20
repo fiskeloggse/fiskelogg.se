@@ -24,3 +24,44 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+/* Dual-handle range slider: two overlapping <input type="range"> elements
+   whose track is hidden so only the draggable thumbs show. */
+.dual-range-input {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  margin: 0;
+  background: transparent;
+  appearance: none;
+  pointer-events: none;
+}
+
+.dual-range-input::-webkit-slider-runnable-track {
+  appearance: none;
+  background: transparent;
+}
+
+.dual-range-input::-moz-range-track {
+  background: transparent;
+}
+
+.dual-range-input::-webkit-slider-thumb {
+  appearance: none;
+  pointer-events: auto;
+  width: 20px;
+  height: 20px;
+  border-radius: 9999px;
+  background: var(--foreground);
+  cursor: pointer;
+}
+
+.dual-range-input::-moz-range-thumb {
+  pointer-events: auto;
+  width: 20px;
+  height: 20px;
+  border: none;
+  border-radius: 9999px;
+  background: var(--foreground);
+  cursor: pointer;
+}
