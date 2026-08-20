@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { deleteCatch } from "@/app/actions/catches";
 import type { Catch } from "./catch-list";
 import ConfirmDeleteButton from "./confirm-delete-button";
@@ -45,6 +45,7 @@ export default function CatchTable({
   visibleColumns: string[] | null;
 }) {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [editingId, setEditingId] = useState<number | null>(null);
   const [editMode, setEditMode] = useState(false);
 
@@ -139,7 +140,10 @@ export default function CatchTable({
                   return (
                     <tr
                       key={item.id}
-                      onClick={() => router.push(`/register/${item.id}`)}
+                      onClick={() => {
+                        const query = searchParams.toString();
+                        router.push(`/register/${item.id}${query ? `?${query}` : ""}`);
+                      }}
                       className={
                         "cursor-pointer hover:bg-black/5 dark:hover:bg-white/5 " +
                         (item.id === editingId ? "bg-black/5 dark:bg-white/10" : "")

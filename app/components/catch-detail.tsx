@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { deleteCatch } from "@/app/actions/catches";
 import ConfirmDeleteButton from "./confirm-delete-button";
@@ -14,18 +14,24 @@ function formatDateFull(date: Date) {
 
 export default function CatchDetail({ item }: { item: Catch }) {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [editing, setEditing] = useState(false);
+
+  // Query params carry the Register filters/sort that were active when the
+  // user clicked into this catch, so navigating back restores them.
+  const query = searchParams.toString();
+  const backHref = `/register${query ? `?${query}` : ""}`;
 
   async function handleDelete(formData: FormData) {
     await deleteCatch(formData);
-    router.push("/register");
+    router.push(backHref);
   }
 
   if (editing) {
     return (
       <div className="flex flex-col gap-4">
         <Link
-          href="/register"
+          href={backHref}
           className="self-start text-sm text-zinc-500 underline hover:text-foreground dark:text-zinc-400"
         >
           ← Tillbaka till Register
@@ -38,7 +44,7 @@ export default function CatchDetail({ item }: { item: Catch }) {
   return (
     <div className="flex flex-col gap-4">
       <Link
-        href="/register"
+        href={backHref}
         className="self-start text-sm text-zinc-500 underline hover:text-foreground dark:text-zinc-400"
       >
         ← Tillbaka till Register
