@@ -35,8 +35,6 @@ export default function CatchDetail({ item }: { item: Catch }) {
     );
   }
 
-  const place = [item.lake, item.location].filter(Boolean).join(", ");
-
   return (
     <div className="flex flex-col gap-4">
       <Link
@@ -66,11 +64,15 @@ export default function CatchDetail({ item }: { item: Catch }) {
               {item.weight_kg != null ? `${item.weight_kg} kg` : "–"}
             </p>
           </div>
-          <div>
-            <p className="text-zinc-500 dark:text-zinc-400">Sjö/plats</p>
-            <p className="text-lg font-medium">{place || "–"}</p>
+          <div className="col-span-2">
+            <p className="text-zinc-500 dark:text-zinc-400">Sjö</p>
+            <p className="text-lg font-medium">{item.lake || "–"}</p>
           </div>
-          <div>
+          <div className="col-span-2">
+            <p className="text-zinc-500 dark:text-zinc-400">Plats</p>
+            <p className="text-lg font-medium">{item.location || "–"}</p>
+          </div>
+          <div className="col-span-2">
             <p className="text-zinc-500 dark:text-zinc-400">Bete</p>
             <p className="text-lg font-medium">{item.bait || "–"}</p>
           </div>

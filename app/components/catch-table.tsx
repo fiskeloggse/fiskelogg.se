@@ -136,9 +136,6 @@ export default function CatchTable({
                 </tr>
               ) : (
                 catches.map((item) => {
-                  const place = [item.lake, item.location]
-                    .filter(Boolean)
-                    .join(", ");
                   return (
                     <tr
                       key={item.id}
@@ -169,7 +166,18 @@ export default function CatchTable({
                       )}
                       {showPlats && (
                         <td className="px-1 py-2 text-zinc-500 dark:text-zinc-400">
-                          {place || "–"}
+                          {item.lake || item.location ? (
+                            <>
+                              {item.lake && <div>{item.lake}</div>}
+                              {item.location && (
+                                <div className="text-xs text-zinc-400 dark:text-zinc-500">
+                                  {item.location}
+                                </div>
+                              )}
+                            </>
+                          ) : (
+                            "–"
+                          )}
                         </td>
                       )}
                       {showMatt && (
