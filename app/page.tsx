@@ -10,7 +10,6 @@ import CatchList, { type Catch } from "@/app/components/catch-list";
 import CompactLengthList from "@/app/components/compact-length-list";
 import CatchViewSelect from "@/app/components/catch-view-select";
 import CatchSpeciesFilter from "@/app/components/catch-species-filter";
-import CatchTabs from "@/app/components/catch-tabs";
 import { TIMEZONE } from "@/lib/constants";
 
 const CATCHES_LIMIT = 5;
@@ -114,15 +113,6 @@ export default async function Home(props: PageProps<"/">) {
 
   return (
     <main className="mx-auto flex w-full max-w-4xl flex-1 flex-col gap-8 px-4 py-10 sm:px-6">
-      <div>
-        <h1 className="text-2xl font-semibold">Mina fångster</h1>
-        <p className="text-sm text-zinc-500 dark:text-zinc-400">
-          Välkommen, {user.name}.
-        </p>
-      </div>
-
-      <CatchTabs active="/" showBingo={user.show_bingo} />
-
       <CatchForm
         suggestions={speciesSuggestions}
         baitSuggestions={baitSuggestions}

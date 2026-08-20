@@ -1,4 +1,7 @@
+"use client";
+
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 
 const ALL_TABS = [
   { href: "/", label: "Logga fisk" },
@@ -9,20 +12,24 @@ const ALL_TABS = [
   { href: "/konto", label: "Konto" },
 ] as const;
 
+function isActive(pathname: string, href: string) {
+  if (href === "/") return pathname === "/";
+  return pathname === href || pathname.startsWith(`${href}/`);
+}
+
 export default function CatchTabs({
-  active,
   showBingo = true,
 }: {
-  active: (typeof ALL_TABS)[number]["href"];
   showBingo?: boolean;
 }) {
+  const pathname = usePathname();
   const tabs = showBingo
     ? ALL_TABS
     : ALL_TABS.filter((tab) => tab.href !== "/challenges");
-  const activeLabel = tabs.find((tab) => tab.href === active)?.label ?? "";
+  const activeLabel = tabs.find((tab) => isActive(pathname, tab.href))?.label ?? "";
 
   return (
-    <div className="border-b border-black/10 dark:border-white/15">
+    <div>
       {/* Mobile: dropdown menu */}
       <details className="group sm:hidden">
         <summary className="flex cursor-pointer list-none items-center justify-between px-1 py-2.5 text-sm font-medium">
@@ -38,7 +45,7 @@ export default function CatchTabs({
               href={tab.href}
               className={
                 "px-1 py-2.5 text-sm font-medium " +
-                (active === tab.href
+                (isActive(pathname, tab.href)
                   ? "text-foreground"
                   : "text-zinc-500 dark:text-zinc-400")
               }
@@ -57,7 +64,7 @@ export default function CatchTabs({
             href={tab.href}
             className={
               "-mb-px whitespace-nowrap border-b-2 px-4 py-2 text-sm font-medium " +
-              (active === tab.href
+              (isActive(pathname, tab.href)
                 ? "border-foreground text-foreground"
                 : "border-transparent text-zinc-500 hover:text-foreground dark:text-zinc-400")
             }

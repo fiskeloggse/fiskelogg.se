@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { requireUser } from "@/lib/dal";
 import { getBingoCards, getBingoCatches } from "@/lib/bingo";
-import CatchTabs from "@/app/components/catch-tabs";
 import BingoCardForm from "@/app/components/bingo-card-form";
 import BingoCardGrid from "@/app/components/bingo-card-grid";
 
@@ -15,15 +14,6 @@ export default async function ChallengesPage() {
 
   return (
     <main className="mx-auto flex w-full max-w-4xl flex-1 flex-col gap-8 px-4 py-10 sm:px-6">
-      <div>
-        <h1 className="text-2xl font-semibold">Mina fångster</h1>
-        <p className="text-sm text-zinc-500 dark:text-zinc-400">
-          Välkommen, {user.name}.
-        </p>
-      </div>
-
-      <CatchTabs active="/challenges" showBingo={user.show_bingo} />
-
       <details open className="rounded-xl border border-black/10 bg-white p-5 dark:border-white/15 dark:bg-white/5">
         <summary className="cursor-pointer text-lg font-semibold">
           Bingo
