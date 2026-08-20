@@ -103,7 +103,6 @@ export default function CatchTable({
                       label="Sjö"
                       paramName="lake"
                       options={lakeOptions}
-                      widthClass="w-14"
                     />
                   </th>
                 )}
@@ -118,7 +117,6 @@ export default function CatchTable({
                       label="Bete"
                       paramName="bait"
                       options={baitOptions}
-                      widthClass="w-14"
                     />
                   </th>
                 )}

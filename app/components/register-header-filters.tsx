@@ -119,53 +119,53 @@ export function SelectColumnFilter({
   label,
   paramName,
   options,
-  widthClass = "w-11",
 }: {
   label: string;
   paramName: string;
   options: string[];
-  widthClass?: string;
 }) {
   const searchParams = useSearchParams();
   const apply = useApply();
   const current = searchParams.get(paramName) ?? "";
-  // A select shows whichever option's value matches its own value, so a
-  // plain empty-value option can't show the label closed and "Alla" open
-  // at the same time. A hidden placeholder (unclickable, so it never shows
-  // in the open list) stands in for the closed-state label; the real
-  // (visible) empty-value option below it is what the open list shows.
-  const PLACEHOLDER = "__placeholder__";
+  const active = current !== "";
+
+  function optionClassName(selected: boolean) {
+    return (
+      "rounded px-2 py-1.5 text-left transition-colors hover:bg-black/5 dark:hover:bg-white/10 " +
+      (selected ? "font-medium text-foreground" : "text-zinc-500 dark:text-zinc-400")
+    );
+  }
 
   return (
-    <select
-      value={current === "" ? PLACEHOLDER : current}
-      onChange={(e) => {
-        const value = e.target.value === PLACEHOLDER ? "" : e.target.value;
-        apply((params) => {
-          if (value) params.set(paramName, value);
-          else params.delete(paramName);
-        });
-      }}
-      aria-label={`Filtrera på ${label.toLowerCase()}`}
-      title={current || label}
-      className={
-        // Widen once a value is picked so it doesn't get clipped to a
-        // couple of letters — the compact width is only for the label.
-        (current ? "w-24" : widthClass) +
-        " cursor-pointer overflow-hidden rounded bg-transparent font-medium text-ellipsis whitespace-nowrap outline-none " +
-        (current ? "text-foreground" : "")
-      }
-    >
-      <option value={PLACEHOLDER} hidden>
-        {label}
-      </option>
-      <option value="">Alla</option>
-      {options.map((o) => (
-        <option key={o} value={o}>
-          {o}
-        </option>
-      ))}
-    </select>
+    <HeaderPopover label={label} active={active}>
+      {(close) => (
+        <div className="flex max-h-64 flex-col gap-0.5 overflow-y-auto text-sm">
+          <button
+            type="button"
+            onClick={() => {
+              apply((params) => params.delete(paramName));
+              close();
+            }}
+            className={optionClassName(!active)}
+          >
+            Alla
+          </button>
+          {options.map((o) => (
+            <button
+              key={o}
+              type="button"
+              onClick={() => {
+                apply((params) => params.set(paramName, o));
+                close();
+              }}
+              className={optionClassName(current === o)}
+            >
+              {o}
+            </button>
+          ))}
+        </div>
+      )}
+    </HeaderPopover>
   );
 }
 
