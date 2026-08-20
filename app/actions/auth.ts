@@ -6,7 +6,7 @@ import sql from "@/lib/db";
 import { hashPassword, verifyPassword } from "@/lib/password";
 import { createSession, deleteSession } from "@/lib/session";
 
-export type AuthState = { error: string } | undefined;
+export type AuthState = { error: string } | { success: true } | undefined;
 
 const SignupSchema = z.object({
   name: z
@@ -48,7 +48,13 @@ export async function signup(
   `;
 
   await createSession(user.id);
-  redirect("/");
+  // "/" renders differently signed-in vs. signed-out. A server-side
+  // redirect() here would hand the client a soft navigation, which can
+  // reuse the router's cached signed-out payload for "/" and briefly show
+  // the landing page instead of the dashboard. Returning success and
+  // letting the client do a hard navigation (see SignupForm) sidesteps
+  // that entirely.
+  return { success: true };
 }
 
 const LoginSchema = z.object({
@@ -80,7 +86,8 @@ export async function login(
   }
 
   await createSession(user.id);
-  redirect("/");
+  // See the comment in signup() above — same reasoning applies here.
+  return { success: true };
 }
 
 export async function logout() {

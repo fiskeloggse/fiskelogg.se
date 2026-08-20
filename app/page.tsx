@@ -1,6 +1,6 @@
 import Link from "next/link";
 import sql from "@/lib/db";
-import { requireUser } from "@/lib/dal";
+import { getCurrentUser } from "@/lib/dal";
 import { getSpeciesSuggestions } from "@/lib/species-suggestions";
 import { getBaitSuggestions } from "@/lib/bait-suggestions";
 import { getTeamMembers, getTeamName } from "@/lib/team";
@@ -10,6 +10,7 @@ import CatchList, { type Catch } from "@/app/components/catch-list";
 import CompactLengthList from "@/app/components/compact-length-list";
 import CatchViewSelect from "@/app/components/catch-view-select";
 import CatchSpeciesFilter from "@/app/components/catch-species-filter";
+import LandingPage from "@/app/components/landing-page";
 import { TIMEZONE } from "@/lib/constants";
 
 const CATCHES_LIMIT = 5;
@@ -19,7 +20,11 @@ function totalLength(catches: Catch[]) {
 }
 
 export default async function Home(props: PageProps<"/">) {
-  const user = await requireUser();
+  const user = await getCurrentUser();
+  if (!user) {
+    return <LandingPage />;
+  }
+
   const searchParams = await props.searchParams;
   const view = searchParams.view === "today-longest" ? "today-longest" : "recent";
   const speciesFilter =

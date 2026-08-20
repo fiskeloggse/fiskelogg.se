@@ -2,7 +2,12 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { SESSION_COOKIE, verifySessionToken } from "@/lib/session-token";
 
-const publicPaths = new Set(["/login", "/signup"]);
+// "/" is public too — it shows a marketing landing page to signed-out
+// visitors and the dashboard to signed-in users, so it must never redirect
+// either way. Only "/login" and "/signup" redirect an already-signed-in
+// visitor back to "/".
+const publicPaths = new Set(["/", "/login", "/signup"]);
+const authOnlyPaths = new Set(["/login", "/signup"]);
 
 export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
@@ -14,7 +19,7 @@ export function proxy(request: NextRequest) {
     return NextResponse.redirect(new URL("/login", request.url));
   }
 
-  if (isPublicPath && session) {
+  if (authOnlyPaths.has(pathname) && session) {
     return NextResponse.redirect(new URL("/", request.url));
   }
 

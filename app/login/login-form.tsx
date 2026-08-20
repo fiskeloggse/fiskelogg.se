@@ -1,11 +1,20 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useEffect } from "react";
 import Link from "next/link";
 import { login } from "@/app/actions/auth";
 
 export default function LoginForm() {
   const [state, formAction, pending] = useActionState(login, undefined);
+  const errorMessage = state && "error" in state ? state.error : undefined;
+
+  useEffect(() => {
+    // Hard navigation, not router.push — "/" renders differently signed-in
+    // vs. signed-out, and a soft navigation can reuse the client router's
+    // cached signed-out payload and briefly show stale content.
+    // eslint-disable-next-line @next/next/no-location-assign-relative-destination
+    if (state && "success" in state) window.location.href = "/";
+  }, [state]);
 
   return (
     <form action={formAction} className="flex flex-col gap-4">
@@ -37,9 +46,9 @@ export default function LoginForm() {
         />
       </div>
 
-      {state?.error && (
+      {errorMessage && (
         <p role="alert" className="text-sm text-red-600 dark:text-red-400">
-          {state.error}
+          {errorMessage}
         </p>
       )}
 

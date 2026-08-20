@@ -6,6 +6,7 @@ import Link from "next/link";
 import { deleteCatch } from "@/app/actions/catches";
 import ConfirmDeleteButton from "./confirm-delete-button";
 import EditCatchForm from "./edit-catch-form";
+import CatchesMap from "./catches-map";
 import type { Catch } from "./catch-list";
 
 function formatDateFull(date: Date) {
@@ -90,22 +91,28 @@ export default function CatchDetail({ item }: { item: Catch }) {
               </p>
             </div>
           )}
-          {item.latitude != null && item.longitude != null && (
-            <div className="col-span-2">
-              <p className="text-zinc-500 dark:text-zinc-400">Position</p>
-              <p className="text-lg font-medium">
-                <a
-                  href={`https://www.google.com/maps?q=${item.latitude},${item.longitude}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="underline hover:text-foreground"
-                >
-                  Visa på karta
-                </a>
-              </p>
-            </div>
-          )}
         </div>
+
+        {item.latitude != null && item.longitude != null && (
+          <div className="mt-5">
+            <p className="mb-1.5 text-sm text-zinc-500 dark:text-zinc-400">
+              Position
+            </p>
+            <CatchesMap
+              catches={[
+                {
+                  id: item.id,
+                  species: item.species,
+                  length_cm: item.length_cm,
+                  weight_kg: item.weight_kg,
+                  caught_at: item.caught_at,
+                  latitude: item.latitude,
+                  longitude: item.longitude,
+                },
+              ]}
+            />
+          </div>
+        )}
 
         <div className="mt-6 flex items-center gap-3">
           <button

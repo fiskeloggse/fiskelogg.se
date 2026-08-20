@@ -98,7 +98,7 @@ export default function MapPositionPicker({
     <div className="flex flex-col gap-1.5">
       <div
         ref={containerRef}
-        className="h-64 w-full overflow-hidden rounded-lg border border-black/10 dark:border-white/15"
+        className="h-96 w-full overflow-hidden rounded-lg border border-black/10 dark:border-white/15"
       />
       <p className="text-xs text-zinc-500 dark:text-zinc-400">
         Tryck på kartan för att sätta eller flytta positionen.
