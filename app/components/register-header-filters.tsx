@@ -149,7 +149,7 @@ export function SelectColumnFilter({
         (current ? "text-foreground" : "")
       }
     >
-      <option value="">{label}</option>
+      <option value="">Alla</option>
       {options.map((o) => (
         <option key={o} value={o}>
           {o}
