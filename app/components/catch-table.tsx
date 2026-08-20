@@ -72,14 +72,6 @@ export default function CatchTable({
                     widthClass="w-14"
                   />
                 </th>
-                <th className="px-1 py-2 font-medium">
-                  <SelectColumnFilter
-                    label="Bete"
-                    paramName="bait"
-                    options={baitOptions}
-                    widthClass="w-14"
-                  />
-                </th>
                 <th className="px-1 py-2 text-right font-medium">
                   <RangeColumnFilter
                     label="Längd"
@@ -102,6 +94,14 @@ export default function CatchTable({
                     unit="kg"
                     sortAsc="weight-asc"
                     sortDesc="weight-desc"
+                  />
+                </th>
+                <th className="px-1 py-2 font-medium">
+                  <SelectColumnFilter
+                    label="Bete"
+                    paramName="bait"
+                    options={baitOptions}
+                    widthClass="w-14"
                   />
                 </th>
                 <th className="px-1 py-2" />
@@ -147,11 +147,11 @@ export default function CatchTable({
                       <td className="px-1 py-2 text-zinc-500 dark:text-zinc-400">
                         {place || "–"}
                       </td>
+                      <td className="px-1 py-2 text-right">{item.length_cm ?? "–"}</td>
+                      <td className="px-1 py-2 text-right">{item.weight_kg ?? "–"}</td>
                       <td className="px-1 py-2 text-zinc-500 dark:text-zinc-400">
                         {item.bait || "–"}
                       </td>
-                      <td className="px-1 py-2 text-right">{item.length_cm ?? "–"}</td>
-                      <td className="px-1 py-2 text-right">{item.weight_kg ?? "–"}</td>
                       <td className="px-1 py-2 text-right whitespace-nowrap">
                         {item.user_id === currentUserId && (
                           <div className="flex items-center justify-end">
@@ -185,7 +185,7 @@ export default function CatchTable({
             </tbody>
             <tfoot>
               <tr className="border-t border-black/10 font-medium dark:border-white/15">
-                <td className="px-1 py-2" colSpan={4}>
+                <td className="px-1 py-2" colSpan={3}>
                   Totalt · {catches.length}{" "}
                   {catches.length === 1 ? "fångst" : "fångster"}
                 </td>
@@ -197,6 +197,7 @@ export default function CatchTable({
                   </span>
                 </td>
                 <td className="px-1 py-2 text-right">{roundTo2(totalWeight)} kg</td>
+                <td className="px-1 py-2" />
                 <td className="px-1 py-2" />
               </tr>
             </tfoot>
