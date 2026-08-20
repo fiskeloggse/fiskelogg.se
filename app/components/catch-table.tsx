@@ -2,10 +2,8 @@
 
 import { useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { deleteCatch } from "@/app/actions/catches";
+import { deleteCatches } from "@/app/actions/catches";
 import type { Catch } from "./catch-list";
-import ConfirmDeleteButton from "./confirm-delete-button";
-import EditCatchForm from "./edit-catch-form";
 import {
   DateColumnFilter,
   MeasurementColumnFilter,
@@ -46,8 +44,9 @@ export default function CatchTable({
 }) {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const [editingId, setEditingId] = useState<number | null>(null);
-  const [editMode, setEditMode] = useState(false);
+  const [selectMode, setSelectMode] = useState(false);
+  const [selectedIds, setSelectedIds] = useState<Set<number>>(new Set());
+  const [confirming, setConfirming] = useState(false);
 
   const visible = visibleColumns ?? REGISTER_COLUMN_KEYS;
   const showDatum = visible.includes("datum");
@@ -59,30 +58,110 @@ export default function CatchTable({
     [showDatum, showArt, showPlats, showBete].filter(Boolean).length || 1;
   const totalColumns =
     [showDatum, showArt, showPlats, showMatt, showBete].filter(Boolean).length +
-    (editMode ? 1 : 0);
+    (selectMode ? 1 : 0);
 
   const totalLength = catches.reduce((sum, c) => sum + (c.length_cm ?? 0), 0);
   const totalWeight = catches.reduce((sum, c) => sum + (c.weight_kg ?? 0), 0);
-  const editingItem = catches.find((c) => c.id === editingId) ?? null;
+
+  const ownCatches = catches.filter((c) => c.user_id === currentUserId);
+  const allSelected =
+    ownCatches.length > 0 && ownCatches.every((c) => selectedIds.has(c.id));
+
+  function toggleSelectMode() {
+    setSelectMode((v) => !v);
+    setSelectedIds(new Set());
+    setConfirming(false);
+  }
+
+  function toggleRow(id: number) {
+    setSelectedIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) {
+        next.delete(id);
+      } else {
+        next.add(id);
+      }
+      return next;
+    });
+  }
+
+  function toggleAll() {
+    setSelectedIds(allSelected ? new Set() : new Set(ownCatches.map((c) => c.id)));
+  }
+
+  async function handleBulkDelete(formData: FormData) {
+    await deleteCatches(formData);
+    setSelectedIds(new Set());
+    setConfirming(false);
+    setSelectMode(false);
+  }
 
   return (
     <div className="flex flex-col gap-3">
-      {editingItem && (
-        <EditCatchForm item={editingItem} onClose={() => setEditingId(null)} />
-      )}
-
       <div className="flex flex-col gap-1.5">
-        <button
-          type="button"
-          onClick={() => setEditMode((v) => !v)}
-          className="self-end text-sm text-zinc-500 underline hover:text-foreground dark:text-zinc-400"
-        >
-          {editMode ? "Klar" : "Redigera"}
-        </button>
+        <div className="flex items-center justify-between gap-2">
+          {selectMode ? (
+            <button
+              type="button"
+              onClick={toggleAll}
+              className="text-sm text-zinc-500 underline hover:text-foreground dark:text-zinc-400"
+            >
+              {allSelected ? "Avmarkera alla" : "Markera alla"}
+            </button>
+          ) : (
+            <span />
+          )}
+          <button
+            type="button"
+            onClick={toggleSelectMode}
+            className="text-sm text-zinc-500 underline hover:text-foreground dark:text-zinc-400"
+          >
+            {selectMode ? "Klar" : "Markera"}
+          </button>
+        </div>
+
+        {selectMode && selectedIds.size > 0 && (
+          confirming ? (
+            <div className="flex items-center justify-end gap-2 text-sm">
+              <span className="text-zinc-500 dark:text-zinc-400">
+                Radera {selectedIds.size}{" "}
+                {selectedIds.size === 1 ? "fångst" : "fångster"}?
+              </span>
+              <form action={handleBulkDelete}>
+                {[...selectedIds].map((id) => (
+                  <input key={id} type="hidden" name="ids" value={id} />
+                ))}
+                <button
+                  type="submit"
+                  className="font-medium text-red-600 dark:text-red-400"
+                >
+                  Ja, radera
+                </button>
+              </form>
+              <button
+                type="button"
+                onClick={() => setConfirming(false)}
+                className="text-zinc-500 underline dark:text-zinc-400"
+              >
+                Avbryt
+              </button>
+            </div>
+          ) : (
+            <button
+              type="button"
+              onClick={() => setConfirming(true)}
+              className="self-end rounded-full bg-red-600 px-3 py-1.5 text-sm font-medium text-white dark:bg-red-700"
+            >
+              Radera valda ({selectedIds.size})
+            </button>
+          )
+        )}
+
         <div className="overflow-x-auto rounded-xl border border-black/10 dark:border-white/15">
           <table className="w-full text-left text-sm">
             <thead>
               <tr className="border-b border-black/10 text-zinc-500 dark:border-white/15 dark:text-zinc-400">
+                {selectMode && <th className="w-8 px-1 py-2" />}
                 {showDatum && (
                   <th className="px-1 py-2 font-medium">
                     <DateColumnFilter />
@@ -120,7 +199,6 @@ export default function CatchTable({
                     />
                   </th>
                 )}
-                {editMode && <th className="px-1 py-2" />}
               </tr>
             </thead>
             <tbody className="divide-y divide-black/10 dark:divide-white/10">
@@ -135,18 +213,41 @@ export default function CatchTable({
                 </tr>
               ) : (
                 catches.map((item) => {
+                  const selectable = item.user_id === currentUserId;
                   return (
                     <tr
                       key={item.id}
                       onClick={() => {
+                        if (selectMode) {
+                          if (selectable) toggleRow(item.id);
+                          return;
+                        }
                         const query = searchParams.toString();
-                        router.push(`/register/${item.id}${query ? `?${query}` : ""}`);
+                        router.push(
+                          `/register/${item.id}${query ? `?${query}` : ""}`
+                        );
                       }}
                       className={
                         "cursor-pointer hover:bg-black/5 dark:hover:bg-white/5 " +
-                        (item.id === editingId ? "bg-black/5 dark:bg-white/10" : "")
+                        (selectedIds.has(item.id) ? "bg-black/5 dark:bg-white/10" : "")
                       }
                     >
+                      {selectMode && (
+                        <td
+                          className="px-1 py-2"
+                          onClick={(e) => e.stopPropagation()}
+                        >
+                          {selectable && (
+                            <input
+                              type="checkbox"
+                              checked={selectedIds.has(item.id)}
+                              onChange={() => toggleRow(item.id)}
+                              aria-label="Markera fångst"
+                              className="h-4 w-4"
+                            />
+                          )}
+                        </td>
+                      )}
                       {showDatum && (
                         <td
                           className="px-1 py-2 whitespace-nowrap text-zinc-500 dark:text-zinc-400"
@@ -198,37 +299,6 @@ export default function CatchTable({
                           {item.bait || "–"}
                         </td>
                       )}
-                      {editMode && (
-                        <td className="px-1 py-2 text-right whitespace-nowrap">
-                          {item.user_id === currentUserId && (
-                            <div
-                              className="flex items-center justify-end"
-                              onClick={(e) => e.stopPropagation()}
-                            >
-                              <button
-                                type="button"
-                                onClick={() =>
-                                  setEditingId(item.id === editingId ? null : item.id)
-                                }
-                                aria-label={
-                                  item.id === editingId
-                                    ? "Avbryt redigering"
-                                    : "Redigera fångst"
-                                }
-                                className="shrink-0 px-0.5 text-base leading-none text-zinc-400 transition-colors hover:text-foreground dark:text-zinc-500"
-                              >
-                                {item.id === editingId ? "×" : "✏️"}
-                              </button>
-                              <ConfirmDeleteButton
-                                action={deleteCatch}
-                                id={item.id}
-                                label="Ta bort fångst"
-                                compact
-                              />
-                            </div>
-                          )}
-                        </td>
-                      )}
                     </tr>
                   );
                 })
@@ -236,6 +306,7 @@ export default function CatchTable({
             </tbody>
             <tfoot>
               <tr className="border-t border-black/10 font-medium dark:border-white/15">
+                {selectMode && <td className="px-1 py-2" />}
                 <td className="px-1 py-2" colSpan={labelSpan}>
                   Totalt · {catches.length}{" "}
                   {catches.length === 1 ? "fångst" : "fångster"}
@@ -253,7 +324,6 @@ export default function CatchTable({
                     </span>
                   </td>
                 )}
-                {editMode && <td className="px-1 py-2" />}
               </tr>
             </tfoot>
           </table>

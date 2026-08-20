@@ -210,6 +210,28 @@ export async function deleteCatch(formData: FormData) {
   revalidatePath("/statistik");
 }
 
+// Soft delete of a selected set of catches (bulk-select in Register).
+export async function deleteCatches(formData: FormData) {
+  const user = await requireUser();
+  const ids = formData
+    .getAll("ids")
+    .map(Number)
+    .filter((n) => Number.isInteger(n) && n > 0);
+  if (ids.length === 0) return;
+
+  await sql`
+    update catches set deleted_at = now()
+    where user_id = ${user.id} and id = any(${sql.array(ids)}::int[]) and deleted_at is null
+  `;
+
+  revalidatePath("/");
+  revalidatePath("/challenges");
+  revalidatePath("/personbasta");
+  revalidatePath("/register");
+  revalidatePath("/register/papperskorg");
+  revalidatePath("/statistik");
+}
+
 export async function deleteAllCatches() {
   const user = await requireUser();
 
@@ -248,6 +270,8 @@ const EditCatchSchema = z
     lake: z.string().trim().max(100).optional(),
     location: z.string().trim().max(100).optional(),
     bait: z.string().trim().max(100).optional(),
+    latitude: z.coerce.number().min(-90).max(90).optional(),
+    longitude: z.coerce.number().min(-180).max(180).optional(),
     caughtAt: z.coerce
       .date({ error: "Ogiltigt datum." })
       .max(new Date(), { error: "Datumet kan inte vara i framtiden." }),
@@ -273,6 +297,8 @@ export async function updateCatch(
   const rawLake = formData.get("lake");
   const rawLocation = formData.get("location");
   const rawBait = formData.get("bait");
+  const rawLatitude = formData.get("latitude");
+  const rawLongitude = formData.get("longitude");
   const parsed = EditCatchSchema.safeParse({
     species: formData.get("species"),
     lengthCm:
@@ -289,6 +315,14 @@ export async function updateCatch(
         ? rawLocation
         : undefined,
     bait: typeof rawBait === "string" && rawBait.trim() !== "" ? rawBait : undefined,
+    latitude:
+      typeof rawLatitude === "string" && rawLatitude.trim() !== ""
+        ? rawLatitude
+        : undefined,
+    longitude:
+      typeof rawLongitude === "string" && rawLongitude.trim() !== ""
+        ? rawLongitude
+        : undefined,
     caughtAt: formData.get("caughtAt"),
   });
 
@@ -296,8 +330,17 @@ export async function updateCatch(
     return { error: parsed.error.issues[0]?.message ?? "Ogiltiga uppgifter." };
   }
 
-  const { species, lengthCm, weightKg, lake, location, bait, caughtAt } =
-    parsed.data;
+  const {
+    species,
+    lengthCm,
+    weightKg,
+    lake,
+    location,
+    bait,
+    latitude,
+    longitude,
+    caughtAt,
+  } = parsed.data;
 
   const result = await sql`
     update catches set
@@ -307,6 +350,8 @@ export async function updateCatch(
       lake = ${lake ?? null},
       location = ${location ?? null},
       bait = ${bait ?? null},
+      latitude = ${latitude ?? null},
+      longitude = ${longitude ?? null},
       caught_at = ${caughtAt}
     where id = ${id} and user_id = ${user.id} and deleted_at is null
   `;

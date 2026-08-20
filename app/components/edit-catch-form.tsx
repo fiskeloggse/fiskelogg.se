@@ -4,6 +4,7 @@ import { useActionState, useEffect, useState } from "react";
 import { updateCatch, type EditCatchState } from "@/app/actions/catches";
 import { FISH_SPECIES } from "@/lib/species";
 import type { Catch } from "./catch-list";
+import MapPositionPicker from "./map-position-picker";
 
 const inputClassName =
   "rounded-lg border border-black/10 bg-white px-3 py-2 text-sm dark:border-white/15 dark:bg-transparent";
@@ -36,6 +37,10 @@ export default function EditCatchForm({
   const [caughtAtLocal, setCaughtAtLocal] = useState(
     toDatetimeLocalValue(item.caught_at)
   );
+  const [showMap, setShowMap] = useState(false);
+  const [latitude, setLatitude] = useState(item.latitude ?? null);
+  const [longitude, setLongitude] = useState(item.longitude ?? null);
+  const hasPosition = latitude != null && longitude != null;
 
   useEffect(() => {
     if (succeeded) onClose();
@@ -152,6 +157,48 @@ export default function EditCatchForm({
           defaultValue={item.bait ?? ""}
           className={inputClassName}
         />
+      </div>
+
+      <div className="flex flex-col gap-1.5">
+        <div className="flex items-center justify-between">
+          <span className="text-sm font-medium">Position</span>
+          <button
+            type="button"
+            onClick={() => setShowMap((v) => !v)}
+            className="text-sm text-zinc-500 underline hover:text-foreground dark:text-zinc-400"
+          >
+            {showMap ? "Dölj karta" : hasPosition ? "Ändra position" : "Lägg till position"}
+          </button>
+        </div>
+        {hasPosition && !showMap && (
+          <p className="text-sm text-zinc-500 dark:text-zinc-400">
+            Position sparad.{" "}
+            <a
+              href={`https://www.google.com/maps?q=${latitude},${longitude}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="underline hover:text-foreground"
+            >
+              Visa på karta
+            </a>
+          </p>
+        )}
+        {showMap && (
+          <MapPositionPicker
+            latitude={latitude}
+            longitude={longitude}
+            onChange={(lat, lng) => {
+              setLatitude(lat);
+              setLongitude(lng);
+            }}
+          />
+        )}
+        {hasPosition && (
+          <>
+            <input type="hidden" name="latitude" value={latitude} />
+            <input type="hidden" name="longitude" value={longitude} />
+          </>
+        )}
       </div>
 
       <div className="flex flex-col gap-1.5">
