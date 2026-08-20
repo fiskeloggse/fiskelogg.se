@@ -6,6 +6,7 @@ import { addCatch, type CatchNotices } from "@/app/actions/catches";
 import { FISH_SPECIES } from "@/lib/species";
 import type { SpeciesSuggestions } from "@/lib/species-suggestions";
 import type { BaitSuggestions } from "@/lib/bait-suggestions";
+import ImportCatchesForm from "./import-catches-form";
 
 const inputClassName =
   "rounded-lg border border-black/10 bg-white px-3 py-2 text-sm dark:border-white/15 dark:bg-transparent";
@@ -80,7 +81,9 @@ export default function CatchForm({
 }) {
   const [state, formAction, pending] = useActionState(addCatch, undefined);
   const wasPending = useRef(false);
-  const [mode, setMode] = useState<"closed" | "now" | "past">("closed");
+  const [mode, setMode] = useState<"closed" | "now" | "past" | "import">(
+    "closed"
+  );
   const [bingoNotice, setBingoNotice] = useState<
     CatchNotices["bingoMatch"] | null
   >(null);
@@ -190,7 +193,16 @@ export default function CatchForm({
           >
             + Logga tidigare fångst
           </button>
+          <button
+            type="button"
+            onClick={() => setMode("import")}
+            className="rounded-full border border-black/10 px-4 py-2 text-sm font-medium transition-colors hover:bg-black/5 dark:border-white/15 dark:hover:bg-white/10"
+          >
+            + Importera från Excel
+          </button>
         </div>
+      ) : mode === "import" ? (
+        <ImportCatchesForm onClose={() => setMode("closed")} />
       ) : (
         <form
           action={formAction}
