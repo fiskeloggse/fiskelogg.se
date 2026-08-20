@@ -181,6 +181,7 @@ export async function deleteCatch(formData: FormData) {
   revalidatePath("/personbasta");
   revalidatePath("/register");
   revalidatePath("/register/papperskorg");
+  revalidatePath(`/register/${id}`);
   revalidatePath("/statistik");
 }
 
@@ -293,6 +294,7 @@ export async function updateCatch(
   revalidatePath("/challenges");
   revalidatePath("/personbasta");
   revalidatePath("/register");
+  revalidatePath(`/register/${id}`);
   revalidatePath("/statistik");
 
   return { success: true };

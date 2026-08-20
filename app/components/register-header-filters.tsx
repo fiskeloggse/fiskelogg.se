@@ -15,14 +15,16 @@ const POPOVER_WIDTH = 224; // matches w-56
 // clips any absolutely-positioned child. Portal the panel to <body> and
 // position it with fixed coordinates from the trigger's bounding rect so
 // it's never cut off, especially on narrow mobile viewports.
-function HeaderPopover({
+export function HeaderPopover({
   label,
   active,
   children,
+  triggerClassName,
 }: {
   label: string;
   active: boolean;
   children: (close: () => void) => React.ReactNode;
+  triggerClassName?: string;
 }) {
   const [open, setOpen] = useState(false);
   const [coords, setCoords] = useState<{ top: number; left: number } | null>(null);
@@ -77,8 +79,9 @@ function HeaderPopover({
         type="button"
         onClick={toggle}
         className={
+          triggerClassName ??
           "cursor-pointer font-medium " +
-          (active ? "text-foreground" : "hover:text-foreground")
+            (active ? "text-foreground" : "hover:text-foreground")
         }
       >
         {label}

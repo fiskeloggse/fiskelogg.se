@@ -12,6 +12,8 @@ import {
 } from "@/lib/register-catches";
 import CatchTabs from "@/app/components/catch-tabs";
 import CatchTable from "@/app/components/catch-table";
+import ColumnVisibilityToggle from "@/app/components/column-visibility-toggle";
+import { REGISTER_COLUMN_KEYS } from "@/lib/constants";
 
 export const metadata: Metadata = {
   title: "Register – Fisklogg",
@@ -58,6 +60,9 @@ export default async function RegisterPage(props: PageProps<"/register">) {
                 Rensa filter
               </Link>
             )}
+            <ColumnVisibilityToggle
+              visible={user.visible_register_columns ?? REGISTER_COLUMN_KEYS}
+            />
             <a
               href={exportHref}
               target="_blank"
@@ -84,6 +89,7 @@ export default async function RegisterPage(props: PageProps<"/register">) {
           speciesOptions={speciesSuggestions.all}
           lakeOptions={lakeOptions}
           baitOptions={baitOptions}
+          visibleColumns={user.visible_register_columns}
         />
       </div>
     </main>

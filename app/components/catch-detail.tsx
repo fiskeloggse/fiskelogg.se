@@ -1,0 +1,96 @@
+"use client";
+
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import Link from "next/link";
+import { deleteCatch } from "@/app/actions/catches";
+import ConfirmDeleteButton from "./confirm-delete-button";
+import EditCatchForm from "./edit-catch-form";
+import type { Catch } from "./catch-list";
+
+function formatDateFull(date: Date) {
+  return date.toLocaleString("sv-SE", { dateStyle: "full", timeStyle: "short" });
+}
+
+export default function CatchDetail({ item }: { item: Catch }) {
+  const router = useRouter();
+  const [editing, setEditing] = useState(false);
+
+  async function handleDelete(formData: FormData) {
+    await deleteCatch(formData);
+    router.push("/register");
+  }
+
+  if (editing) {
+    return (
+      <div className="flex flex-col gap-4">
+        <Link
+          href="/register"
+          className="self-start text-sm text-zinc-500 underline hover:text-foreground dark:text-zinc-400"
+        >
+          ← Tillbaka till Register
+        </Link>
+        <EditCatchForm item={item} onClose={() => setEditing(false)} />
+      </div>
+    );
+  }
+
+  const place = [item.lake, item.location].filter(Boolean).join(", ");
+
+  return (
+    <div className="flex flex-col gap-4">
+      <Link
+        href="/register"
+        className="self-start text-sm text-zinc-500 underline hover:text-foreground dark:text-zinc-400"
+      >
+        ← Tillbaka till Register
+      </Link>
+
+      <div className="rounded-xl border border-black/10 bg-white p-6 dark:border-white/15 dark:bg-white/5">
+        <h2 className="text-2xl font-semibold">{item.species || "Okänd art"}</h2>
+        <p className="text-sm text-zinc-500 dark:text-zinc-400">
+          {formatDateFull(item.caught_at)}
+          {item.angler_name && ` · ${item.angler_name}`}
+        </p>
+
+        <div className="mt-5 grid grid-cols-2 gap-4 text-sm">
+          <div>
+            <p className="text-zinc-500 dark:text-zinc-400">Längd</p>
+            <p className="text-lg font-medium">
+              {item.length_cm != null ? `${item.length_cm} cm` : "–"}
+            </p>
+          </div>
+          <div>
+            <p className="text-zinc-500 dark:text-zinc-400">Vikt</p>
+            <p className="text-lg font-medium">
+              {item.weight_kg != null ? `${item.weight_kg} kg` : "–"}
+            </p>
+          </div>
+          <div>
+            <p className="text-zinc-500 dark:text-zinc-400">Sjö/plats</p>
+            <p className="text-lg font-medium">{place || "–"}</p>
+          </div>
+          <div>
+            <p className="text-zinc-500 dark:text-zinc-400">Bete</p>
+            <p className="text-lg font-medium">{item.bait || "–"}</p>
+          </div>
+        </div>
+
+        <div className="mt-6 flex items-center gap-3">
+          <button
+            type="button"
+            onClick={() => setEditing(true)}
+            className="rounded-full border border-black/10 px-4 py-2 text-sm font-medium transition-colors hover:bg-black/5 dark:border-white/15 dark:hover:bg-white/10"
+          >
+            Redigera
+          </button>
+          <ConfirmDeleteButton
+            action={handleDelete}
+            id={item.id}
+            label="Ta bort fångst"
+          />
+        </div>
+      </div>
+    </div>
+  );
+}

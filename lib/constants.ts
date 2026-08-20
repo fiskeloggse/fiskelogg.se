@@ -34,3 +34,15 @@ export const QUICK_LOG_FIELDS = [
 export type QuickLogFieldKey = (typeof QUICK_LOG_FIELDS)[number]["key"];
 
 export const QUICK_LOG_FIELD_KEYS = QUICK_LOG_FIELDS.map((f) => f.key);
+
+export const REGISTER_COLUMNS = [
+  { key: "datum", label: "Datum" },
+  { key: "art", label: "Art" },
+  { key: "plats", label: "Plats" },
+  { key: "matt", label: "cm/kg" },
+  { key: "bete", label: "Bete" },
+] as const;
+
+export type RegisterColumnKey = (typeof REGISTER_COLUMNS)[number]["key"];
+
+export const REGISTER_COLUMN_KEYS = REGISTER_COLUMNS.map((c) => c.key);

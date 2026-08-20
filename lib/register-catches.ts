@@ -182,3 +182,15 @@ export async function getDistinctBaits(userId: number): Promise<string[]> {
   `;
   return rows.map((r) => r.bait);
 }
+
+export async function getCatchById(
+  userId: number,
+  id: number
+): Promise<Catch | null> {
+  const [row] = await sql<Catch[]>`
+    select id, user_id, species, length_cm, weight_kg, lake, location, bait, caught_at
+    from catches
+    where id = ${id} and user_id = ${userId} and deleted_at is null
+  `;
+  return row ?? null;
+}
