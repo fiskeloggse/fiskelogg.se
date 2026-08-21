@@ -533,22 +533,15 @@ export default function CatchForm({
               onSelect={setBait}
             />
 
-            <input
+            <TextSuggestInput
               id="bait"
               name="bait"
-              type="text"
-              list="bait-catalog"
               value={bait}
-              onChange={(e) => setBait(e.target.value)}
-              autoComplete="off"
+              onChange={setBait}
+              options={baitSuggestions.all}
               placeholder="Sök bete eller skriv eget namn"
               className={inputClassName}
             />
-            <datalist id="bait-catalog">
-              {baitSuggestions.all.map((b) => (
-                <option key={b} value={b} />
-              ))}
-            </datalist>
           </div>
 
           <div className={showComment || showMore ? "flex flex-col gap-1.5" : "hidden"}>

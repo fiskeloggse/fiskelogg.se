@@ -9,6 +9,7 @@ export default function TextSuggestInput({
   onChange,
   options,
   className,
+  placeholder,
 }: {
   id: string;
   name: string;
@@ -16,6 +17,7 @@ export default function TextSuggestInput({
   onChange: (value: string) => void;
   options: string[];
   className: string;
+  placeholder?: string;
 }) {
   const [open, setOpen] = useState(false);
 
@@ -40,6 +42,7 @@ export default function TextSuggestInput({
         onFocus={() => setOpen(true)}
         onBlur={() => setOpen(false)}
         autoComplete="off"
+        placeholder={placeholder}
         className={className}
       />
       {open && matches.length > 0 && (
