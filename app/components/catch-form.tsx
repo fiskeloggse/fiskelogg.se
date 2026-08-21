@@ -98,6 +98,15 @@ export default function CatchForm({
     "closed"
   );
   const [showMore, setShowMore] = useState(false);
+  const dialogRef = useRef<HTMLDialogElement>(null);
+
+  useEffect(() => {
+    const dialog = dialogRef.current;
+    if (!dialog) return;
+    const shouldBeOpen = mode === "now" || mode === "past";
+    if (shouldBeOpen && !dialog.open) dialog.showModal();
+    if (!shouldBeOpen && dialog.open) dialog.close();
+  }, [mode]);
 
   const quickFields = quickLogFields ?? QUICK_LOG_FIELD_KEYS;
   const showWeight = quickFields.includes("weightKg");
@@ -226,6 +235,7 @@ export default function CatchForm({
       setLocation("");
       setComment("");
       setCaughtAtLocal("");
+      setMode("closed");
       if (state && "insertedId" in state && pendingWaterNameRef.current) {
         updateCatchLake(state.insertedId, pendingWaterNameRef.current);
         pendingWaterNameRef.current = null;
@@ -296,14 +306,16 @@ export default function CatchForm({
         )}
       </div>
 
-      {mode === "closed" ? (
+      {mode === "import" ? (
+        <ImportCatchesForm onClose={() => setMode("closed")} />
+      ) : (
         <div className="flex flex-wrap gap-2">
           <button
             type="button"
             onClick={() => setMode("now")}
             className="rounded-full bg-foreground px-4 py-2 text-sm font-medium text-background"
           >
-            + Logga fångst
+            + Logga fisk
           </button>
           <button
             type="button"
@@ -320,16 +332,26 @@ export default function CatchForm({
             + Importera från Excel
           </button>
         </div>
-      ) : mode === "import" ? (
-        <ImportCatchesForm onClose={() => setMode("closed")} />
-      ) : (
+      )}
+
+      <dialog
+        ref={dialogRef}
+        onCancel={(e) => {
+          e.preventDefault();
+          setMode("closed");
+        }}
+        onClick={(e) => {
+          if (e.target === dialogRef.current) setMode("closed");
+        }}
+        className="m-auto max-h-[90vh] w-[min(90vw,32rem)] overflow-y-auto rounded-xl border border-black/10 bg-white p-0 backdrop:bg-black/40 dark:border-white/15 dark:bg-zinc-900"
+      >
         <form
           action={formAction}
-          className="flex flex-col gap-4 rounded-xl border border-black/10 bg-white p-5 dark:border-white/15 dark:bg-white/5"
+          className="flex flex-col gap-4 p-5"
         >
           <div className="flex items-center justify-between">
             <h2 className="text-lg font-semibold">
-              {mode === "past" ? "Logga en tidigare fångst" : "Logga en fångst"}
+              {mode === "past" ? "Logga en tidigare fångst" : "Logga en fisk"}
             </h2>
             <button
               type="button"
@@ -618,10 +640,10 @@ export default function CatchForm({
             disabled={pending}
             className="rounded-full bg-foreground px-4 py-2 text-sm font-medium text-background disabled:opacity-60"
           >
-            {pending ? "Loggar…" : "Logga fångst"}
+            {pending ? "Loggar…" : "Logga fisk"}
           </button>
         </form>
-      )}
+      </dialog>
     </>
   );
 }
