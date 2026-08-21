@@ -379,7 +379,55 @@ export default function CatchForm({
             />
           </div>
 
-          <div className={showLake || showMore ? "flex flex-col gap-1.5" : "hidden"}>
+          {mode === "now" && (
+            <div className={showGps || showMore ? "flex flex-col gap-1" : "hidden"}>
+              <label className="flex items-center gap-2 text-sm">
+                <input
+                  type="checkbox"
+                  checked={useGps}
+                  onChange={(e) => {
+                    setUseGps(e.target.checked);
+                    if (!e.target.checked) {
+                      setGpsCoords(null);
+                      setGpsStatus("idle");
+                      setLakeAutoFilled(false);
+                    }
+                  }}
+                />
+                Bifoga GPS-position
+              </label>
+              {gpsStatus === "loading" && (
+                <p className="text-xs text-zinc-500 dark:text-zinc-400">
+                  Hämtar position…
+                </p>
+              )}
+              {gpsStatus === "success" && (
+                <p className="text-xs text-zinc-500 dark:text-zinc-400">
+                  ✓ Position hämtad.
+                  {lakeAutoFilled && " Sjö ifylld automatiskt."}
+                </p>
+              )}
+              {gpsStatus === "error" && (
+                <p className="text-xs text-red-600 dark:text-red-400">
+                  Kunde inte hämta position. Fångsten loggas ändå.
+                </p>
+              )}
+              {gpsCoords && (
+                <>
+                  <input type="hidden" name="latitude" value={gpsCoords.lat} />
+                  <input type="hidden" name="longitude" value={gpsCoords.lng} />
+                </>
+              )}
+            </div>
+          )}
+
+          <div
+            className={
+              showLake || showMore || lakeAutoFilled
+                ? "flex flex-col gap-1.5"
+                : "hidden"
+            }
+          >
             <label htmlFor="lake" className="text-sm font-medium">
               Sjö <span className="font-normal text-zinc-500">(valfritt)</span>
             </label>
@@ -467,48 +515,6 @@ export default function CatchForm({
             >
               {showMore ? "Färre fält" : "Fler fält"}
             </button>
-          )}
-
-          {mode === "now" && (
-            <div className={showGps || showMore ? "flex flex-col gap-1" : "hidden"}>
-              <label className="flex items-center gap-2 text-sm">
-                <input
-                  type="checkbox"
-                  checked={useGps}
-                  onChange={(e) => {
-                    setUseGps(e.target.checked);
-                    if (!e.target.checked) {
-                      setGpsCoords(null);
-                      setGpsStatus("idle");
-                      setLakeAutoFilled(false);
-                    }
-                  }}
-                />
-                Bifoga GPS-position
-              </label>
-              {gpsStatus === "loading" && (
-                <p className="text-xs text-zinc-500 dark:text-zinc-400">
-                  Hämtar position…
-                </p>
-              )}
-              {gpsStatus === "success" && (
-                <p className="text-xs text-zinc-500 dark:text-zinc-400">
-                  ✓ Position hämtad.
-                  {lakeAutoFilled && " Sjö ifylld automatiskt."}
-                </p>
-              )}
-              {gpsStatus === "error" && (
-                <p className="text-xs text-red-600 dark:text-red-400">
-                  Kunde inte hämta position. Fångsten loggas ändå.
-                </p>
-              )}
-              {gpsCoords && (
-                <>
-                  <input type="hidden" name="latitude" value={gpsCoords.lat} />
-                  <input type="hidden" name="longitude" value={gpsCoords.lng} />
-                </>
-              )}
-            </div>
           )}
 
           {mode === "past" && (
