@@ -1,8 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { permanentlyDeleteCatches, restoreCatches } from "@/app/actions/trash";
 import type { TrashedCatch } from "@/lib/trash";
+import ConfirmDialog from "./confirm-dialog";
 
 function formatDate(date: Date) {
   return date.toLocaleString("sv-SE", { dateStyle: "medium", timeStyle: "short" });
@@ -11,6 +12,7 @@ function formatDate(date: Date) {
 export default function TrashList({ catches }: { catches: TrashedCatch[] }) {
   const [selected, setSelected] = useState<Set<number>>(new Set());
   const [confirmingDelete, setConfirmingDelete] = useState(false);
+  const permanentDeleteFormRef = useRef<HTMLFormElement>(null);
 
   if (catches.length === 0) {
     return (
@@ -62,40 +64,34 @@ export default function TrashList({ catches }: { catches: TrashedCatch[] }) {
           </button>
         </form>
 
-        {confirmingDelete ? (
-          <div className="flex items-center gap-2 text-sm">
-            <span className="text-zinc-500 dark:text-zinc-400">
-              Säker? Går inte att ångra.
-            </span>
-            <form action={permanentlyDeleteCatches}>
-              {selectedIds.map((id) => (
-                <input key={id} type="hidden" name="ids" value={id} />
-              ))}
-              <button
-                type="submit"
-                className="font-medium text-red-600 dark:text-red-400"
-              >
-                Ja, radera
-              </button>
-            </form>
-            <button
-              type="button"
-              onClick={() => setConfirmingDelete(false)}
-              className="text-zinc-500 underline dark:text-zinc-400"
-            >
-              Avbryt
-            </button>
-          </div>
-        ) : (
-          <button
-            type="button"
-            onClick={() => setConfirmingDelete(true)}
-            disabled={selected.size === 0}
-            className="rounded-full border border-black/10 px-4 py-2 text-sm font-medium text-red-600 transition-colors hover:bg-red-50 disabled:opacity-40 dark:border-white/15 dark:text-red-400 dark:hover:bg-red-950/40"
-          >
-            Radera valda permanent
-          </button>
-        )}
+        <button
+          type="button"
+          onClick={() => setConfirmingDelete(true)}
+          disabled={selected.size === 0}
+          className="rounded-full border border-black/10 px-4 py-2 text-sm font-medium text-red-600 transition-colors hover:bg-red-50 disabled:opacity-40 dark:border-white/15 dark:text-red-400 dark:hover:bg-red-950/40"
+        >
+          Radera valda permanent
+        </button>
+
+        <form ref={permanentDeleteFormRef} action={permanentlyDeleteCatches} className="hidden">
+          {selectedIds.map((id) => (
+            <input key={id} type="hidden" name="ids" value={id} />
+          ))}
+        </form>
+
+        <ConfirmDialog
+          open={confirmingDelete}
+          title={`Radera ${selectedIds.length} ${
+            selectedIds.length === 1 ? "fångst" : "fångster"
+          } permanent?`}
+          description="Går inte att ångra."
+          confirmLabel="Ja, radera permanent"
+          onCancel={() => setConfirmingDelete(false)}
+          onConfirm={() => {
+            setConfirmingDelete(false);
+            permanentDeleteFormRef.current?.requestSubmit();
+          }}
+        />
       </div>
 
       <ul className="divide-y divide-black/10 rounded-xl border border-black/10 dark:divide-white/10 dark:border-white/15">

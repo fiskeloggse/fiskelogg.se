@@ -1,9 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { deleteCatches } from "@/app/actions/catches";
 import type { Catch } from "./catch-list";
+import ConfirmDialog from "./confirm-dialog";
 import {
   DateColumnFilter,
   MeasurementColumnFilter,
@@ -47,6 +48,7 @@ export default function CatchTable({
   const [selectMode, setSelectMode] = useState(false);
   const [selectedIds, setSelectedIds] = useState<Set<number>>(new Set());
   const [confirming, setConfirming] = useState(false);
+  const bulkDeleteFormRef = useRef<HTMLFormElement>(null);
 
   const visible = visibleColumns ?? REGISTER_COLUMN_KEYS;
   const showDatum = visible.includes("datum");
@@ -121,41 +123,34 @@ export default function CatchTable({
         </div>
 
         {selectMode && selectedIds.size > 0 && (
-          confirming ? (
-            <div className="flex items-center justify-end gap-2 text-sm">
-              <span className="text-zinc-500 dark:text-zinc-400">
-                Radera {selectedIds.size}{" "}
-                {selectedIds.size === 1 ? "fångst" : "fångster"}?
-              </span>
-              <form action={handleBulkDelete}>
-                {[...selectedIds].map((id) => (
-                  <input key={id} type="hidden" name="ids" value={id} />
-                ))}
-                <button
-                  type="submit"
-                  className="font-medium text-red-600 dark:text-red-400"
-                >
-                  Ja, radera
-                </button>
-              </form>
-              <button
-                type="button"
-                onClick={() => setConfirming(false)}
-                className="text-zinc-500 underline dark:text-zinc-400"
-              >
-                Avbryt
-              </button>
-            </div>
-          ) : (
-            <button
-              type="button"
-              onClick={() => setConfirming(true)}
-              className="self-end rounded-full bg-red-600 px-3 py-1.5 text-sm font-medium text-white dark:bg-red-700"
-            >
-              Radera valda ({selectedIds.size})
-            </button>
-          )
+          <button
+            type="button"
+            onClick={() => setConfirming(true)}
+            className="self-end rounded-full bg-red-600 px-3 py-1.5 text-sm font-medium text-white dark:bg-red-700"
+          >
+            Radera valda ({selectedIds.size})
+          </button>
         )}
+
+        <form ref={bulkDeleteFormRef} action={handleBulkDelete} className="hidden">
+          {[...selectedIds].map((id) => (
+            <input key={id} type="hidden" name="ids" value={id} />
+          ))}
+        </form>
+
+        <ConfirmDialog
+          open={confirming}
+          title={`Radera ${selectedIds.size} ${
+            selectedIds.size === 1 ? "fångst" : "fångster"
+          }?`}
+          description="Fångsterna flyttas till papperskorgen."
+          confirmLabel="Ja, radera"
+          onCancel={() => setConfirming(false)}
+          onConfirm={() => {
+            setConfirming(false);
+            bulkDeleteFormRef.current?.requestSubmit();
+          }}
+        />
 
         <div className="overflow-x-auto rounded-xl border border-black/10 dark:border-white/15">
           <table className="w-full text-left text-sm">
