@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import type {
   FishingDayRow,
   LakeBreakdownRow,
@@ -8,18 +9,9 @@ import type {
   SpeciesBreakdownRow,
 } from "@/lib/stats";
 import type { PersonalBest } from "@/lib/personal-bests";
-import { getTopCatchesForSpecies, type TopCatchRow } from "@/app/actions/stats";
 import FishingDaysExplorer from "./fishing-days-explorer";
 import PersonalBests from "./personal-bests";
 import CatchesMap from "./catches-map";
-
-function formatDate(date: Date) {
-  return date.toLocaleDateString("sv-SE", { dateStyle: "medium" });
-}
-
-function formatSv(n: number): string {
-  return (Math.round(n * 100) / 100).toString().replace(".", ",");
-}
 
 function StatCard({
   label,
@@ -105,10 +97,10 @@ function Empty({ children }: { children: React.ReactNode }) {
 
 function BarChart({
   rows,
-  onSelect,
+  getHref,
 }: {
   rows: { label: string; count: number }[];
-  onSelect?: (label: string) => void;
+  getHref?: (label: string) => string;
 }) {
   if (rows.length === 0) return null;
   const max = Math.max(1, ...rows.map((r) => r.count));
@@ -131,78 +123,20 @@ function BarChart({
           </>
         );
 
-        return onSelect ? (
-          <button
+        return getHref ? (
+          <Link
             key={r.label}
-            type="button"
-            onClick={() => onSelect(r.label)}
-            className="flex w-full items-center gap-3 text-left text-sm hover:opacity-80"
+            href={getHref(r.label)}
+            className="flex w-full items-center gap-3 text-sm hover:opacity-80"
           >
             {content}
-          </button>
+          </Link>
         ) : (
           <div key={r.label} className="flex items-center gap-3 text-sm">
             {content}
           </div>
         );
       })}
-    </div>
-  );
-}
-
-function TopCatchesForSpecies({
-  species,
-  catches,
-  loading,
-  onClose,
-}: {
-  species: string;
-  catches: TopCatchRow[] | null;
-  loading: boolean;
-  onClose: () => void;
-}) {
-  return (
-    <div className="rounded-xl border border-black/10 bg-white p-5 dark:border-white/15 dark:bg-white/5">
-      <div className="flex items-center justify-between">
-        <h2 className="text-lg font-semibold">Största {species}</h2>
-        <button
-          type="button"
-          onClick={onClose}
-          className="text-sm text-zinc-500 underline hover:text-foreground dark:text-zinc-400"
-        >
-          Stäng
-        </button>
-      </div>
-      <div className="mt-3">
-        {loading ? (
-          <Empty>Laddar…</Empty>
-        ) : catches && catches.length > 0 ? (
-          <ul className="flex flex-col gap-2">
-            {catches.map((c) => (
-              <li
-                key={c.id}
-                className="flex items-center justify-between gap-3 rounded-lg border border-black/10 px-3 py-2 text-sm dark:border-white/15"
-              >
-                <span className="font-medium">
-                  {[
-                    c.length_cm != null ? `${c.length_cm} cm` : null,
-                    c.weight_kg != null ? `${formatSv(c.weight_kg)} kg` : null,
-                  ]
-                    .filter(Boolean)
-                    .join(" · ")}
-                </span>
-                <span className="text-right text-zinc-500 dark:text-zinc-400">
-                  {c.angler_name}
-                  <br />
-                  <span className="text-xs">{formatDate(c.caught_at)}</span>
-                </span>
-              </li>
-            ))}
-          </ul>
-        ) : (
-          <Empty>Inga fångster av arten än.</Empty>
-        )}
-      </div>
     </div>
   );
 }
@@ -226,9 +160,6 @@ export default function StatsDashboard({
   const [expanded, setExpanded] = useState<"species" | "lakes" | null>(
     initialExpanded
   );
-  const [selectedSpecies, setSelectedSpecies] = useState<string | null>(null);
-  const [topCatches, setTopCatches] = useState<TopCatchRow[] | null>(null);
-  const [topCatchesLoading, setTopCatchesLoading] = useState(false);
 
   const speciesCount = speciesBreakdown.length;
   const lakeCount = lakeBreakdown.length;
@@ -236,14 +167,8 @@ export default function StatsDashboard({
   const fishingDaysCount = fishingDays.length;
   const hasAnyCatches = fishCount > 0;
 
-  function handleSelectSpecies(species: string) {
-    setSelectedSpecies(species);
-    setTopCatches(null);
-    setTopCatchesLoading(true);
-    getTopCatchesForSpecies(species).then((rows) => {
-      setTopCatches(rows);
-      setTopCatchesLoading(false);
-    });
+  function speciesHref(species: string) {
+    return `/statistik/${encodeURIComponent(species)}`;
   }
 
   if (view === "fishingdays") {
@@ -299,29 +224,17 @@ export default function StatsDashboard({
             {speciesRows.length === 0 ? (
               <Empty>Inga fångster loggade än.</Empty>
             ) : (
-              <BarChart rows={speciesRows} onSelect={handleSelectSpecies} />
+              <BarChart rows={speciesRows} getHref={speciesHref} />
             )}
           </div>
 
           <div>
             <h2 className="text-lg font-semibold">Personbästa</h2>
             <div className="mt-3">
-              <PersonalBests
-                bests={personalBests}
-                onSelectSpecies={handleSelectSpecies}
-              />
+              <PersonalBests bests={personalBests} getHref={speciesHref} />
             </div>
           </div>
         </div>
-      )}
-
-      {selectedSpecies && (
-        <TopCatchesForSpecies
-          species={selectedSpecies}
-          catches={topCatches}
-          loading={topCatchesLoading}
-          onClose={() => setSelectedSpecies(null)}
-        />
       )}
 
       {expanded === "lakes" && (

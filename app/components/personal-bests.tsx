@@ -1,3 +1,4 @@
+import Link from "next/link";
 import type { PersonalBest } from "@/lib/personal-bests";
 
 function formatDate(date: Date) {
@@ -6,10 +7,10 @@ function formatDate(date: Date) {
 
 export default function PersonalBests({
   bests,
-  onSelectSpecies,
+  getHref,
 }: {
   bests: PersonalBest[];
-  onSelectSpecies?: (species: string) => void;
+  getHref?: (species: string) => string;
 }) {
   return (
     <div className="flex flex-col gap-3">
@@ -56,14 +57,13 @@ export default function PersonalBests({
 
             return (
               <li key={pb.species}>
-                {onSelectSpecies ? (
-                  <button
-                    type="button"
-                    onClick={() => onSelectSpecies(pb.species)}
-                    className="w-full rounded-xl border border-black/10 bg-white p-4 text-left transition-colors hover:bg-black/5 dark:border-white/15 dark:bg-white/5 dark:hover:bg-white/10"
+                {getHref ? (
+                  <Link
+                    href={getHref(pb.species)}
+                    className="block rounded-xl border border-black/10 bg-white p-4 transition-colors hover:bg-black/5 dark:border-white/15 dark:bg-white/5 dark:hover:bg-white/10"
                   >
                     {content}
-                  </button>
+                  </Link>
                 ) : (
                   <div className="rounded-xl border border-black/10 bg-white p-4 dark:border-white/15 dark:bg-white/5">
                     {content}
