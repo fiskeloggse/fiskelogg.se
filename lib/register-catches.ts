@@ -148,7 +148,7 @@ export async function getFilteredCatches(
     SORT_OPTIONS[0].column;
 
   return sql<Catch[]>`
-    select id, user_id, species, length_cm, weight_kg, lake, location, bait, comment, latitude, longitude, caught_at
+    select id, user_id, species, length_cm, weight_kg, lake, location, bait, comment, latitude, longitude, photo_url, caught_at
     from catches
     where user_id = ${userId}
       and deleted_at is null
@@ -188,7 +188,7 @@ export async function getCatchById(
   id: number
 ): Promise<Catch | null> {
   const [row] = await sql<Catch[]>`
-    select id, user_id, species, length_cm, weight_kg, lake, location, bait, comment, latitude, longitude, caught_at
+    select id, user_id, species, length_cm, weight_kg, lake, location, bait, comment, latitude, longitude, photo_url, caught_at
     from catches
     where id = ${id} and user_id = ${userId} and deleted_at is null
   `;

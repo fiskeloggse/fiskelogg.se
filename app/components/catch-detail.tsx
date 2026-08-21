@@ -58,6 +58,15 @@ export default function CatchDetail({ item }: { item: Catch }) {
           {item.angler_name && ` · ${item.angler_name}`}
         </p>
 
+        {item.photo_url && (
+          // eslint-disable-next-line @next/next/no-img-element -- remote Blob URL, not a local/optimizable static asset
+          <img
+            src={item.photo_url}
+            alt=""
+            className="mt-4 max-h-96 w-full rounded-lg border border-black/10 object-cover dark:border-white/15"
+          />
+        )}
+
         <div className="mt-5 grid grid-cols-2 gap-4 text-sm">
           <div>
             <p className="text-zinc-500 dark:text-zinc-400">Längd</p>
