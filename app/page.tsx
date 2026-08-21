@@ -3,6 +3,7 @@ import sql from "@/lib/db";
 import { getCurrentUser } from "@/lib/dal";
 import { getSpeciesSuggestions } from "@/lib/species-suggestions";
 import { getBaitSuggestions } from "@/lib/bait-suggestions";
+import { getLakeSuggestions } from "@/lib/lake-suggestions";
 import { getTeamMembers, getTeamName } from "@/lib/team";
 import { getTodaysLastLake, getTodaysLastBait } from "@/lib/catches";
 import CatchForm from "@/app/components/catch-form";
@@ -94,6 +95,7 @@ export default async function Home(props: PageProps<"/">) {
   const [
     speciesSuggestions,
     baitSuggestions,
+    lakeSuggestions,
     teamMembers,
     teamName,
     defaultLake,
@@ -103,6 +105,7 @@ export default async function Home(props: PageProps<"/">) {
   ] = await Promise.all([
     getSpeciesSuggestions(user.id),
     getBaitSuggestions(user.id),
+    getLakeSuggestions(user.id),
     user.team_id ? getTeamMembers(user.team_id) : Promise.resolve([]),
     user.team_id ? getTeamName(user.team_id) : Promise.resolve(null),
     getTodaysLastLake(user.id, user.team_id),
@@ -121,6 +124,7 @@ export default async function Home(props: PageProps<"/">) {
       <CatchForm
         suggestions={speciesSuggestions}
         baitSuggestions={baitSuggestions}
+        lakeSuggestions={lakeSuggestions}
         currentUserId={user.id}
         currentUserName={user.name}
         teamMembers={teamMembers}
@@ -144,7 +148,7 @@ export default async function Home(props: PageProps<"/">) {
             Du
           </h3>
           {showCompact ? (
-            <CompactLengthList catches={personalCatches} emptyMessage={emptyMessage} />
+            <CompactLengthList catches={personalCatches} currentUserId={user.id} emptyMessage={emptyMessage} />
           ) : (
             <>
               <CatchList
@@ -167,7 +171,7 @@ export default async function Home(props: PageProps<"/">) {
           </h3>
           {user.team_id ? (
             showCompact ? (
-              <CompactLengthList catches={teamCatches} emptyMessage={emptyMessage} />
+              <CompactLengthList catches={teamCatches} currentUserId={user.id} emptyMessage={emptyMessage} />
             ) : (
               <>
                 <CatchList

@@ -7,6 +7,7 @@ import { lookupWaterName } from "@/app/actions/geocode";
 import { FISH_SPECIES } from "@/lib/species";
 import type { SpeciesSuggestions } from "@/lib/species-suggestions";
 import type { BaitSuggestions } from "@/lib/bait-suggestions";
+import type { LakeSuggestions } from "@/lib/lake-suggestions";
 import { QUICK_LOG_FIELD_KEYS } from "@/lib/constants";
 import ImportCatchesForm from "./import-catches-form";
 
@@ -67,6 +68,7 @@ function toDatetimeLocalMax() {
 export default function CatchForm({
   suggestions,
   baitSuggestions,
+  lakeSuggestions,
   currentUserId,
   currentUserName,
   teamMembers,
@@ -77,6 +79,7 @@ export default function CatchForm({
 }: {
   suggestions: SpeciesSuggestions;
   baitSuggestions: BaitSuggestions;
+  lakeSuggestions: LakeSuggestions;
   currentUserId: number;
   currentUserName: string;
   teamMembers: { id: number; name: string }[];
@@ -469,21 +472,42 @@ export default function CatchForm({
           <div
             className={
               showLake || showMore || lakeAutoFilled
-                ? "flex flex-col gap-1.5"
+                ? "flex flex-col gap-2"
                 : "hidden"
             }
           >
             <label htmlFor="lake" className="text-sm font-medium">
               Vatten <span className="font-normal text-zinc-500">(valfritt)</span>
             </label>
+
+            <Chips
+              label="Senaste"
+              options={lakeSuggestions.recent}
+              selected={lake}
+              onSelect={setLake}
+            />
+            <Chips
+              label="Vanliga"
+              options={lakeSuggestions.common}
+              selected={lake}
+              onSelect={setLake}
+            />
+
             <input
               id="lake"
               name="lake"
               type="text"
+              list="lake-catalog"
               value={lake}
               onChange={(e) => setLake(e.target.value)}
+              autoComplete="off"
               className={inputClassName}
             />
+            <datalist id="lake-catalog">
+              {lakeSuggestions.all.map((l) => (
+                <option key={l} value={l} />
+              ))}
+            </datalist>
           </div>
 
           <div className={showLocation || showMore ? "flex flex-col gap-1.5" : "hidden"}>

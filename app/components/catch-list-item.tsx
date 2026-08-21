@@ -1,9 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { deleteCatch } from "@/app/actions/catches";
 import ConfirmDeleteButton from "./confirm-delete-button";
-import EditCatchForm from "./edit-catch-form";
 import type { Catch } from "./catch-list";
 
 function formatCaughtAt(date: Date) {
@@ -20,15 +19,8 @@ export default function CatchListItem({
   item: Catch;
   currentUserId: number;
 }) {
-  const [editing, setEditing] = useState(false);
-
-  if (editing) {
-    return (
-      <li className="px-3 py-2">
-        <EditCatchForm item={item} onClose={() => setEditing(false)} />
-      </li>
-    );
-  }
+  const router = useRouter();
+  const isOwn = item.user_id === currentUserId;
 
   const measurements = [
     item.length_cm != null ? `${item.length_cm} cm` : null,
@@ -39,7 +31,13 @@ export default function CatchListItem({
   const place = [item.lake, item.location].filter(Boolean).join(", ");
 
   return (
-    <li className="flex items-center justify-between gap-2 px-3 py-2">
+    <li
+      onClick={isOwn ? () => router.push(`/register/${item.id}`) : undefined}
+      className={
+        "flex items-center justify-between gap-2 px-3 py-2 " +
+        (isOwn ? "cursor-pointer hover:bg-black/5 dark:hover:bg-white/5" : "")
+      }
+    >
       <div className="flex min-w-0 flex-wrap items-baseline gap-x-2 gap-y-0.5 text-sm">
         <span className="truncate font-medium">
           {item.species || "Okänd art"}
@@ -69,16 +67,11 @@ export default function CatchListItem({
         </span>
       </div>
 
-      {item.user_id === currentUserId && (
-        <div className="flex shrink-0 items-center gap-1">
-          <button
-            type="button"
-            onClick={() => setEditing(true)}
-            aria-label="Redigera fångst"
-            className="shrink-0 px-1 text-xs text-zinc-400 underline transition-colors hover:text-foreground dark:text-zinc-500"
-          >
-            Redigera
-          </button>
+      {isOwn && (
+        <div
+          className="flex shrink-0 items-center gap-1"
+          onClick={(e) => e.stopPropagation()}
+        >
           <ConfirmDeleteButton
             action={deleteCatch}
             id={item.id}
