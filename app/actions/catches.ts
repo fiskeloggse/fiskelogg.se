@@ -51,7 +51,14 @@ const CatchSchema = z
     longitude: z.coerce.number().min(-180).max(180).optional(),
     caughtAt: z.coerce
       .date({ error: "Ogiltigt datum." })
-      .max(new Date(), { error: "Datumet kan inte vara i framtiden." })
+      // A plain .max(new Date()) would freeze "now" to whenever this schema
+      // module first loads — fine for a single request, but wrong in a
+      // long-running dev server or warm serverless instance, where it
+      // silently drifts into the past. .refine() re-evaluates its callback
+      // on every parse, so "now" stays current.
+      .refine((d) => d <= new Date(), {
+        error: "Datumet kan inte vara i framtiden.",
+      })
       .optional(),
   })
   .refine((data) => data.lengthCm !== undefined || data.weightKg !== undefined, {
@@ -319,7 +326,11 @@ const EditCatchSchema = z
     longitude: z.coerce.number().min(-180).max(180).optional(),
     caughtAt: z.coerce
       .date({ error: "Ogiltigt datum." })
-      .max(new Date(), { error: "Datumet kan inte vara i framtiden." }),
+      // See the comment on the same check in CatchSchema above — .refine()
+      // re-evaluates "now" per parse instead of freezing it at module load.
+      .refine((d) => d <= new Date(), {
+        error: "Datumet kan inte vara i framtiden.",
+      }),
   })
   .refine((data) => data.lengthCm !== undefined || data.weightKg !== undefined, {
     error: "Ange antingen längd eller vikt.",
