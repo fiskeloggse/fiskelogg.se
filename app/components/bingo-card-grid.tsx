@@ -6,6 +6,22 @@ function formatDate(date: Date) {
   return date.toLocaleDateString("sv-SE", { dateStyle: "medium" });
 }
 
+// Days remaining until (and including) to_date, or a finished label once
+// it's passed. Compares by calendar date, not exact time, since to_date
+// has no time component of its own.
+function dateStatus(toDate: Date | null): string | null {
+  if (!toDate) return null;
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const to = new Date(toDate);
+  to.setHours(0, 0, 0, 0);
+  const diffDays = Math.round((to.getTime() - today.getTime()) / 86400000);
+
+  if (diffDays < 0) return "Avslutad";
+  if (diffDays === 0) return "Sista dagen";
+  return `${diffDays} ${diffDays === 1 ? "dag" : "dagar"} kvar`;
+}
+
 // Groups cm values by decade (70-79, 80-89, ...) so each decade renders as
 // its own row, in cm order.
 function groupByDecade(min: number, max: number): [number, number[]][] {
@@ -67,6 +83,7 @@ export default function BingoCardGrid({
     (sum, [, cms]) => sum + cms.filter((cm) => catchesByCm.has(cm)).length,
     0
   );
+  const status = dateStatus(card.to_date);
 
   return (
     <div className="flex flex-col gap-3 rounded-xl border border-black/10 bg-white p-5 dark:border-white/15 dark:bg-white/5">
@@ -77,6 +94,18 @@ export default function BingoCardGrid({
             <span className="ml-2 rounded-full bg-black/10 px-2 py-0.5 text-xs font-normal text-zinc-500 dark:bg-white/10 dark:text-zinc-400">
               {card.team_id ? "Team" : "Ensam"}
             </span>
+            {status && (
+              <span
+                className={
+                  "ml-2 inline-block whitespace-nowrap rounded-full px-2 py-0.5 text-xs font-normal " +
+                  (status === "Avslutad"
+                    ? "bg-zinc-200 text-zinc-600 dark:bg-zinc-700 dark:text-zinc-300"
+                    : "bg-amber-100 text-amber-700 dark:bg-amber-950/40 dark:text-amber-400")
+                }
+              >
+                {status}
+              </span>
+            )}
           </h2>
           <p className="text-sm text-zinc-500 dark:text-zinc-400">
             {doneCount} av {totalCount} rutor klara

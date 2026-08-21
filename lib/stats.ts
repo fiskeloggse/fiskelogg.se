@@ -40,6 +40,29 @@ export async function getLakeBreakdown(
   `;
 }
 
+export type MappedCatchRow = {
+  id: number;
+  species: string | null;
+  length_cm: number | null;
+  weight_kg: number | null;
+  caught_at: Date;
+  latitude: number;
+  longitude: number;
+};
+
+export async function getCatchesWithPosition(
+  userId: number,
+  teamId: number | null
+): Promise<MappedCatchRow[]> {
+  return sql<MappedCatchRow[]>`
+    select c.id, c.species, c.length_cm, c.weight_kg, c.caught_at, c.latitude, c.longitude
+    from catches c
+    where ${scopeCondition(userId, teamId)}
+      and c.latitude is not null and c.longitude is not null
+    order by c.caught_at desc
+  `;
+}
+
 export type FishingDayRow = { date: string; catches: number };
 
 export async function getFishingDaysByDate(
