@@ -11,6 +11,7 @@ sheet.columns = [
   { header: "Vatten", key: "lake", width: 16 },
   { header: "Plats", key: "location", width: 16 },
   { header: "Bete", key: "bait", width: 14 },
+  { header: "Kommentar", key: "comment", width: 24 },
   { header: "Datum", key: "caughtAt", width: 12 },
 ];
 
@@ -23,6 +24,7 @@ const exampleRow = sheet.addRow({
   lake: "Vättern",
   location: "Bryggan",
   bait: "Wobbler",
+  comment: "Tog på fallande vatten",
   caughtAt: new Date(2026, 5, 15),
 });
 exampleRow.getCell("caughtAt").numFmt = "yyyy-mm-dd";

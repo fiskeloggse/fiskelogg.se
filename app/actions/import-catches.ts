@@ -39,10 +39,10 @@ export async function importCatches(
     await sql.begin(async (tx) => {
       for (const row of rows) {
         await tx`
-          insert into catches (user_id, species, length_cm, weight_kg, lake, location, bait, caught_at)
+          insert into catches (user_id, species, length_cm, weight_kg, lake, location, bait, comment, caught_at)
           values (
             ${user.id}, initcap(${row.species}), ${row.lengthCm ?? null}, ${row.weightKg ?? null},
-            ${row.lake ?? null}, ${row.location ?? null}, ${row.bait ?? null}, ${row.caughtAt}
+            ${row.lake ?? null}, ${row.location ?? null}, ${row.bait ?? null}, ${row.comment ?? null}, ${row.caughtAt}
           )
         `;
       }

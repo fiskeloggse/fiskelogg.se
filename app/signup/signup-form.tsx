@@ -1,17 +1,21 @@
 "use client";
 
-import { useActionState, useEffect } from "react";
+import { useActionState, useEffect, useState } from "react";
 import Link from "next/link";
 import { signup } from "@/app/actions/auth";
 
 export default function SignupForm() {
   const [state, formAction, pending] = useActionState(signup, undefined);
   const errorMessage = state && "error" in state ? state.error : undefined;
+  // Controlled — Next.js's sequential Server Action dispatch (one action
+  // per client at a time) doesn't reliably pick up a retried submission
+  // when these are left uncontrolled: after an error, a second click on
+  // "Skapa konto" silently does nothing until the page is reloaded.
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
 
   useEffect(() => {
-    // Hard navigation, not router.push — "/" renders differently signed-in
-    // vs. signed-out, and a soft navigation can reuse the client router's
-    // cached signed-out payload and briefly show stale content.
     // eslint-disable-next-line @next/next/no-location-assign-relative-destination
     if (state && "success" in state) window.location.href = "/";
   }, [state]);
@@ -28,6 +32,8 @@ export default function SignupForm() {
           type="text"
           autoComplete="name"
           required
+          value={name}
+          onChange={(e) => setName(e.target.value)}
           className="rounded-lg border border-black/10 bg-white px-3 py-2 text-sm dark:border-white/15 dark:bg-white/5"
         />
       </div>
@@ -42,6 +48,8 @@ export default function SignupForm() {
           type="email"
           autoComplete="email"
           required
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
           className="rounded-lg border border-black/10 bg-white px-3 py-2 text-sm dark:border-white/15 dark:bg-white/5"
         />
       </div>
@@ -57,6 +65,8 @@ export default function SignupForm() {
           autoComplete="new-password"
           minLength={8}
           required
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
           className="rounded-lg border border-black/10 bg-white px-3 py-2 text-sm dark:border-white/15 dark:bg-white/5"
         />
         <p className="text-xs text-zinc-500 dark:text-zinc-400">

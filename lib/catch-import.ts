@@ -9,6 +9,7 @@ export const IMPORT_TEMPLATE_HEADERS = [
   "Vatten",
   "Plats",
   "Bete",
+  "Kommentar",
   "Datum",
 ] as const;
 
@@ -29,6 +30,7 @@ const RowSchema = z
     lake: z.string().trim().max(100).optional(),
     location: z.string().trim().max(100).optional(),
     bait: z.string().trim().max(100).optional(),
+    comment: z.string().trim().max(1000).optional(),
     caughtAt: z.coerce
       .date({ error: "Ogiltigt eller saknat datum." })
       .max(new Date(), { error: "Datumet kan inte vara i framtiden." }),
@@ -123,6 +125,7 @@ export async function parseCatchWorkbook(
       lake: toOptionalString(cellByHeader(row, "Vatten")),
       location: toOptionalString(cellByHeader(row, "Plats")),
       bait: toOptionalString(cellByHeader(row, "Bete")),
+      comment: toOptionalString(cellByHeader(row, "Kommentar")),
       caughtAt,
     });
 

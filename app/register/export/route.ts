@@ -21,6 +21,7 @@ export async function GET(request: Request) {
     { header: "Vatten", key: "lake", width: 16 },
     { header: "Plats", key: "location", width: 16 },
     { header: "Bete", key: "bait", width: 14 },
+    { header: "Kommentar", key: "comment", width: 24 },
     { header: "Datum", key: "caughtAt", width: 18 },
   ];
   sheet.getRow(1).font = { bold: true };
@@ -33,6 +34,7 @@ export async function GET(request: Request) {
       lake: c.lake,
       location: c.location,
       bait: c.bait,
+      comment: c.comment,
       caughtAt: c.caught_at,
     });
     row.getCell("caughtAt").numFmt = "yyyy-mm-dd hh:mm";

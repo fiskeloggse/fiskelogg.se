@@ -1,12 +1,18 @@
 "use client";
 
-import { useActionState, useEffect } from "react";
+import { useActionState, useEffect, useState } from "react";
 import Link from "next/link";
 import { login } from "@/app/actions/auth";
 
 export default function LoginForm() {
   const [state, formAction, pending] = useActionState(login, undefined);
   const errorMessage = state && "error" in state ? state.error : undefined;
+  // Controlled — Next.js's sequential Server Action dispatch (one action
+  // per client at a time) doesn't reliably pick up a retried submission
+  // when these are left uncontrolled: after an error, a second click on
+  // "Logga in" silently does nothing until the page is reloaded.
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
 
   useEffect(() => {
     // Hard navigation, not router.push — "/" renders differently signed-in
@@ -28,6 +34,8 @@ export default function LoginForm() {
           type="email"
           autoComplete="email"
           required
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
           className="rounded-lg border border-black/10 bg-white px-3 py-2 text-sm dark:border-white/15 dark:bg-white/5"
         />
       </div>
@@ -42,6 +50,8 @@ export default function LoginForm() {
           type="password"
           autoComplete="current-password"
           required
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
           className="rounded-lg border border-black/10 bg-white px-3 py-2 text-sm dark:border-white/15 dark:bg-white/5"
         />
       </div>
