@@ -3,6 +3,7 @@
 import { useActionState, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { addCatch, type CatchNotices } from "@/app/actions/catches";
+import { lookupLakeName } from "@/app/actions/geocode";
 import { FISH_SPECIES } from "@/lib/species";
 import type { SpeciesSuggestions } from "@/lib/species-suggestions";
 import type { BaitSuggestions } from "@/lib/bait-suggestions";
@@ -130,6 +131,7 @@ export default function CatchForm({
     "idle"
   );
   const [gpsCoords, setGpsCoords] = useState<{ lat: number; lng: number } | null>(null);
+  const [lakeAutoFilled, setLakeAutoFilled] = useState(false);
 
   const errorMessage = state && "error" in state ? state.error : undefined;
 
@@ -143,11 +145,16 @@ export default function CatchForm({
     setGpsStatus("loading");
     navigator.geolocation.getCurrentPosition(
       (position) => {
-        setGpsCoords({
-          lat: position.coords.latitude,
-          lng: position.coords.longitude,
-        });
+        const lat = position.coords.latitude;
+        const lng = position.coords.longitude;
+        setGpsCoords({ lat, lng });
         setGpsStatus("success");
+        lookupLakeName(lat, lng).then((name) => {
+          if (name) {
+            setLake(name);
+            setLakeAutoFilled(true);
+          }
+        });
       },
       () => {
         setGpsStatus("error");
@@ -473,6 +480,7 @@ export default function CatchForm({
                     if (!e.target.checked) {
                       setGpsCoords(null);
                       setGpsStatus("idle");
+                      setLakeAutoFilled(false);
                     }
                   }}
                 />
@@ -486,6 +494,7 @@ export default function CatchForm({
               {gpsStatus === "success" && (
                 <p className="text-xs text-zinc-500 dark:text-zinc-400">
                   ✓ Position hämtad.
+                  {lakeAutoFilled && " Sjö ifylld automatiskt."}
                 </p>
               )}
               {gpsStatus === "error" && (
