@@ -10,6 +10,7 @@ import type { BaitSuggestions } from "@/lib/bait-suggestions";
 import type { LakeSuggestions } from "@/lib/lake-suggestions";
 import { QUICK_LOG_FIELD_KEYS } from "@/lib/constants";
 import ImportCatchesForm from "./import-catches-form";
+import TextSuggestInput from "./text-suggest-input";
 
 const inputClassName =
   "rounded-lg border border-black/10 bg-white px-3 py-2 text-sm dark:border-white/15 dark:bg-transparent";
@@ -69,6 +70,7 @@ export default function CatchForm({
   suggestions,
   baitSuggestions,
   lakeSuggestions,
+  locationSuggestions,
   currentUserId,
   currentUserName,
   teamMembers,
@@ -80,6 +82,7 @@ export default function CatchForm({
   suggestions: SpeciesSuggestions;
   baitSuggestions: BaitSuggestions;
   lakeSuggestions: LakeSuggestions;
+  locationSuggestions: string[];
   currentUserId: number;
   currentUserName: string;
   teamMembers: { id: number; name: string }[];
@@ -487,21 +490,14 @@ export default function CatchForm({
               onSelect={setLake}
             />
 
-            <input
+            <TextSuggestInput
               id="lake"
               name="lake"
-              type="text"
-              list="lake-catalog"
               value={lake}
-              onChange={(e) => setLake(e.target.value)}
-              autoComplete="off"
+              onChange={setLake}
+              options={lakeSuggestions.all}
               className={inputClassName}
             />
-            <datalist id="lake-catalog">
-              {lakeSuggestions.all.map((l) => (
-                <option key={l} value={l} />
-              ))}
-            </datalist>
           </div>
 
           <div className={showLocation || showMore ? "flex flex-col gap-1.5" : "hidden"}>
@@ -509,12 +505,12 @@ export default function CatchForm({
               Plats{" "}
               <span className="font-normal text-zinc-500">(valfritt)</span>
             </label>
-            <input
+            <TextSuggestInput
               id="location"
               name="location"
-              type="text"
               value={location}
-              onChange={(e) => setLocation(e.target.value)}
+              onChange={setLocation}
+              options={locationSuggestions}
               className={inputClassName}
             />
           </div>

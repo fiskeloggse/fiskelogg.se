@@ -4,6 +4,7 @@ import { getCurrentUser } from "@/lib/dal";
 import { getSpeciesSuggestions } from "@/lib/species-suggestions";
 import { getBaitSuggestions } from "@/lib/bait-suggestions";
 import { getLakeSuggestions } from "@/lib/lake-suggestions";
+import { getLocationSuggestions } from "@/lib/location-suggestions";
 import { getTeamMembers, getTeamName } from "@/lib/team";
 import { getTodaysLastLake, getTodaysLastBait } from "@/lib/catches";
 import CatchForm from "@/app/components/catch-form";
@@ -96,6 +97,7 @@ export default async function Home(props: PageProps<"/">) {
     speciesSuggestions,
     baitSuggestions,
     lakeSuggestions,
+    locationSuggestions,
     teamMembers,
     teamName,
     defaultLake,
@@ -106,6 +108,7 @@ export default async function Home(props: PageProps<"/">) {
     getSpeciesSuggestions(user.id),
     getBaitSuggestions(user.id),
     getLakeSuggestions(user.id),
+    getLocationSuggestions(user.id),
     user.team_id ? getTeamMembers(user.team_id) : Promise.resolve([]),
     user.team_id ? getTeamName(user.team_id) : Promise.resolve(null),
     getTodaysLastLake(user.id, user.team_id),
@@ -125,6 +128,7 @@ export default async function Home(props: PageProps<"/">) {
         suggestions={speciesSuggestions}
         baitSuggestions={baitSuggestions}
         lakeSuggestions={lakeSuggestions}
+        locationSuggestions={locationSuggestions}
         currentUserId={user.id}
         currentUserName={user.name}
         teamMembers={teamMembers}
