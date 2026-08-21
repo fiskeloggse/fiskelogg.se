@@ -4,7 +4,13 @@ function formatDate(date: Date) {
   return date.toLocaleDateString("sv-SE", { dateStyle: "medium" });
 }
 
-export default function PersonalBests({ bests }: { bests: PersonalBest[] }) {
+export default function PersonalBests({
+  bests,
+  onSelectSpecies,
+}: {
+  bests: PersonalBest[];
+  onSelectSpecies?: (species: string) => void;
+}) {
   return (
     <div className="flex flex-col gap-3">
       {bests.length === 0 ? (
@@ -17,11 +23,8 @@ export default function PersonalBests({ bests }: { bests: PersonalBest[] }) {
             const isSameCatch =
               pb.longest && pb.heaviest && pb.longest.id === pb.heaviest.id;
 
-            return (
-              <li
-                key={pb.species}
-                className="rounded-xl border border-black/10 bg-white p-4 dark:border-white/15 dark:bg-white/5"
-              >
+            const content = (
+              <>
                 <p className="font-medium">{pb.species}</p>
                 <p className="text-sm text-zinc-500 dark:text-zinc-400">
                   {isSameCatch && pb.longest && pb.heaviest ? (
@@ -48,6 +51,24 @@ export default function PersonalBests({ bests }: { bests: PersonalBest[] }) {
                     </>
                   )}
                 </p>
+              </>
+            );
+
+            return (
+              <li key={pb.species}>
+                {onSelectSpecies ? (
+                  <button
+                    type="button"
+                    onClick={() => onSelectSpecies(pb.species)}
+                    className="w-full rounded-xl border border-black/10 bg-white p-4 text-left transition-colors hover:bg-black/5 dark:border-white/15 dark:bg-white/5 dark:hover:bg-white/10"
+                  >
+                    {content}
+                  </button>
+                ) : (
+                  <div className="rounded-xl border border-black/10 bg-white p-4 dark:border-white/15 dark:bg-white/5">
+                    {content}
+                  </div>
+                )}
               </li>
             );
           })}

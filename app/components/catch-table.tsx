@@ -245,10 +245,14 @@ export default function CatchTable({
                       )}
                       {showDatum && (
                         <td
-                          className="px-1 py-2 whitespace-nowrap text-zinc-500 dark:text-zinc-400"
+                          className="px-1 py-2 whitespace-nowrap"
                           title={formatDateFull(item.caught_at)}
                         >
-                          {formatDate(item.caught_at)}
+                          {item.caught_at.getFullYear()}
+                          <br />
+                          <span className="text-xs text-zinc-400 dark:text-zinc-500">
+                            {formatDate(item.caught_at)}
+                          </span>
                         </td>
                       )}
                       {showArt && (

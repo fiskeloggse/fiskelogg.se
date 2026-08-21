@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import "leaflet/dist/leaflet.css";
 import markerIconUrl from "leaflet/dist/images/marker-icon.png";
 import markerIcon2xUrl from "leaflet/dist/images/marker-icon-2x.png";
@@ -39,10 +39,11 @@ function popupHtml(item: MapCatch) {
 
 export default function CatchesMap({ catches }: { catches: MapCatch[] }) {
   const containerRef = useRef<HTMLDivElement>(null);
+  const mapRef = useRef<import("leaflet").Map | null>(null);
+  const [fullscreen, setFullscreen] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
-    let map: import("leaflet").Map | undefined;
 
     import("leaflet").then((leafletModule) => {
       if (cancelled || !containerRef.current || catches.length === 0) return;
@@ -55,7 +56,8 @@ export default function CatchesMap({ catches }: { catches: MapCatch[] }) {
         shadowUrl: markerShadowUrl,
       });
 
-      map = L.map(containerRef.current);
+      const map = L.map(containerRef.current);
+      mapRef.current = map;
       L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
         attribution:
           '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
@@ -80,14 +82,46 @@ export default function CatchesMap({ catches }: { catches: MapCatch[] }) {
 
     return () => {
       cancelled = true;
-      map?.remove();
+      mapRef.current?.remove();
+      mapRef.current = null;
     };
   }, [catches]);
 
+  // Leaflet doesn't notice its container resizing on its own (inline card
+  // <-> fullscreen overlay) — nudge it once the new size has applied.
+  useEffect(() => {
+    const id = requestAnimationFrame(() => {
+      mapRef.current?.invalidateSize();
+    });
+    return () => cancelAnimationFrame(id);
+  }, [fullscreen]);
+
+  useEffect(() => {
+    if (!fullscreen) return;
+    function handleKey(e: KeyboardEvent) {
+      if (e.key === "Escape") setFullscreen(false);
+    }
+    window.addEventListener("keydown", handleKey);
+    return () => window.removeEventListener("keydown", handleKey);
+  }, [fullscreen]);
+
   return (
-    <div
-      ref={containerRef}
-      className="h-80 w-full overflow-hidden rounded-xl border border-black/10 dark:border-white/15"
-    />
+    <div className={fullscreen ? "fixed inset-0 z-50 bg-white dark:bg-black" : "relative"}>
+      <div
+        ref={containerRef}
+        className={
+          fullscreen
+            ? "h-full w-full"
+            : "h-80 w-full overflow-hidden rounded-xl border border-black/10 dark:border-white/15"
+        }
+      />
+      <button
+        type="button"
+        onClick={() => setFullscreen((v) => !v)}
+        className="absolute right-2 top-2 z-[1000] rounded-lg border border-black/10 bg-white px-2 py-1 text-xs font-medium shadow dark:border-white/15 dark:bg-zinc-900"
+      >
+        {fullscreen ? "Stäng" : "Fullskärm"}
+      </button>
+    </div>
   );
 }

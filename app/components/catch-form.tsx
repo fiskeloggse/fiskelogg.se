@@ -12,6 +12,7 @@ import type { LocationsByLake } from "@/lib/location-suggestions";
 import { QUICK_LOG_FIELD_KEYS } from "@/lib/constants";
 import ImportCatchesForm from "./import-catches-form";
 import TextSuggestInput from "./text-suggest-input";
+import MapPositionPicker from "./map-position-picker";
 
 const inputClassName =
   "rounded-lg border border-black/10 bg-white px-3 py-2 text-sm dark:border-white/15 dark:bg-transparent";
@@ -149,6 +150,12 @@ export default function CatchForm({
   const [gpsCoords, setGpsCoords] = useState<{ lat: number; lng: number } | null>(null);
   const [lakeAutoFilled, setLakeAutoFilled] = useState(false);
   const [waterLookupPending, setWaterLookupPending] = useState(false);
+  // Logging a past catch has no live GPS fix to attach — let the user pin
+  // the spot on a map instead.
+  const [showPastMap, setShowPastMap] = useState(false);
+  const [pastLatitude, setPastLatitude] = useState<number | null>(null);
+  const [pastLongitude, setPastLongitude] = useState<number | null>(null);
+  const pastHasPosition = pastLatitude != null && pastLongitude != null;
 
   const errorMessage = state && "error" in state ? state.error : undefined;
 
@@ -322,7 +329,7 @@ export default function CatchForm({
             onClick={() => setMode("past")}
             className="rounded-full border border-black/10 px-4 py-2 text-sm font-medium transition-colors hover:bg-black/5 dark:border-white/15 dark:hover:bg-white/10"
           >
-            + Logga tidigare fångst
+            + Logga tidigare fisk
           </button>
           <button
             type="button"
@@ -351,7 +358,7 @@ export default function CatchForm({
         >
           <div className="flex items-center justify-between">
             <h2 className="text-lg font-semibold">
-              {mode === "past" ? "Logga en tidigare fångst" : "Logga en fisk"}
+              {mode === "past" ? "Logga en tidigare fisk" : "Logga en fisk"}
             </h2>
             <button
               type="button"
@@ -498,6 +505,49 @@ export default function CatchForm({
                 <>
                   <input type="hidden" name="latitude" value={gpsCoords.lat} />
                   <input type="hidden" name="longitude" value={gpsCoords.lng} />
+                </>
+              )}
+            </div>
+          )}
+
+          {mode === "past" && (
+            <div className="flex flex-col gap-1.5">
+              <div className="flex items-center justify-between">
+                <span className="text-sm font-medium">Position</span>
+                <button
+                  type="button"
+                  onClick={() => setShowPastMap((v) => !v)}
+                  className="text-sm text-zinc-500 underline hover:text-foreground dark:text-zinc-400"
+                >
+                  {showPastMap
+                    ? "Dölj karta"
+                    : pastHasPosition
+                      ? "Ändra position"
+                      : "Lägg till position"}
+                </button>
+              </div>
+              {showPastMap && (
+                <MapPositionPicker
+                  latitude={pastLatitude}
+                  longitude={pastLongitude}
+                  onChange={(lat, lng) => {
+                    setPastLatitude(lat);
+                    setPastLongitude(lng);
+                    if (lakeRef.current.trim() === "") {
+                      lookupWaterName(lat, lng).then((name) => {
+                        if (name && lakeRef.current.trim() === "") {
+                          setLake(name);
+                          setLakeAutoFilled(true);
+                        }
+                      });
+                    }
+                  }}
+                />
+              )}
+              {pastHasPosition && (
+                <>
+                  <input type="hidden" name="latitude" value={pastLatitude} />
+                  <input type="hidden" name="longitude" value={pastLongitude} />
                 </>
               )}
             </div>

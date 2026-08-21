@@ -43,7 +43,11 @@ export function HeaderPopover({
       }
       setOpen(false);
     }
-    function handleScroll() {
+    function handleScroll(e: Event) {
+      // Scrolling the option list inside the popover itself dispatches a
+      // "scroll" event too (capture phase sees it on the way down) — only
+      // close for scrolling outside the popover (the page/table behind it).
+      if (panelRef.current?.contains(e.target as Node)) return;
       setOpen(false);
     }
     document.addEventListener("mousedown", handlePointerDown);
