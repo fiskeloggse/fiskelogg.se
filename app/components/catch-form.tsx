@@ -2,7 +2,7 @@
 
 import { useActionState, useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { addCatch, type CatchNotices } from "@/app/actions/catches";
+import { addCatch, updateCatchLake, type CatchNotices } from "@/app/actions/catches";
 import { lookupWaterName } from "@/app/actions/geocode";
 import { FISH_SPECIES } from "@/lib/species";
 import type { SpeciesSuggestions } from "@/lib/species-suggestions";
@@ -132,8 +132,36 @@ export default function CatchForm({
   );
   const [gpsCoords, setGpsCoords] = useState<{ lat: number; lng: number } | null>(null);
   const [lakeAutoFilled, setLakeAutoFilled] = useState(false);
+  const [waterLookupPending, setWaterLookupPending] = useState(false);
 
   const errorMessage = state && "error" in state ? state.error : undefined;
+
+  // Kept in sync so the async water lookup below can read the live value
+  // instead of a stale closure, and never clobber something typed in the
+  // meantime.
+  const lakeRef = useRef(lake);
+  useEffect(() => {
+    lakeRef.current = lake;
+  }, [lake]);
+
+  // Next.js dispatches Server Actions one at a time per client: if the
+  // water lookup (a direct call, not a form) is in flight when "Logga
+  // fångst" is clicked, the addCatch submission queues behind it — but its
+  // FormData is snapshotted at click time, before the lookup can fill in
+  // Vatten. So the queued submission goes out with the field still empty
+  // even though it visually appears to fill in "right after". These two
+  // refs detect that race: submissionStartedSinceLookupRef flips true the
+  // instant a submission begins (pending flips true at click time, which
+  // is also when the stale FormData snapshot is taken); if the lookup
+  // resolves after that point, the name is stashed instead of applied
+  // immediately, then patched onto the just-saved catch once its id is
+  // known.
+  const submissionStartedSinceLookupRef = useRef(false);
+  const pendingWaterNameRef = useRef<string | null>(null);
+
+  useEffect(() => {
+    if (pending) submissionStartedSinceLookupRef.current = true;
+  }, [pending]);
 
   useEffect(() => {
     if (!useGps || mode !== "now" || gpsCoords || gpsStatus === "loading") return;
@@ -149,12 +177,23 @@ export default function CatchForm({
         const lng = position.coords.longitude;
         setGpsCoords({ lat, lng });
         setGpsStatus("success");
-        lookupWaterName(lat, lng).then((name) => {
-          if (name) {
-            setLake(name);
-            setLakeAutoFilled(true);
-          }
-        });
+        submissionStartedSinceLookupRef.current = false;
+        setWaterLookupPending(true);
+        lookupWaterName(lat, lng)
+          .then((name) => {
+            if (!name) return;
+            if (submissionStartedSinceLookupRef.current) {
+              // A submission already froze its FormData without this name —
+              // apply it once that catch's id is known (see the effect
+              // below), and still prefill the next catch's form now.
+              pendingWaterNameRef.current = name;
+            }
+            if (lakeRef.current.trim() === "") {
+              setLake(name);
+              setLakeAutoFilled(true);
+            }
+          })
+          .finally(() => setWaterLookupPending(false));
       },
       () => {
         setGpsStatus("error");
@@ -172,6 +211,10 @@ export default function CatchForm({
       setLocation("");
       setComment("");
       setCaughtAtLocal("");
+      if (state && "insertedId" in state && pendingWaterNameRef.current) {
+        updateCatchLake(state.insertedId, pendingWaterNameRef.current);
+        pendingWaterNameRef.current = null;
+      }
       if (state && "bingoMatch" in state && state.bingoMatch) {
         // eslint-disable-next-line react-hooks/set-state-in-effect
         setBingoNotice(state.bingoMatch);
@@ -403,8 +446,10 @@ export default function CatchForm({
               )}
               {gpsStatus === "success" && (
                 <p className="text-xs text-zinc-500 dark:text-zinc-400">
-                  ✓ Position hämtad.
-                  {lakeAutoFilled && " Vatten ifyllt automatiskt."}
+                  ✓ Position hämtad.{" "}
+                  {waterLookupPending
+                    ? "Söker vatten…"
+                    : lakeAutoFilled && "Vatten ifyllt automatiskt."}
                 </p>
               )}
               {gpsStatus === "error" && (

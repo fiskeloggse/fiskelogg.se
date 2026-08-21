@@ -18,7 +18,10 @@ export type CatchNotices = {
   };
 };
 
-export type CatchState = { error: string } | CatchNotices | undefined;
+export type CatchState =
+  | { error: string }
+  | (CatchNotices & { insertedId: number })
+  | undefined;
 
 const CatchSchema = z
   .object({
@@ -197,9 +200,27 @@ export async function addCatch(
     };
   }
 
-  if (notices.bingoMatch || notices.personalBest) {
-    return notices;
-  }
+  return { insertedId: inserted.id, ...notices };
+}
+
+// Patches in a lake/water name found after the fact — used when the GPS
+// reverse-geocode lookup resolves only after the catch was already
+// submitted, so the name doesn't silently end up on the next catch logged
+// instead. Only applies while the field is still empty, so it never
+// overwrites something the user (or a later edit) already set.
+export async function updateCatchLake(id: number, lake: string) {
+  const user = await requireUser();
+
+  const result = await sql`
+    update catches set lake = ${lake}
+    where id = ${id} and user_id = ${user.id} and deleted_at is null and lake is null
+  `;
+
+  if (result.count === 0) return;
+
+  revalidatePath("/");
+  revalidatePath("/register");
+  revalidatePath(`/register/${id}`);
 }
 
 // Soft delete — moves the catch to the trash (papperskorg) instead of
