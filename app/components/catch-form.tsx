@@ -8,6 +8,7 @@ import { FISH_SPECIES } from "@/lib/species";
 import type { SpeciesSuggestions } from "@/lib/species-suggestions";
 import type { BaitSuggestions } from "@/lib/bait-suggestions";
 import type { LakeSuggestions } from "@/lib/lake-suggestions";
+import type { LocationsByLake } from "@/lib/location-suggestions";
 import { QUICK_LOG_FIELD_KEYS } from "@/lib/constants";
 import ImportCatchesForm from "./import-catches-form";
 import TextSuggestInput from "./text-suggest-input";
@@ -82,7 +83,7 @@ export default function CatchForm({
   suggestions: SpeciesSuggestions;
   baitSuggestions: BaitSuggestions;
   lakeSuggestions: LakeSuggestions;
-  locationSuggestions: string[];
+  locationSuggestions: LocationsByLake;
   currentUserId: number;
   currentUserName: string;
   teamMembers: { id: number; name: string }[];
@@ -141,6 +142,14 @@ export default function CatchForm({
   const [waterLookupPending, setWaterLookupPending] = useState(false);
 
   const errorMessage = state && "error" in state ? state.error : undefined;
+
+  // Plats suggestions are scoped to whatever Vatten currently holds — once
+  // a water is picked, only places logged with THAT water make sense.
+  // With no water typed yet there's nothing to narrow by, so fall back to
+  // everything.
+  const locationOptions = lake.trim()
+    ? (locationSuggestions[lake.trim()] ?? [])
+    : Object.values(locationSuggestions).flat();
 
   // Kept in sync so the async water lookup below can read the live value
   // instead of a stale closure, and never clobber something typed in the
@@ -510,7 +519,7 @@ export default function CatchForm({
               name="location"
               value={location}
               onChange={setLocation}
-              options={locationSuggestions}
+              options={locationOptions}
               className={inputClassName}
             />
           </div>
