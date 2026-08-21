@@ -486,12 +486,6 @@ export default function CatchForm({
               selected={lake}
               onSelect={setLake}
             />
-            <Chips
-              label="Vanliga"
-              options={lakeSuggestions.common}
-              selected={lake}
-              onSelect={setLake}
-            />
 
             <input
               id="lake"
