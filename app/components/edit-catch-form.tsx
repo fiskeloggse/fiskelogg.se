@@ -1,7 +1,8 @@
 "use client";
 
-import { useActionState, useEffect, useState } from "react";
+import { useActionState, useEffect, useRef, useState } from "react";
 import { updateCatch, type EditCatchState } from "@/app/actions/catches";
+import { lookupWaterName } from "@/app/actions/geocode";
 import { FISH_SPECIES } from "@/lib/species";
 import type { Catch } from "./catch-list";
 import MapPositionPicker from "./map-position-picker";
@@ -41,6 +42,8 @@ export default function EditCatchForm({
   const [latitude, setLatitude] = useState(item.latitude ?? null);
   const [longitude, setLongitude] = useState(item.longitude ?? null);
   const hasPosition = latitude != null && longitude != null;
+  const lakeInputRef = useRef<HTMLInputElement>(null);
+  const [waterAutoFilled, setWaterAutoFilled] = useState(false);
 
   useEffect(() => {
     if (succeeded) onClose();
@@ -122,9 +125,10 @@ export default function EditCatchForm({
       <div className="grid grid-cols-2 gap-3">
         <div className="flex flex-col gap-1.5">
           <label htmlFor={`lake-${item.id}`} className="text-sm font-medium">
-            Sjö
+            Vatten
           </label>
           <input
+            ref={lakeInputRef}
             id={`lake-${item.id}`}
             name="lake"
             type="text"
@@ -203,8 +207,22 @@ export default function EditCatchForm({
             onChange={(lat, lng) => {
               setLatitude(lat);
               setLongitude(lng);
+              const lakeInput = lakeInputRef.current;
+              if (lakeInput && lakeInput.value.trim() === "") {
+                lookupWaterName(lat, lng).then((name) => {
+                  if (name && lakeInput.value.trim() === "") {
+                    lakeInput.value = name;
+                    setWaterAutoFilled(true);
+                  }
+                });
+              }
             }}
           />
+        )}
+        {waterAutoFilled && (
+          <p className="text-xs text-zinc-500 dark:text-zinc-400">
+            ✓ Vatten ifyllt automatiskt.
+          </p>
         )}
         {hasPosition && (
           <>

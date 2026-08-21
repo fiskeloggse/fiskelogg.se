@@ -8,7 +8,7 @@ sheet.columns = [
   { header: "Art", key: "species", width: 16 },
   { header: "Längd (cm)", key: "lengthCm", width: 12 },
   { header: "Vikt (kg)", key: "weightKg", width: 11 },
-  { header: "Sjö", key: "lake", width: 16 },
+  { header: "Vatten", key: "lake", width: 16 },
   { header: "Plats", key: "location", width: 16 },
   { header: "Bete", key: "bait", width: 14 },
   { header: "Datum", key: "caughtAt", width: 12 },

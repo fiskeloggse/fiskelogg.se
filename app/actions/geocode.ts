@@ -4,7 +4,7 @@ type OverpassElement = {
   center?: { lat: number; lon: number };
   lat?: number;
   lon?: number;
-  tags?: { name?: string; water?: string };
+  tags?: { name?: string; water?: string; waterway?: string };
 };
 
 function distanceMeters(
@@ -23,14 +23,36 @@ function distanceMeters(
   return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 }
 
-// Finds the name of the nearest named lake to a GPS position, via
-// OpenStreetMap's Overpass API — no API key needed, matching how the app's
-// maps are already self-hosted against OSM rather than a paid provider.
-export async function lookupLakeName(
+// Lower is better. Rules out decorative/non-fishing water (fountains,
+// pools, drainage) entirely by returning Infinity for it.
+function rank(tags: { water?: string; waterway?: string }): number {
+  if (tags.water === "basin" || tags.water === "fountain" || tags.water === "wastewater") {
+    return Infinity;
+  }
+  if (tags.waterway === "drain" || tags.waterway === "ditch") return Infinity;
+
+  if (tags.water === "lake" || tags.waterway === "river") return 0;
+  if (
+    tags.water === "pond" ||
+    tags.water === "reservoir" ||
+    tags.water === "lagoon" ||
+    tags.waterway === "stream" ||
+    tags.waterway === "canal"
+  ) {
+    return 1;
+  }
+  return 2;
+}
+
+// Finds the name of the nearest named body of water (lake, river, stream,
+// pond, ...) to a GPS position, via OpenStreetMap's Overpass API — no API
+// key needed, matching how the app's maps are already self-hosted against
+// OSM rather than a paid provider.
+export async function lookupWaterName(
   lat: number,
   lng: number
 ): Promise<string | null> {
-  const query = `[out:json][timeout:8];(way["natural"="water"]["name"](around:1500,${lat},${lng});relation["natural"="water"]["name"](around:1500,${lat},${lng}););out center;`;
+  const query = `[out:json][timeout:12];(way["natural"="water"]["name"](around:1500,${lat},${lng});relation["natural"="water"]["name"](around:1500,${lat},${lng});way["waterway"]["name"](around:800,${lat},${lng}););out center;`;
 
   try {
     const res = await fetch("https://overpass-api.de/api/interpreter", {
@@ -41,30 +63,30 @@ export async function lookupLakeName(
         "User-Agent": "Fisklogg (fisklogg.se)",
       },
       body: `data=${encodeURIComponent(query)}`,
-      signal: AbortSignal.timeout(8000),
+      signal: AbortSignal.timeout(15000),
     });
     if (!res.ok) return null;
 
     const data = await res.json();
     const elements: OverpassElement[] = data.elements ?? [];
 
-    let best: { name: string; distance: number; isLake: boolean } | null = null;
+    let best: { name: string; distance: number; rank: number } | null = null;
     for (const el of elements) {
       const name = el.tags?.name;
       const elLat = el.center?.lat ?? el.lat;
       const elLon = el.center?.lon ?? el.lon;
       if (!name || elLat == null || elLon == null) continue;
 
+      const elRank = rank(el.tags ?? {});
+      if (!Number.isFinite(elRank)) continue;
+
       const distance = distanceMeters(lat, lng, elLat, elLon);
-      const isLake = el.tags?.water === "lake";
-      // Prefer an explicitly-tagged lake over other water bodies (ponds,
-      // reservoirs) even if slightly farther away.
       if (
         !best ||
-        (isLake && !best.isLake) ||
-        (isLake === best.isLake && distance < best.distance)
+        elRank < best.rank ||
+        (elRank === best.rank && distance < best.distance)
       ) {
-        best = { name, distance, isLake };
+        best = { name, distance, rank: elRank };
       }
     }
 

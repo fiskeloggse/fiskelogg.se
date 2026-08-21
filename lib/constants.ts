@@ -25,7 +25,7 @@ export const MONTHS = [
 
 export const QUICK_LOG_FIELDS = [
   { key: "weightKg", label: "Vikt" },
-  { key: "lake", label: "Sjö" },
+  { key: "lake", label: "Vatten" },
   { key: "location", label: "Plats" },
   { key: "bait", label: "Bete" },
   { key: "anglerId", label: "Fiskare" },

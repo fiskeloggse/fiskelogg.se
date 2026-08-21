@@ -72,7 +72,7 @@ export default function CatchDetail({ item }: { item: Catch }) {
             </p>
           </div>
           <div className="col-span-2">
-            <p className="text-zinc-500 dark:text-zinc-400">Sjö</p>
+            <p className="text-zinc-500 dark:text-zinc-400">Vatten</p>
             <p className="text-lg font-medium">{item.lake || "–"}</p>
           </div>
           <div className="col-span-2">

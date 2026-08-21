@@ -2,7 +2,7 @@ import "server-only";
 import sql from "./db";
 import { TIMEZONE } from "./constants";
 
-// Used to prefill "Sjö" when logging another catch the same day. Looks at
+// Used to prefill "Vatten" when logging another catch the same day. Looks at
 // the whole team's catches (not just this user's own) so it still carries
 // over when logging a catch on behalf of a teammate.
 export async function getTodaysLastLake(

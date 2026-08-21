@@ -3,7 +3,7 @@
 import { useActionState, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { addCatch, type CatchNotices } from "@/app/actions/catches";
-import { lookupLakeName } from "@/app/actions/geocode";
+import { lookupWaterName } from "@/app/actions/geocode";
 import { FISH_SPECIES } from "@/lib/species";
 import type { SpeciesSuggestions } from "@/lib/species-suggestions";
 import type { BaitSuggestions } from "@/lib/bait-suggestions";
@@ -149,7 +149,7 @@ export default function CatchForm({
         const lng = position.coords.longitude;
         setGpsCoords({ lat, lng });
         setGpsStatus("success");
-        lookupLakeName(lat, lng).then((name) => {
+        lookupWaterName(lat, lng).then((name) => {
           if (name) {
             setLake(name);
             setLakeAutoFilled(true);
@@ -404,7 +404,7 @@ export default function CatchForm({
               {gpsStatus === "success" && (
                 <p className="text-xs text-zinc-500 dark:text-zinc-400">
                   ✓ Position hämtad.
-                  {lakeAutoFilled && " Sjö ifylld automatiskt."}
+                  {lakeAutoFilled && " Vatten ifyllt automatiskt."}
                 </p>
               )}
               {gpsStatus === "error" && (
@@ -429,7 +429,7 @@ export default function CatchForm({
             }
           >
             <label htmlFor="lake" className="text-sm font-medium">
-              Sjö <span className="font-normal text-zinc-500">(valfritt)</span>
+              Vatten <span className="font-normal text-zinc-500">(valfritt)</span>
             </label>
             <input
               id="lake"
