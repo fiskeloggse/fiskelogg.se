@@ -171,6 +171,10 @@ export default function StatsDashboard({
     return `/statistik/${encodeURIComponent(species)}`;
   }
 
+  function lakeHref(lake: string) {
+    return `/statistik/vatten/${encodeURIComponent(lake)}`;
+  }
+
   if (view === "fishingdays") {
     return (
       <div className="rounded-xl border border-black/10 bg-white p-5 dark:border-white/15 dark:bg-white/5">
@@ -244,7 +248,7 @@ export default function StatsDashboard({
             {lakeRows.length === 0 ? (
               <Empty>Inget vatten har fyllts i på några fångster än.</Empty>
             ) : (
-              <BarChart rows={lakeRows} />
+              <BarChart rows={lakeRows} getHref={lakeHref} />
             )}
           </div>
 
