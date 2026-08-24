@@ -36,6 +36,14 @@ const THEME_INIT_SCRIPT = `
     function apply() {
       var theme = storedTheme() || (media.matches ? "dark" : "light");
       document.documentElement.setAttribute("data-theme", theme);
+      // Belt-and-suspenders: paints the background via an inline style too,
+      // not just the data-theme attribute + stylesheet rule. Doesn't help
+      // when the stylesheet itself is still loading (nothing paints until
+      // then regardless — see the Ljust/Mörkt/System discussion), but on a
+      // warm cache where CSS resolves instantly this avoids any dependency
+      // on stylesheet application order for at least the background color.
+      document.documentElement.style.backgroundColor =
+        theme === "dark" ? "#0a0a0a" : "#ffffff";
     }
     apply();
     // Without an explicit Ljust/Mörkt choice, "System" should track the
