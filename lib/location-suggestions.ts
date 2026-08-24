@@ -6,12 +6,21 @@ import sql from "./db";
 // Catches with no lake set are grouped under the "" key.
 export type LocationsByLake = Record<string, string[]>;
 
+export type LocationSuggestions = {
+  recent: string[];
+  byLake: LocationsByLake;
+};
+
 export async function getLocationSuggestions(
   userId: number
-): Promise<LocationsByLake> {
-  const rows = await sql<{ lake: string | null; location: string }[]>`
-    select distinct lake, location from catches
+): Promise<LocationSuggestions> {
+  const rows = await sql<
+    { lake: string | null; location: string; last_caught: Date }[]
+  >`
+    select lake, location, max(caught_at) as last_caught
+    from catches
     where user_id = ${userId} and location is not null and deleted_at is null
+    group by lake, location
   `;
 
   const byLake: LocationsByLake = {};
@@ -23,5 +32,12 @@ export async function getLocationSuggestions(
     locations.sort((a, b) => a.localeCompare(b, "sv"));
   }
 
-  return byLake;
+  // Mirrors getLakeSuggestions: just the single most recently used Plats,
+  // so the "Senaste" chip row lines up with Vatten's.
+  const recent = [...rows]
+    .sort((a, b) => b.last_caught.getTime() - a.last_caught.getTime())
+    .slice(0, 1)
+    .map((row) => row.location);
+
+  return { recent, byLake };
 }

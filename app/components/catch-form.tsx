@@ -8,7 +8,7 @@ import { FISH_SPECIES } from "@/lib/species";
 import type { SpeciesSuggestions } from "@/lib/species-suggestions";
 import type { BaitSuggestions } from "@/lib/bait-suggestions";
 import type { LakeSuggestions } from "@/lib/lake-suggestions";
-import type { LocationsByLake } from "@/lib/location-suggestions";
+import type { LocationSuggestions } from "@/lib/location-suggestions";
 import { QUICK_LOG_FIELD_KEYS } from "@/lib/constants";
 import ImportCatchesForm from "./import-catches-form";
 import TextSuggestInput from "./text-suggest-input";
@@ -84,7 +84,7 @@ export default function CatchForm({
   suggestions: SpeciesSuggestions;
   baitSuggestions: BaitSuggestions;
   lakeSuggestions: LakeSuggestions;
-  locationSuggestions: LocationsByLake;
+  locationSuggestions: LocationSuggestions;
   currentUserId: number;
   currentUserName: string;
   teamMembers: { id: number; name: string }[];
@@ -164,8 +164,8 @@ export default function CatchForm({
   // With no water typed yet there's nothing to narrow by, so fall back to
   // everything.
   const locationOptions = lake.trim()
-    ? (locationSuggestions[lake.trim()] ?? [])
-    : Object.values(locationSuggestions).flat();
+    ? (locationSuggestions.byLake[lake.trim()] ?? [])
+    : Object.values(locationSuggestions.byLake).flat();
 
   // Kept in sync so the async water lookup below can read the live value
   // instead of a stale closure, and never clobber something typed in the
@@ -584,11 +584,19 @@ export default function CatchForm({
               />
             </div>
 
-            <div className={showLocation || showMore ? "flex flex-col gap-1.5" : "hidden"}>
+            <div className={showLocation || showMore ? "flex flex-col gap-2" : "hidden"}>
               <label htmlFor="location" className="text-sm font-medium">
                 Plats{" "}
                 <span className="font-normal text-zinc-500">(valfritt)</span>
               </label>
+
+              <Chips
+                label="Senaste"
+                options={locationSuggestions.recent}
+                selected={location}
+                onSelect={setLocation}
+              />
+
               <TextSuggestInput
                 id="location"
                 name="location"
