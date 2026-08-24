@@ -80,9 +80,9 @@ export default async function KontoPage() {
         <div>
           <h2 className="text-lg font-semibold">Snabbloggning</h2>
           <p className="text-sm text-zinc-500 dark:text-zinc-400">
-            Art och längd syns alltid. Välj vilka övriga fält som alltid ska
-            synas när du loggar en fångst — resten hittar du bakom
-            &quot;Fler fält&quot;.
+            Art syns alltid. Välj vilka övriga fält som alltid ska synas när
+            du loggar en fångst — resten hittar du bakom &quot;Fler
+            fält&quot;.
           </p>
         </div>
         <form action={updateQuickLogFields} className="flex flex-col gap-3">

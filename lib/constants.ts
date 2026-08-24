@@ -23,12 +23,14 @@ export const MONTHS = [
   { value: 12, label: "December" },
 ] as const;
 
+// Each entry toggles a whole row in the log form — "weightKg"/"lake"/"bait"
+// double as the representative key for their paired field (Längd, Plats,
+// Fiskemetod respectively), since those rows are always shown or hidden
+// together.
 export const QUICK_LOG_FIELDS = [
-  { key: "weightKg", label: "Vikt" },
-  { key: "lake", label: "Vatten" },
-  { key: "location", label: "Plats" },
-  { key: "method", label: "Fiskemetod" },
-  { key: "bait", label: "Bete" },
+  { key: "weightKg", label: "Längd & Vikt" },
+  { key: "lake", label: "Vatten & Plats" },
+  { key: "bait", label: "Fiskemetod & Bete" },
   { key: "anglerId", label: "Fiskare" },
   { key: "comment", label: "Kommentar" },
   { key: "gps", label: "GPS-position" },

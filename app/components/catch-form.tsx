@@ -115,10 +115,14 @@ export default function CatchForm({
   }, [mode]);
 
   const quickFields = quickLogFields ?? QUICK_LOG_FIELD_KEYS;
+  // Längd/Vikt, Vatten/Plats, and Fiskemetod/Bete are each toggled together
+  // as one row in Snabbloggning, so the pair shares its representative
+  // field's key (see the comment on QUICK_LOG_FIELDS).
+  const showLength = quickFields.includes("weightKg");
   const showWeight = quickFields.includes("weightKg");
   const showLake = quickFields.includes("lake");
-  const showLocation = quickFields.includes("location");
-  const showMethod = quickFields.includes("method");
+  const showLocation = quickFields.includes("lake");
+  const showMethod = quickFields.includes("bait");
   const showBait = quickFields.includes("bait");
   const showAngler = quickFields.includes("anglerId");
   const showComment = quickFields.includes("comment");
@@ -126,8 +130,6 @@ export default function CatchForm({
   const hasHiddenFields =
     !showWeight ||
     !showLake ||
-    !showLocation ||
-    !showMethod ||
     !showBait ||
     !showComment ||
     !showGps ||
@@ -439,7 +441,7 @@ export default function CatchForm({
           </div>
 
           <div className="grid grid-cols-2 gap-3">
-            <div className="flex flex-col gap-1.5">
+            <div className={showLength || showMore ? "flex flex-col gap-1.5" : "hidden"}>
               <label htmlFor="lengthCm" className="text-sm font-medium">
                 Längd (cm){" "}
                 <span className="font-normal text-zinc-500">(valfritt)</span>
