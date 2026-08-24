@@ -16,7 +16,7 @@ import CatchForm from "@/app/components/catch-form";
 import CatchList, { type Catch } from "@/app/components/catch-list";
 import CatchSpeciesFilter from "@/app/components/catch-species-filter";
 import LandingPage from "@/app/components/landing-page";
-import TodayTopList from "@/app/components/today-top-list";
+import TodayTopTable from "@/app/components/today-top-table";
 
 const CATCHES_LIMIT = 5;
 
@@ -144,24 +144,12 @@ export default async function Home(props: PageProps<"/">) {
 
       <div className="flex flex-col gap-2">
         <h2 className="text-base font-semibold">Dagens topp 5</h2>
-        {user.team_id ? (
-          <div className="grid grid-cols-2 gap-3">
-            <div className="flex min-w-0 flex-col gap-1.5">
-              <h3 className="text-xs font-medium text-zinc-500 dark:text-zinc-400">
-                Mina
-              </h3>
-              <TodayTopList catches={todaysTopCatches} currentUserId={user.id} />
-            </div>
-            <div className="flex min-w-0 flex-col gap-1.5">
-              <h3 className="text-xs font-medium text-zinc-500 dark:text-zinc-400">
-                {teamName || "Team"}
-              </h3>
-              <TodayTopList catches={todaysTopTeamCatches} currentUserId={user.id} />
-            </div>
-          </div>
-        ) : (
-          <TodayTopList catches={todaysTopCatches} currentUserId={user.id} />
-        )}
+        <TodayTopTable
+          personalCatches={todaysTopCatches}
+          teamCatches={user.team_id ? todaysTopTeamCatches : null}
+          teamName={teamName || "Team"}
+          currentUserId={user.id}
+        />
       </div>
 
       <div className="flex flex-col gap-2">
