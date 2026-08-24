@@ -11,18 +11,14 @@ import {
   getTodaysLastLake,
   getTodaysLastBait,
   getTodaysLastMethod,
-  getTodaysSummary,
 } from "@/lib/catches";
+import { TIMEZONE } from "@/lib/constants";
 import CatchForm from "@/app/components/catch-form";
 import CatchList, { type Catch } from "@/app/components/catch-list";
 import CatchSpeciesFilter from "@/app/components/catch-species-filter";
 import LandingPage from "@/app/components/landing-page";
 
 const CATCHES_LIMIT = 5;
-
-function formatSv(n: number): string {
-  return (Math.round(n * 100) / 100).toString().replace(".", ",");
-}
 
 export default async function Home(props: PageProps<"/">) {
   const user = await getCurrentUser();
@@ -65,6 +61,19 @@ export default async function Home(props: PageProps<"/">) {
         limit ${CATCHES_LIMIT}
       `;
 
+  const todaysTopCatchesQuery = sql<Catch[]>`
+    select id, user_id, species, length_cm, weight_kg, lake, location, bait, comment, caught_at
+    from catches
+    where user_id = ${user.id}
+      and deleted_at is null
+      and length_cm is not null
+      and (caught_at at time zone ${TIMEZONE})::date
+        = (now() at time zone ${TIMEZONE})::date
+      ${speciesCondition}
+    order by length_cm desc
+    limit ${CATCHES_LIMIT}
+  `;
+
   // Independent queries — run together instead of one round trip at a time.
   const [
     speciesSuggestions,
@@ -77,7 +86,7 @@ export default async function Home(props: PageProps<"/">) {
     defaultLake,
     defaultBait,
     defaultMethod,
-    todaysSummary,
+    todaysTopCatches,
     personalCatches,
     teamCatches,
   ] = await Promise.all([
@@ -91,7 +100,7 @@ export default async function Home(props: PageProps<"/">) {
     getTodaysLastLake(user.id, user.team_id),
     getTodaysLastBait(user.id, user.team_id),
     getTodaysLastMethod(user.id, user.team_id),
-    getTodaysSummary(user.id),
+    todaysTopCatchesQuery,
     personalCatchesQuery,
     teamCatchesQuery,
   ]);
@@ -114,21 +123,14 @@ export default async function Home(props: PageProps<"/">) {
         gpsDefaultEnabled={user.gps_default_enabled}
       />
 
-      {todaysSummary.count > 0 && (
-        <p className="text-sm text-zinc-600 dark:text-zinc-300">
-          Idag: {todaysSummary.count}{" "}
-          {todaysSummary.count === 1 ? "fångst" : "fångster"}
-          {todaysSummary.biggest && (
-            <>
-              {" · störst "}
-              {todaysSummary.biggest.length_cm != null
-                ? `${todaysSummary.biggest.length_cm} cm`
-                : `${formatSv(todaysSummary.biggest.weight_kg!)} kg`}{" "}
-              {todaysSummary.biggest.species}
-            </>
-          )}
-        </p>
-      )}
+      <div>
+        <h2 className="text-lg font-semibold">Dagens topp 5</h2>
+        <CatchList
+          catches={todaysTopCatches}
+          currentUserId={user.id}
+          emptyMessage="Inga fångster loggade idag än."
+        />
+      </div>
 
       <div className="flex flex-wrap items-center justify-between gap-4">
         <h2 className="text-lg font-semibold">Senaste</h2>

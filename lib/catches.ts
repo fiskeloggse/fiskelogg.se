@@ -73,42 +73,6 @@ export async function getTodaysLastMethod(
   return row?.method ?? null;
 }
 
-export type TodaysSummary = {
-  count: number;
-  biggest: { species: string; length_cm: number | null; weight_kg: number | null } | null;
-};
-
-// Powers the "Idag" line on the homepage — how many catches so far today,
-// and the biggest one (by length, falling back to weight). Personal only,
-// not team-wide: it's meant to answer "how am I doing today", not the
-// team's combined total.
-export async function getTodaysSummary(userId: number): Promise<TodaysSummary> {
-  const [countRow] = await sql<{ count: number }[]>`
-    select count(*)::int as count
-    from catches
-    where user_id = ${userId}
-      and deleted_at is null
-      and (caught_at at time zone ${TIMEZONE})::date
-        = (now() at time zone ${TIMEZONE})::date
-  `;
-
-  const [biggest] = await sql<
-    { species: string; length_cm: number | null; weight_kg: number | null }[]
-  >`
-    select species, length_cm, weight_kg
-    from catches
-    where user_id = ${userId}
-      and deleted_at is null
-      and (caught_at at time zone ${TIMEZONE})::date
-        = (now() at time zone ${TIMEZONE})::date
-      and (length_cm is not null or weight_kg is not null)
-    order by length_cm desc nulls last, weight_kg desc nulls last
-    limit 1
-  `;
-
-  return { count: countRow?.count ?? 0, biggest: biggest ?? null };
-}
-
 export async function getOwnCatchCount(userId: number): Promise<number> {
   const [row] = await sql<{ count: number }[]>`
     select count(*)::int as count from catches where user_id = ${userId} and deleted_at is null
