@@ -1,8 +1,6 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { deleteCatch } from "@/app/actions/catches";
-import ConfirmDeleteButton from "./confirm-delete-button";
 import type { Catch } from "./catch-list";
 
 const ROWS = 5;
@@ -49,19 +47,7 @@ function CatchCells({
         <span className="truncate">{item.species || "Okänd art"}</span>
       </td>
       <td className={"px-2 py-1.5 " + rowClass} onClick={onClick}>
-        <span className="flex items-center justify-between gap-1.5">
-          {formatMeasurement(item)}
-          {isOwn && (
-            <span onClick={(e) => e.stopPropagation()}>
-              <ConfirmDeleteButton
-                action={deleteCatch}
-                id={item.id}
-                label="Ta bort fångst"
-                compact
-              />
-            </span>
-          )}
-        </span>
+        {formatMeasurement(item)}
       </td>
     </>
   );

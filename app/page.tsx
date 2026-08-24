@@ -91,6 +91,19 @@ export default async function Home(props: PageProps<"/">) {
         limit ${CATCHES_LIMIT}
       `;
 
+  const todaysSpeciesQuery = sql<{ species: string }[]>`
+    select distinct species
+    from catches c
+    where (
+      c.user_id = ${user.id}
+      ${user.team_id ? sql`or c.user_id in (select id from users where team_id = ${user.team_id})` : sql``}
+    )
+      and c.deleted_at is null
+      and (c.caught_at at time zone ${TIMEZONE})::date
+        = (now() at time zone ${TIMEZONE})::date
+    order by species
+  `;
+
   // Independent queries — run together instead of one round trip at a time.
   const [
     speciesSuggestions,
@@ -103,6 +116,7 @@ export default async function Home(props: PageProps<"/">) {
     defaultLake,
     defaultBait,
     defaultMethod,
+    todaysSpeciesRows,
     todaysTopCatches,
     todaysTopTeamCatches,
     personalCatches,
@@ -118,11 +132,14 @@ export default async function Home(props: PageProps<"/">) {
     getTodaysLastLake(user.id, user.team_id),
     getTodaysLastBait(user.id, user.team_id),
     getTodaysLastMethod(user.id, user.team_id),
+    todaysSpeciesQuery,
     todaysTopCatchesQuery,
     todaysTopTeamCatchesQuery,
     personalCatchesQuery,
     teamCatchesQuery,
   ]);
+
+  const todaysSpecies = todaysSpeciesRows.map((row) => row.species);
 
   return (
     <main className="mx-auto flex w-full max-w-4xl flex-1 flex-col gap-6 px-4 py-8 sm:px-6">
@@ -144,6 +161,7 @@ export default async function Home(props: PageProps<"/">) {
 
       <CatchesTable
         title="Dagens topp 5"
+        headerExtra={<CatchSpeciesFilter species={todaysSpecies} />}
         personalCatches={todaysTopCatches}
         teamCatches={user.team_id ? todaysTopTeamCatches : null}
         teamName={teamName || "Team"}
