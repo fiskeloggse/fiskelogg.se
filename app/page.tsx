@@ -17,6 +17,7 @@ import CatchForm from "@/app/components/catch-form";
 import CatchList, { type Catch } from "@/app/components/catch-list";
 import CatchSpeciesFilter from "@/app/components/catch-species-filter";
 import LandingPage from "@/app/components/landing-page";
+import TodayTopList from "@/app/components/today-top-list";
 
 const CATCHES_LIMIT = 5;
 
@@ -74,6 +75,23 @@ export default async function Home(props: PageProps<"/">) {
     limit ${CATCHES_LIMIT}
   `;
 
+  const todaysTopTeamCatchesQuery = !user.team_id
+    ? Promise.resolve([] as Catch[])
+    : sql<Catch[]>`
+        select c.id, c.user_id, c.species, c.length_cm, c.weight_kg, c.lake, c.location, c.bait, c.comment, c.caught_at,
+          u.name as angler_name
+        from catches c
+        join users u on u.id = c.user_id
+        where u.team_id = ${user.team_id}
+          and c.deleted_at is null
+          and c.length_cm is not null
+          and (c.caught_at at time zone ${TIMEZONE})::date
+            = (now() at time zone ${TIMEZONE})::date
+          ${teamSpeciesCondition}
+        order by c.length_cm desc
+        limit ${CATCHES_LIMIT}
+      `;
+
   // Independent queries — run together instead of one round trip at a time.
   const [
     speciesSuggestions,
@@ -87,6 +105,7 @@ export default async function Home(props: PageProps<"/">) {
     defaultBait,
     defaultMethod,
     todaysTopCatches,
+    todaysTopTeamCatches,
     personalCatches,
     teamCatches,
   ] = await Promise.all([
@@ -101,6 +120,7 @@ export default async function Home(props: PageProps<"/">) {
     getTodaysLastBait(user.id, user.team_id),
     getTodaysLastMethod(user.id, user.team_id),
     todaysTopCatchesQuery,
+    todaysTopTeamCatchesQuery,
     personalCatchesQuery,
     teamCatchesQuery,
   ]);
@@ -123,13 +143,33 @@ export default async function Home(props: PageProps<"/">) {
         gpsDefaultEnabled={user.gps_default_enabled}
       />
 
-      <div>
+      <div className="flex flex-col gap-3">
         <h2 className="text-lg font-semibold">Dagens topp 5</h2>
-        <CatchList
-          catches={todaysTopCatches}
-          currentUserId={user.id}
-          emptyMessage="Inga fångster loggade idag än."
-        />
+        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
+          <div className="flex flex-col gap-3">
+            <h3 className="text-sm font-medium text-zinc-500 dark:text-zinc-400">
+              Mina
+            </h3>
+            <TodayTopList catches={todaysTopCatches} currentUserId={user.id} />
+          </div>
+
+          <div className="flex flex-col gap-3">
+            <h3 className="text-sm font-medium text-zinc-500 dark:text-zinc-400">
+              {teamName || "Team"}
+            </h3>
+            {user.team_id ? (
+              <TodayTopList catches={todaysTopTeamCatches} currentUserId={user.id} />
+            ) : (
+              <p className="rounded-xl border border-dashed border-black/15 p-6 text-center text-sm text-zinc-500 dark:border-white/15 dark:text-zinc-400">
+                Inget team än.{" "}
+                <Link href="/konto" className="underline">
+                  Bjud in någon
+                </Link>{" "}
+                för att dela fångster.
+              </p>
+            )}
+          </div>
+        </div>
       </div>
 
       <div className="flex flex-wrap items-center justify-between gap-4">
