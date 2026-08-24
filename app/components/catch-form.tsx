@@ -29,10 +29,12 @@ function Chips({
   selected: string;
   onSelect: (value: string) => void;
 }) {
-  if (options.length === 0) return null;
-
+  // Always takes up the same height as a row with a chip in it, even with
+  // zero options — otherwise a field with no "Senaste" suggestion yet sits
+  // shorter than its paired field that has one (e.g. Fiskemetod vs. Bete
+  // when only Bete has history), throwing the two out of alignment.
   return (
-    <div className="flex flex-wrap items-center gap-1.5">
+    <div className="flex min-h-8 flex-wrap items-center gap-1.5">
       <span className="text-xs text-zinc-500 dark:text-zinc-400">{label}</span>
       {options.map((s) => (
         <button
