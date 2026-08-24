@@ -5,11 +5,17 @@ import { deleteCatch } from "@/app/actions/catches";
 import ConfirmDeleteButton from "./confirm-delete-button";
 import type { Catch } from "./catch-list";
 
-function formatCaughtAt(date: Date) {
-  return date.toLocaleString("sv-SE", {
-    dateStyle: "medium",
-    timeStyle: "short",
-  });
+function formatSv(n: number): string {
+  return (Math.round(n * 100) / 100).toString().replace(".", ",");
+}
+
+// Just a clock time for today's catches — the date only matters once it's
+// not today, and even then a short "24 aug" is enough for a homepage glance.
+function formatShort(date: Date) {
+  const isToday = date.toDateString() === new Date().toDateString();
+  return isToday
+    ? date.toLocaleTimeString("sv-SE", { hour: "2-digit", minute: "2-digit" })
+    : date.toLocaleDateString("sv-SE", { day: "numeric", month: "short" });
 }
 
 export default function CatchListItem({
@@ -22,64 +28,47 @@ export default function CatchListItem({
   const router = useRouter();
   const isOwn = item.user_id === currentUserId;
 
-  const measurements = [
-    item.length_cm != null ? `${item.length_cm} cm` : null,
-    item.weight_kg != null ? `${item.weight_kg} kg` : null,
-  ]
-    .filter(Boolean)
-    .join(" · ");
-  const place = [item.lake, item.location].filter(Boolean).join(", ");
-
   return (
     <li
       onClick={isOwn ? () => router.push(`/register/${item.id}`) : undefined}
       className={
-        "flex items-center justify-between gap-2 px-3 py-2 " +
+        "flex items-center justify-between gap-2 px-2.5 py-1.5 " +
         (isOwn ? "cursor-pointer hover:bg-black/5 dark:hover:bg-white/5" : "")
       }
     >
-      <div className="flex min-w-0 flex-wrap items-baseline gap-x-2 gap-y-0.5 text-sm">
-        <span className="truncate font-medium">
-          {item.species || "Okänd art"}
-        </span>
+      <span className="min-w-0 truncate text-sm font-medium">
+        {item.species || "Okänd art"}
         {item.angler_name && (
-          <span className="text-xs text-zinc-400 dark:text-zinc-500">
-            {item.angler_name}
+          <span className="text-xs font-normal text-zinc-400 dark:text-zinc-500">
+            {" "}
+            · {item.angler_name}
           </span>
         )}
-        {measurements && (
-          <span className="text-zinc-500 dark:text-zinc-400">
-            {measurements}
-          </span>
-        )}
-        {place && (
-          <span className="text-xs text-zinc-400 dark:text-zinc-500">
-            {place}
-          </span>
-        )}
-        {item.bait && (
-          <span className="text-xs text-zinc-400 dark:text-zinc-500">
-            {item.bait}
-          </span>
-        )}
-        <span className="text-xs text-zinc-400 dark:text-zinc-500">
-          {formatCaughtAt(item.caught_at)}
-        </span>
-      </div>
+      </span>
 
-      {isOwn && (
-        <div
-          className="flex shrink-0 items-center gap-1"
-          onClick={(e) => e.stopPropagation()}
-        >
-          <ConfirmDeleteButton
-            action={deleteCatch}
-            id={item.id}
-            label="Ta bort fångst"
-            compact
-          />
-        </div>
-      )}
+      <span className="flex shrink-0 items-center gap-1.5">
+        <span className="text-right text-sm whitespace-nowrap">
+          {item.length_cm != null
+            ? `${item.length_cm} cm`
+            : item.weight_kg != null
+              ? `${formatSv(item.weight_kg)} kg`
+              : "–"}
+          <br />
+          <span className="text-xs text-zinc-400 dark:text-zinc-500">
+            {formatShort(item.caught_at)}
+          </span>
+        </span>
+        {isOwn && (
+          <span onClick={(e) => e.stopPropagation()}>
+            <ConfirmDeleteButton
+              action={deleteCatch}
+              id={item.id}
+              label="Ta bort fångst"
+              compact
+            />
+          </span>
+        )}
+      </span>
     </li>
   );
 }

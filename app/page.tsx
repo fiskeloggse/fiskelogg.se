@@ -1,4 +1,3 @@
-import Link from "next/link";
 import sql from "@/lib/db";
 import { getCurrentUser } from "@/lib/dal";
 import { getSpeciesSuggestions } from "@/lib/species-suggestions";
@@ -126,7 +125,7 @@ export default async function Home(props: PageProps<"/">) {
   ]);
 
   return (
-    <main className="mx-auto flex w-full max-w-4xl flex-1 flex-col gap-8 px-4 py-10 sm:px-6">
+    <main className="mx-auto flex w-full max-w-4xl flex-1 flex-col gap-6 px-4 py-8 sm:px-6">
       <CatchForm
         suggestions={speciesSuggestions}
         baitSuggestions={baitSuggestions}
@@ -143,64 +142,51 @@ export default async function Home(props: PageProps<"/">) {
         gpsDefaultEnabled={user.gps_default_enabled}
       />
 
-      <div className="flex flex-col gap-3">
-        <h2 className="text-lg font-semibold">Dagens topp 5</h2>
-        <div className="grid grid-cols-2 gap-3">
-          <div className="flex min-w-0 flex-col gap-2">
-            <h3 className="text-sm font-medium text-zinc-500 dark:text-zinc-400">
-              Mina
-            </h3>
-            <TodayTopList catches={todaysTopCatches} currentUserId={user.id} />
-          </div>
-
-          <div className="flex min-w-0 flex-col gap-2">
-            <h3 className="text-sm font-medium text-zinc-500 dark:text-zinc-400">
-              {teamName || "Team"}
-            </h3>
-            {user.team_id ? (
+      <div className="flex flex-col gap-2">
+        <h2 className="text-base font-semibold">Dagens topp 5</h2>
+        {user.team_id ? (
+          <div className="grid grid-cols-2 gap-3">
+            <div className="flex min-w-0 flex-col gap-1.5">
+              <h3 className="text-xs font-medium text-zinc-500 dark:text-zinc-400">
+                Mina
+              </h3>
+              <TodayTopList catches={todaysTopCatches} currentUserId={user.id} />
+            </div>
+            <div className="flex min-w-0 flex-col gap-1.5">
+              <h3 className="text-xs font-medium text-zinc-500 dark:text-zinc-400">
+                {teamName || "Team"}
+              </h3>
               <TodayTopList catches={todaysTopTeamCatches} currentUserId={user.id} />
-            ) : (
-              <p className="rounded-xl border border-dashed border-black/15 p-3 text-center text-xs text-zinc-500 dark:border-white/15 dark:text-zinc-400">
-                Inget team än.{" "}
-                <Link href="/konto" className="underline">
-                  Bjud in någon
-                </Link>{" "}
-                för att dela fångster.
-              </p>
-            )}
+            </div>
           </div>
+        ) : (
+          <TodayTopList catches={todaysTopCatches} currentUserId={user.id} />
+        )}
+      </div>
+
+      <div className="flex flex-col gap-2">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <h2 className="text-base font-semibold">Senaste</h2>
+          <CatchSpeciesFilter species={speciesSuggestions.all} />
         </div>
-      </div>
-
-      <div className="flex flex-wrap items-center justify-between gap-4">
-        <h2 className="text-lg font-semibold">Senaste</h2>
-        <CatchSpeciesFilter species={speciesSuggestions.all} />
-      </div>
-
-      <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
-        <div className="flex flex-col gap-3">
-          <h3 className="text-sm font-medium text-zinc-500 dark:text-zinc-400">
-            Du
-          </h3>
+        {user.team_id ? (
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <div className="flex flex-col gap-1.5">
+              <h3 className="text-xs font-medium text-zinc-500 dark:text-zinc-400">
+                Du
+              </h3>
+              <CatchList catches={personalCatches} currentUserId={user.id} />
+            </div>
+            <div className="flex flex-col gap-1.5">
+              <h3 className="text-xs font-medium text-zinc-500 dark:text-zinc-400">
+                {teamName || "Team"}
+              </h3>
+              <CatchList catches={teamCatches} currentUserId={user.id} />
+            </div>
+          </div>
+        ) : (
           <CatchList catches={personalCatches} currentUserId={user.id} />
-        </div>
-
-        <div className="flex flex-col gap-3">
-          <h3 className="text-sm font-medium text-zinc-500 dark:text-zinc-400">
-            {teamName || "Team"}
-          </h3>
-          {user.team_id ? (
-            <CatchList catches={teamCatches} currentUserId={user.id} />
-          ) : (
-            <p className="rounded-xl border border-dashed border-black/15 p-6 text-center text-sm text-zinc-500 dark:border-white/15 dark:text-zinc-400">
-              Inget team än.{" "}
-              <Link href="/konto" className="underline">
-                Bjud in någon
-              </Link>{" "}
-              för att dela fångster.
-            </p>
-          )}
-        </div>
+        )}
       </div>
     </main>
   );
