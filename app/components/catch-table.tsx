@@ -188,7 +188,7 @@ export default function CatchTable({
                 {showBete && (
                   <th className="px-1 py-2 font-medium">
                     <SelectColumnFilter
-                      label="Bete"
+                      label="Metod/Bete"
                       paramName="bait"
                       options={baitOptions}
                     />
@@ -248,10 +248,10 @@ export default function CatchTable({
                           className="px-1 py-2 whitespace-nowrap"
                           title={formatDateFull(item.caught_at)}
                         >
-                          {item.caught_at.getFullYear()}
+                          {formatDate(item.caught_at)}
                           <br />
                           <span className="text-xs text-zinc-400 dark:text-zinc-500">
-                            {formatDate(item.caught_at)}
+                            {item.caught_at.getFullYear()}
                           </span>
                         </td>
                       )}
@@ -270,7 +270,14 @@ export default function CatchTable({
                         <td className="px-1 py-2 text-zinc-500 dark:text-zinc-400">
                           {item.lake || item.location ? (
                             <>
-                              {item.lake && <div>{item.lake}</div>}
+                              {item.lake && (
+                                <div>
+                                  {item.lake}
+                                  {item.latitude != null &&
+                                    item.longitude != null &&
+                                    " 📍"}
+                                </div>
+                              )}
                               {item.location && (
                                 <div className="text-xs text-zinc-400 dark:text-zinc-500">
                                   {item.location}
@@ -295,7 +302,18 @@ export default function CatchTable({
                       )}
                       {showBete && (
                         <td className="px-1 py-2 text-zinc-500 dark:text-zinc-400">
-                          {item.bait || "–"}
+                          {item.method || item.bait ? (
+                            <>
+                              {item.method && <div>{item.method}</div>}
+                              {item.bait && (
+                                <div className="text-xs text-zinc-400 dark:text-zinc-500">
+                                  {item.bait}
+                                </div>
+                              )}
+                            </>
+                          ) : (
+                            "–"
+                          )}
                         </td>
                       )}
                     </tr>

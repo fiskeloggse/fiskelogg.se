@@ -87,7 +87,9 @@ export default async function KontoPage() {
         </div>
         <form action={updateQuickLogFields} className="flex flex-col gap-3">
           <div className="flex flex-wrap gap-3">
-            {QUICK_LOG_FIELDS.map((field) => (
+            {QUICK_LOG_FIELDS.filter(
+              (field) => field.key !== "anglerId" || teamMembers.length > 0
+            ).map((field) => (
               <label key={field.key} className="flex items-center gap-2 text-sm">
                 <input
                   type="checkbox"

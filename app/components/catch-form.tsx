@@ -70,6 +70,31 @@ function Section({
   );
 }
 
+// Renders a section's blocks with the ones shown by default first and the
+// "Fler fält"-only ones appended below — instead of interleaved in their
+// fixed structural position — so revealing extra fields never pushes them
+// in above what's already visible. Array.prototype.sort is stable, so each
+// group keeps its own relative order.
+function OrderedFields({
+  blocks,
+  showMore,
+}: {
+  blocks: { key: string; show: boolean; content: React.ReactNode }[];
+  showMore: boolean;
+}) {
+  const ordered = blocks
+    .filter((b) => b.show || showMore)
+    .sort((a, b) => Number(b.show) - Number(a.show));
+
+  return (
+    <>
+      {ordered.map((b) => (
+        <div key={b.key}>{b.content}</div>
+      ))}
+    </>
+  );
+}
+
 function personalBestText(pb: NonNullable<CatchNotices["personalBest"]>) {
   if (pb.isLongest && pb.isHeaviest) {
     return `${pb.lengthCm} cm & ${pb.weightKg} kg ${pb.species}`;
@@ -138,8 +163,6 @@ export default function CatchForm({
   const showLength = quickFields.includes("weightKg");
   const showWeight = quickFields.includes("weightKg");
   const showLake = quickFields.includes("lake");
-  const showLocation = quickFields.includes("lake");
-  const showMethod = quickFields.includes("bait");
   const showBait = quickFields.includes("bait");
   const showAngler = quickFields.includes("anglerId");
   const showComment = quickFields.includes("comment");
@@ -154,7 +177,11 @@ export default function CatchForm({
   // Whether each section has anything to show at all — a section with every
   // field hidden shouldn't render just its heading.
   const showSizeSection = showWeight || showMore;
-  const showDetailsSection = showBait || showComment || showMore;
+  const showDetailsSection =
+    showBait ||
+    showComment ||
+    showMore ||
+    (teamMembers.length > 0 && showAngler);
   const [bingoNotice, setBingoNotice] = useState<
     CatchNotices["bingoMatch"] | null
   >(null);
@@ -405,30 +432,6 @@ export default function CatchForm({
             </button>
           </div>
 
-          {teamMembers.length > 0 && (
-            <div className={showAngler || showMore ? "flex flex-col gap-1.5" : "hidden"}>
-              <label htmlFor="anglerId" className="text-sm font-medium">
-                Fiskare
-              </label>
-              <select
-                id="anglerId"
-                name="anglerId"
-                value={anglerId}
-                onChange={(e) => setAnglerId(e.target.value)}
-                className={inputClassName}
-              >
-                <option value={currentUserId}>{currentUserName} (du)</option>
-                {teamMembers
-                  .filter((m) => m.id !== currentUserId)
-                  .map((m) => (
-                    <option key={m.id} value={m.id}>
-                      {m.name}
-                    </option>
-                  ))}
-              </select>
-            </div>
-          )}
-
           <div className="flex flex-col gap-2">
             <label htmlFor="species" className="text-sm font-medium">
               Art
@@ -462,146 +465,157 @@ export default function CatchForm({
 
           {showPlatsSection && (
             <Section title="Plats">
-              {mode === "now" && (
-                <div className={showGps || showMore ? "flex flex-col gap-1" : "hidden"}>
-                  <label className="flex items-center gap-2 text-sm">
-                    <input
-                      type="checkbox"
-                      checked={useGps}
-                      onChange={(e) => {
-                        setUseGps(e.target.checked);
-                        if (!e.target.checked) {
-                          setGpsCoords(null);
-                          setGpsStatus("idle");
-                          setLakeAutoFilled(false);
-                        }
-                      }}
-                    />
-                    Bifoga GPS-position
-                  </label>
-                  {gpsStatus === "loading" && (
-                    <p className="text-xs text-zinc-500 dark:text-zinc-400">
-                      Hämtar position…
-                    </p>
-                  )}
-                  {gpsStatus === "success" && (
-                    <p className="text-xs text-zinc-500 dark:text-zinc-400">
-                      ✓ Position hämtad.{" "}
-                      {waterLookupPending
-                        ? "Söker vatten…"
-                        : lakeAutoFilled && "Vatten ifyllt automatiskt."}
-                    </p>
-                  )}
-                  {gpsStatus === "error" && (
-                    <p className="text-xs text-red-600 dark:text-red-400">
-                      Kunde inte hämta position. Fångsten loggas ändå.
-                    </p>
-                  )}
-                  {gpsCoords && (
-                    <>
-                      <input type="hidden" name="latitude" value={gpsCoords.lat} />
-                      <input type="hidden" name="longitude" value={gpsCoords.lng} />
-                    </>
-                  )}
-                </div>
-              )}
+              <OrderedFields
+                showMore={showMore}
+                blocks={[
+                  {
+                    key: "position",
+                    show: mode === "now" ? showGps : true,
+                    content:
+                      mode === "now" ? (
+                        <div className="flex flex-col gap-1">
+                          <label className="flex items-center gap-2 text-sm">
+                            <input
+                              type="checkbox"
+                              checked={useGps}
+                              onChange={(e) => {
+                                setUseGps(e.target.checked);
+                                if (!e.target.checked) {
+                                  setGpsCoords(null);
+                                  setGpsStatus("idle");
+                                  setLakeAutoFilled(false);
+                                }
+                              }}
+                            />
+                            Bifoga GPS-position
+                          </label>
+                          {gpsStatus === "loading" && (
+                            <p className="text-xs text-zinc-500 dark:text-zinc-400">
+                              Hämtar position…
+                            </p>
+                          )}
+                          {gpsStatus === "success" && (
+                            <p className="text-xs text-zinc-500 dark:text-zinc-400">
+                              ✓ Position hämtad.{" "}
+                              {waterLookupPending
+                                ? "Söker vatten…"
+                                : lakeAutoFilled && "Vatten ifyllt automatiskt."}
+                            </p>
+                          )}
+                          {gpsStatus === "error" && (
+                            <p className="text-xs text-red-600 dark:text-red-400">
+                              Kunde inte hämta position. Fångsten loggas ändå.
+                            </p>
+                          )}
+                          {gpsCoords && (
+                            <>
+                              <input type="hidden" name="latitude" value={gpsCoords.lat} />
+                              <input type="hidden" name="longitude" value={gpsCoords.lng} />
+                            </>
+                          )}
+                        </div>
+                      ) : (
+                        <div className="flex flex-col gap-1.5">
+                          <div className="flex items-center justify-between">
+                            <span className="text-sm font-medium">Position</span>
+                            <button
+                              type="button"
+                              onClick={() => setShowPastMap((v) => !v)}
+                              className="text-sm text-zinc-500 underline hover:text-foreground dark:text-zinc-400"
+                            >
+                              {showPastMap
+                                ? "Dölj karta"
+                                : pastHasPosition
+                                  ? "Ändra position"
+                                  : "Lägg till position"}
+                            </button>
+                          </div>
+                          {showPastMap && (
+                            <MapPositionPicker
+                              latitude={pastLatitude}
+                              longitude={pastLongitude}
+                              onChange={(lat, lng) => {
+                                setPastLatitude(lat);
+                                setPastLongitude(lng);
+                                if (lakeRef.current.trim() === "") {
+                                  lookupWaterName(lat, lng).then((name) => {
+                                    if (name && lakeRef.current.trim() === "") {
+                                      setLake(name);
+                                      setLakeAutoFilled(true);
+                                    }
+                                  });
+                                }
+                              }}
+                            />
+                          )}
+                          {pastHasPosition && (
+                            <>
+                              <input type="hidden" name="latitude" value={pastLatitude} />
+                              <input type="hidden" name="longitude" value={pastLongitude} />
+                            </>
+                          )}
+                        </div>
+                      ),
+                  },
+                  {
+                    key: "vattenplats",
+                    show: showLake || lakeAutoFilled,
+                    content: (
+                      <div className="grid grid-cols-2 gap-3">
+                        <div className="flex flex-col gap-2">
+                          <label htmlFor="lake" className="text-sm font-medium">
+                            Vatten{" "}
+                            <span className="font-normal text-zinc-500">
+                              (valfritt)
+                            </span>
+                          </label>
 
-              {mode === "past" && (
-                <div className="flex flex-col gap-1.5">
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm font-medium">Position</span>
-                    <button
-                      type="button"
-                      onClick={() => setShowPastMap((v) => !v)}
-                      className="text-sm text-zinc-500 underline hover:text-foreground dark:text-zinc-400"
-                    >
-                      {showPastMap
-                        ? "Dölj karta"
-                        : pastHasPosition
-                          ? "Ändra position"
-                          : "Lägg till position"}
-                    </button>
-                  </div>
-                  {showPastMap && (
-                    <MapPositionPicker
-                      latitude={pastLatitude}
-                      longitude={pastLongitude}
-                      onChange={(lat, lng) => {
-                        setPastLatitude(lat);
-                        setPastLongitude(lng);
-                        if (lakeRef.current.trim() === "") {
-                          lookupWaterName(lat, lng).then((name) => {
-                            if (name && lakeRef.current.trim() === "") {
-                              setLake(name);
-                              setLakeAutoFilled(true);
-                            }
-                          });
-                        }
-                      }}
-                    />
-                  )}
-                  {pastHasPosition && (
-                    <>
-                      <input type="hidden" name="latitude" value={pastLatitude} />
-                      <input type="hidden" name="longitude" value={pastLongitude} />
-                    </>
-                  )}
-                </div>
-              )}
+                          <Chips
+                            label="Senaste"
+                            options={lakeSuggestions.recent}
+                            selected={lake}
+                            onSelect={setLake}
+                          />
 
-              <div className="grid grid-cols-2 gap-3">
-                <div
-                  className={
-                    showLake || showMore || lakeAutoFilled
-                      ? "flex flex-col gap-2"
-                      : "hidden"
-                  }
-                >
-                  <label htmlFor="lake" className="text-sm font-medium">
-                    Vatten{" "}
-                    <span className="font-normal text-zinc-500">(valfritt)</span>
-                  </label>
+                          <TextSuggestInput
+                            id="lake"
+                            name="lake"
+                            value={lake}
+                            onChange={setLake}
+                            options={lakeSuggestions.all}
+                            className={inputClassName}
+                          />
+                        </div>
 
-                  <Chips
-                    label="Senaste"
-                    options={lakeSuggestions.recent}
-                    selected={lake}
-                    onSelect={setLake}
-                  />
+                        <div className="flex flex-col gap-2">
+                          <label htmlFor="location" className="text-sm font-medium">
+                            Plats{" "}
+                            <span className="font-normal text-zinc-500">
+                              (valfritt)
+                            </span>
+                          </label>
 
-                  <TextSuggestInput
-                    id="lake"
-                    name="lake"
-                    value={lake}
-                    onChange={setLake}
-                    options={lakeSuggestions.all}
-                    className={inputClassName}
-                  />
-                </div>
+                          <Chips
+                            label="Senaste"
+                            options={locationSuggestions.recent}
+                            selected={location}
+                            onSelect={setLocation}
+                          />
 
-                <div className={showLocation || showMore ? "flex flex-col gap-2" : "hidden"}>
-                  <label htmlFor="location" className="text-sm font-medium">
-                    Plats{" "}
-                    <span className="font-normal text-zinc-500">(valfritt)</span>
-                  </label>
-
-                  <Chips
-                    label="Senaste"
-                    options={locationSuggestions.recent}
-                    selected={location}
-                    onSelect={setLocation}
-                  />
-
-                  <TextSuggestInput
-                    id="location"
-                    name="location"
-                    value={location}
-                    onChange={setLocation}
-                    options={locationOptions}
-                    className={inputClassName}
-                  />
-                </div>
-              </div>
+                          <TextSuggestInput
+                            id="location"
+                            name="location"
+                            value={location}
+                            onChange={setLocation}
+                            options={locationOptions}
+                            className={inputClassName}
+                          />
+                        </div>
+                      </div>
+                    ),
+                  },
+                ]}
+              />
             </Section>
           )}
 
@@ -649,75 +663,130 @@ export default function CatchForm({
 
           {showDetailsSection && (
             <Section title="Detaljer">
-              <div className="grid grid-cols-2 gap-3">
-                <div className={showMethod || showMore ? "flex flex-col gap-2" : "hidden"}>
-                  <label htmlFor="method" className="text-sm font-medium">
-                    Fiskemetod{" "}
-                    <span className="font-normal text-zinc-500">(valfritt)</span>
-                  </label>
+              <OrderedFields
+                showMore={showMore}
+                blocks={[
+                  {
+                    key: "methodbait",
+                    show: showBait,
+                    content: (
+                      <div className="grid grid-cols-2 gap-3">
+                        <div className="flex flex-col gap-2">
+                          <label htmlFor="method" className="text-sm font-medium">
+                            Fiskemetod{" "}
+                            <span className="font-normal text-zinc-500">
+                              (valfritt)
+                            </span>
+                          </label>
 
-                  <Chips
-                    label="Senaste"
-                    options={methodSuggestions.recent}
-                    selected={method}
-                    onSelect={setMethod}
-                  />
+                          <Chips
+                            label="Senaste"
+                            options={methodSuggestions.recent}
+                            selected={method}
+                            onSelect={setMethod}
+                          />
 
-                  <TextSuggestInput
-                    id="method"
-                    name="method"
-                    value={method}
-                    onChange={setMethod}
-                    options={methodSuggestions.all}
-                    className={inputClassName}
-                  />
-                </div>
+                          <TextSuggestInput
+                            id="method"
+                            name="method"
+                            value={method}
+                            onChange={setMethod}
+                            options={methodSuggestions.all}
+                            className={inputClassName}
+                          />
+                        </div>
 
-                <div className={showBait || showMore ? "flex flex-col gap-2" : "hidden"}>
-                  <label htmlFor="bait" className="text-sm font-medium">
-                    Bete{" "}
-                    <span className="font-normal text-zinc-500">(valfritt)</span>
-                  </label>
+                        <div className="flex flex-col gap-2">
+                          <label htmlFor="bait" className="text-sm font-medium">
+                            Bete{" "}
+                            <span className="font-normal text-zinc-500">
+                              (valfritt)
+                            </span>
+                          </label>
 
-                  <Chips
-                    label="Senaste"
-                    options={baitSuggestions.recent}
-                    selected={bait}
-                    onSelect={setBait}
-                  />
-                  <Chips
-                    label="Vanliga"
-                    options={baitSuggestions.common}
-                    selected={bait}
-                    onSelect={setBait}
-                  />
+                          <Chips
+                            label="Senaste"
+                            options={baitSuggestions.recent}
+                            selected={bait}
+                            onSelect={setBait}
+                          />
+                          <Chips
+                            label="Vanliga"
+                            options={baitSuggestions.common}
+                            selected={bait}
+                            onSelect={setBait}
+                          />
 
-                  <TextSuggestInput
-                    id="bait"
-                    name="bait"
-                    value={bait}
-                    onChange={setBait}
-                    options={baitSuggestions.all}
-                    placeholder="Sök bete eller skriv eget namn"
-                    className={inputClassName}
-                  />
-                </div>
-              </div>
-
-              <div className={showComment || showMore ? "flex flex-col gap-1.5" : "hidden"}>
-                <label htmlFor="comment" className="text-sm font-medium">
-                  Kommentar{" "}
-                  <span className="font-normal text-zinc-500">(valfritt)</span>
-                </label>
-                <textarea
-                  id="comment"
-                  name="comment"
-                  rows={2}
-                  value={comment}
-                  onChange={(e) => setComment(e.target.value)}
-                  className={inputClassName}
-                />
-              </div>
+                          <TextSuggestInput
+                            id="bait"
+                            name="bait"
+                            value={bait}
+                            onChange={setBait}
+                            options={baitSuggestions.all}
+                            placeholder="Sök bete eller skriv eget namn"
+                            className={inputClassName}
+                          />
+                        </div>
+                      </div>
+                    ),
+                  },
+                  {
+                    key: "comment",
+                    show: showComment,
+                    content: (
+                      <div className="flex flex-col gap-1.5">
+                        <label htmlFor="comment" className="text-sm font-medium">
+                          Kommentar{" "}
+                          <span className="font-normal text-zinc-500">
+                            (valfritt)
+                          </span>
+                        </label>
+                        <textarea
+                          id="comment"
+                          name="comment"
+                          rows={2}
+                          value={comment}
+                          onChange={(e) => setComment(e.target.value)}
+                          className={inputClassName}
+                        />
+                      </div>
+                    ),
+                  },
+                  ...(teamMembers.length > 0
+                    ? [
+                        {
+                          key: "angler",
+                          show: showAngler,
+                          content: (
+                            <div className="flex flex-col gap-1.5">
+                              <label htmlFor="anglerId" className="text-sm font-medium">
+                                Fiskare
+                              </label>
+                              <select
+                                id="anglerId"
+                                name="anglerId"
+                                value={anglerId}
+                                onChange={(e) => setAnglerId(e.target.value)}
+                                className={inputClassName}
+                              >
+                                <option value={currentUserId}>
+                                  {currentUserName} (du)
+                                </option>
+                                {teamMembers
+                                  .filter((m) => m.id !== currentUserId)
+                                  .map((m) => (
+                                    <option key={m.id} value={m.id}>
+                                      {m.name}
+                                    </option>
+                                  ))}
+                              </select>
+                            </div>
+                          ),
+                        },
+                      ]
+                    : []),
+                ]}
+              />
             </Section>
           )}
 
