@@ -10,6 +10,7 @@ import InviteForm from "@/app/components/invite-form";
 import TeamNameForm from "@/app/components/team-name-form";
 import ThemeToggle from "@/app/components/theme-toggle";
 import DeleteAllCatchesForm from "@/app/components/delete-all-catches-form";
+import ImportCatchesToggle from "@/app/components/import-catches-toggle";
 
 export const metadata: Metadata = {
   title: "Konto – Fisklogg",
@@ -112,6 +113,17 @@ export default async function KontoPage() {
             Spara
           </button>
         </form>
+      </div>
+
+      <div className="flex flex-col gap-4 rounded-xl border border-black/10 bg-white p-5 dark:border-white/15 dark:bg-white/5">
+        <div>
+          <h2 className="text-lg font-semibold">Importera från Excel</h2>
+          <p className="text-sm text-zinc-500 dark:text-zinc-400">
+            Ladda ner mallen, fyll i dina fångster och ladda upp filen för
+            att logga flera fångster på en gång.
+          </p>
+        </div>
+        <ImportCatchesToggle />
       </div>
 
       <div className="flex flex-col gap-4 rounded-xl border border-black/10 bg-white p-5 dark:border-white/15 dark:bg-white/5">

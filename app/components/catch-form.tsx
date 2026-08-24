@@ -11,7 +11,6 @@ import type { LakeSuggestions } from "@/lib/lake-suggestions";
 import type { LocationSuggestions } from "@/lib/location-suggestions";
 import type { MethodSuggestions } from "@/lib/method-suggestions";
 import { QUICK_LOG_FIELD_KEYS } from "@/lib/constants";
-import ImportCatchesForm from "./import-catches-form";
 import TextSuggestInput from "./text-suggest-input";
 import MapPositionPicker from "./map-position-picker";
 
@@ -144,9 +143,7 @@ export default function CatchForm({
 }) {
   const [state, formAction, pending] = useActionState(addCatch, undefined);
   const wasPending = useRef(false);
-  const [mode, setMode] = useState<"closed" | "now" | "past" | "import">(
-    "closed"
-  );
+  const [mode, setMode] = useState<"closed" | "now" | "past">("closed");
   const [showMore, setShowMore] = useState(false);
   const dialogRef = useRef<HTMLDialogElement>(null);
 
@@ -378,33 +375,22 @@ export default function CatchForm({
         )}
       </div>
 
-      {mode === "import" ? (
-        <ImportCatchesForm onClose={() => setMode("closed")} />
-      ) : (
-        <div className="flex flex-wrap gap-2">
-          <button
-            type="button"
-            onClick={() => setMode("now")}
-            className="rounded-full bg-foreground px-4 py-2 text-sm font-medium text-background"
-          >
-            + Logga fisk
-          </button>
-          <button
-            type="button"
-            onClick={() => setMode("past")}
-            className="rounded-full border border-black/10 px-4 py-2 text-sm font-medium transition-colors hover:bg-black/5 dark:border-white/15 dark:hover:bg-white/10"
-          >
-            + Logga tidigare fisk
-          </button>
-          <button
-            type="button"
-            onClick={() => setMode("import")}
-            className="rounded-full border border-black/10 px-4 py-2 text-sm font-medium transition-colors hover:bg-black/5 dark:border-white/15 dark:hover:bg-white/10"
-          >
-            + Importera från Excel
-          </button>
-        </div>
-      )}
+      <div className="flex flex-wrap gap-2">
+        <button
+          type="button"
+          onClick={() => setMode("now")}
+          className="rounded-full bg-foreground px-4 py-2 text-sm font-medium text-background"
+        >
+          + Logga fisk
+        </button>
+        <button
+          type="button"
+          onClick={() => setMode("past")}
+          className="rounded-full border border-black/10 px-4 py-2 text-sm font-medium transition-colors hover:bg-black/5 dark:border-white/15 dark:hover:bg-white/10"
+        >
+          + Logga tidigare fisk
+        </button>
+      </div>
 
       <dialog
         ref={dialogRef}
