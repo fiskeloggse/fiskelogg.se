@@ -145,22 +145,22 @@ export default async function Home(props: PageProps<"/">) {
 
       <div className="flex flex-col gap-3">
         <h2 className="text-lg font-semibold">Dagens topp 5</h2>
-        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
-          <div className="flex flex-col gap-3">
+        <div className="grid grid-cols-2 gap-3">
+          <div className="flex min-w-0 flex-col gap-2">
             <h3 className="text-sm font-medium text-zinc-500 dark:text-zinc-400">
               Mina
             </h3>
             <TodayTopList catches={todaysTopCatches} currentUserId={user.id} />
           </div>
 
-          <div className="flex flex-col gap-3">
+          <div className="flex min-w-0 flex-col gap-2">
             <h3 className="text-sm font-medium text-zinc-500 dark:text-zinc-400">
               {teamName || "Team"}
             </h3>
             {user.team_id ? (
               <TodayTopList catches={todaysTopTeamCatches} currentUserId={user.id} />
             ) : (
-              <p className="rounded-xl border border-dashed border-black/15 p-6 text-center text-sm text-zinc-500 dark:border-white/15 dark:text-zinc-400">
+              <p className="rounded-xl border border-dashed border-black/15 p-3 text-center text-xs text-zinc-500 dark:border-white/15 dark:text-zinc-400">
                 Inget team än.{" "}
                 <Link href="/konto" className="underline">
                   Bjud in någon
