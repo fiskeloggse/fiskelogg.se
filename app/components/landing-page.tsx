@@ -47,9 +47,8 @@ export default function LandingPage() {
   return (
     <main className="mx-auto flex w-full max-w-4xl flex-1 flex-col gap-16 px-4 py-16 sm:px-6">
       <section className="flex flex-col items-center gap-6 text-center">
-        <span className="text-5xl" aria-hidden>
-          🎣
-        </span>
+        {/* eslint-disable-next-line @next/next/no-img-element -- small static logo mark, not worth next/image's overhead */}
+        <img src="/logo-mark.png" alt="" className="h-20 w-20" />
         <h1 className="max-w-2xl text-3xl font-semibold sm:text-4xl">
           Din digitala fiskedagbok
         </h1>

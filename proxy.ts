@@ -27,5 +27,11 @@ export function proxy(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/((?!_next/static|_next/image|favicon.ico).*)"],
+  // Excludes static files generally (by extension) rather than listing each
+  // one — public/ assets (images, the Excel template, generated app icons)
+  // must stay reachable by signed-out visitors, e.g. the landing page's
+  // logo or the favicon in a browser tab before anyone has logged in.
+  matcher: [
+    "/((?!_next/static|_next/image|.*\\.(?:ico|png|jpg|jpeg|svg|webp|gif|xlsx)$).*)",
+  ],
 };
