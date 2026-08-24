@@ -430,40 +430,42 @@ export default function CatchForm({
             </datalist>
           </div>
 
-          <div className="flex flex-col gap-1.5">
-            <label htmlFor="lengthCm" className="text-sm font-medium">
-              Längd (cm){" "}
-              <span className="font-normal text-zinc-500">(valfritt)</span>
-            </label>
-            <input
-              id="lengthCm"
-              name="lengthCm"
-              type="number"
-              inputMode="numeric"
-              step="1"
-              min="0"
-              value={lengthCm}
-              onChange={(e) => setLengthCm(e.target.value)}
-              className={inputClassName}
-            />
-          </div>
+          <div className="grid grid-cols-2 gap-3">
+            <div className="flex flex-col gap-1.5">
+              <label htmlFor="lengthCm" className="text-sm font-medium">
+                Längd (cm){" "}
+                <span className="font-normal text-zinc-500">(valfritt)</span>
+              </label>
+              <input
+                id="lengthCm"
+                name="lengthCm"
+                type="number"
+                inputMode="numeric"
+                step="1"
+                min="0"
+                value={lengthCm}
+                onChange={(e) => setLengthCm(e.target.value)}
+                className={inputClassName}
+              />
+            </div>
 
-          <div className={showWeight || showMore ? "flex flex-col gap-1.5" : "hidden"}>
-            <label htmlFor="weightKg" className="text-sm font-medium">
-              Vikt (kg){" "}
-              <span className="font-normal text-zinc-500">(valfritt)</span>
-            </label>
-            <input
-              id="weightKg"
-              name="weightKg"
-              type="number"
-              inputMode="decimal"
-              step="0.01"
-              min="0"
-              value={weightKg}
-              onChange={(e) => setWeightKg(e.target.value)}
-              className={inputClassName}
-            />
+            <div className={showWeight || showMore ? "flex flex-col gap-1.5" : "hidden"}>
+              <label htmlFor="weightKg" className="text-sm font-medium">
+                Vikt (kg){" "}
+                <span className="font-normal text-zinc-500">(valfritt)</span>
+              </label>
+              <input
+                id="weightKg"
+                name="weightKg"
+                type="number"
+                inputMode="decimal"
+                step="0.01"
+                min="0"
+                value={weightKg}
+                onChange={(e) => setWeightKg(e.target.value)}
+                className={inputClassName}
+              />
+            </div>
           </div>
 
           {mode === "now" && (
@@ -553,47 +555,49 @@ export default function CatchForm({
             </div>
           )}
 
-          <div
-            className={
-              showLake || showMore || lakeAutoFilled
-                ? "flex flex-col gap-2"
-                : "hidden"
-            }
-          >
-            <label htmlFor="lake" className="text-sm font-medium">
-              Vatten <span className="font-normal text-zinc-500">(valfritt)</span>
-            </label>
+          <div className="grid grid-cols-2 gap-3">
+            <div
+              className={
+                showLake || showMore || lakeAutoFilled
+                  ? "flex flex-col gap-2"
+                  : "hidden"
+              }
+            >
+              <label htmlFor="lake" className="text-sm font-medium">
+                Vatten <span className="font-normal text-zinc-500">(valfritt)</span>
+              </label>
 
-            <Chips
-              label="Senaste"
-              options={lakeSuggestions.recent}
-              selected={lake}
-              onSelect={setLake}
-            />
+              <Chips
+                label="Senaste"
+                options={lakeSuggestions.recent}
+                selected={lake}
+                onSelect={setLake}
+              />
 
-            <TextSuggestInput
-              id="lake"
-              name="lake"
-              value={lake}
-              onChange={setLake}
-              options={lakeSuggestions.all}
-              className={inputClassName}
-            />
-          </div>
+              <TextSuggestInput
+                id="lake"
+                name="lake"
+                value={lake}
+                onChange={setLake}
+                options={lakeSuggestions.all}
+                className={inputClassName}
+              />
+            </div>
 
-          <div className={showLocation || showMore ? "flex flex-col gap-1.5" : "hidden"}>
-            <label htmlFor="location" className="text-sm font-medium">
-              Plats{" "}
-              <span className="font-normal text-zinc-500">(valfritt)</span>
-            </label>
-            <TextSuggestInput
-              id="location"
-              name="location"
-              value={location}
-              onChange={setLocation}
-              options={locationOptions}
-              className={inputClassName}
-            />
+            <div className={showLocation || showMore ? "flex flex-col gap-1.5" : "hidden"}>
+              <label htmlFor="location" className="text-sm font-medium">
+                Plats{" "}
+                <span className="font-normal text-zinc-500">(valfritt)</span>
+              </label>
+              <TextSuggestInput
+                id="location"
+                name="location"
+                value={location}
+                onChange={setLocation}
+                options={locationOptions}
+                className={inputClassName}
+              />
+            </div>
           </div>
 
           <div className={showBait || showMore ? "flex flex-col gap-2" : "hidden"}>
