@@ -13,10 +13,10 @@ import {
 } from "@/lib/catches";
 import { TIMEZONE } from "@/lib/constants";
 import CatchForm from "@/app/components/catch-form";
-import CatchList, { type Catch } from "@/app/components/catch-list";
+import type { Catch } from "@/app/components/catch-list";
 import CatchSpeciesFilter from "@/app/components/catch-species-filter";
 import LandingPage from "@/app/components/landing-page";
-import TodayTopTable from "@/app/components/today-top-table";
+import CatchesTable from "@/app/components/catches-table";
 
 const CATCHES_LIMIT = 5;
 
@@ -142,40 +142,22 @@ export default async function Home(props: PageProps<"/">) {
         gpsDefaultEnabled={user.gps_default_enabled}
       />
 
-      <div className="flex flex-col gap-2">
-        <h2 className="text-base font-semibold">Dagens topp 5</h2>
-        <TodayTopTable
-          personalCatches={todaysTopCatches}
-          teamCatches={user.team_id ? todaysTopTeamCatches : null}
-          teamName={teamName || "Team"}
-          currentUserId={user.id}
-        />
-      </div>
+      <CatchesTable
+        title="Dagens topp 5"
+        personalCatches={todaysTopCatches}
+        teamCatches={user.team_id ? todaysTopTeamCatches : null}
+        teamName={teamName || "Team"}
+        currentUserId={user.id}
+      />
 
-      <div className="flex flex-col gap-2">
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          <h2 className="text-base font-semibold">Senaste</h2>
-          <CatchSpeciesFilter species={speciesSuggestions.all} />
-        </div>
-        {user.team_id ? (
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-            <div className="flex flex-col gap-1.5">
-              <h3 className="text-xs font-medium text-zinc-500 dark:text-zinc-400">
-                Du
-              </h3>
-              <CatchList catches={personalCatches} currentUserId={user.id} />
-            </div>
-            <div className="flex flex-col gap-1.5">
-              <h3 className="text-xs font-medium text-zinc-500 dark:text-zinc-400">
-                {teamName || "Team"}
-              </h3>
-              <CatchList catches={teamCatches} currentUserId={user.id} />
-            </div>
-          </div>
-        ) : (
-          <CatchList catches={personalCatches} currentUserId={user.id} />
-        )}
-      </div>
+      <CatchesTable
+        title="Senaste"
+        headerExtra={<CatchSpeciesFilter species={speciesSuggestions.all} />}
+        personalCatches={personalCatches}
+        teamCatches={user.team_id ? teamCatches : null}
+        teamName={teamName || "Team"}
+        currentUserId={user.id}
+      />
     </main>
   );
 }
