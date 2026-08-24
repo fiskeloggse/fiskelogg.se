@@ -80,6 +80,10 @@ export default function CatchDetail({ item }: { item: Catch }) {
             <p className="text-lg font-medium">{item.location || "–"}</p>
           </div>
           <div className="col-span-2">
+            <p className="text-zinc-500 dark:text-zinc-400">Fiskemetod</p>
+            <p className="text-lg font-medium">{item.method || "–"}</p>
+          </div>
+          <div className="col-span-2">
             <p className="text-zinc-500 dark:text-zinc-400">Bete</p>
             <p className="text-lg font-medium">{item.bait || "–"}</p>
           </div>

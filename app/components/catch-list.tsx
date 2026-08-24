@@ -8,6 +8,7 @@ export type Catch = {
   weight_kg: number | null;
   lake?: string | null;
   location?: string | null;
+  method?: string | null;
   bait?: string | null;
   comment?: string | null;
   latitude?: number | null;

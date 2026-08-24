@@ -44,13 +44,21 @@ const CatchSchema = z
       .optional(),
     lake: z.string().trim().max(100).optional(),
     location: z.string().trim().max(100).optional(),
+    method: z.string().trim().max(100).optional(),
     bait: z.string().trim().max(100).optional(),
     comment: z.string().trim().max(1000).optional(),
     latitude: z.coerce.number().min(-90).max(90).optional(),
     longitude: z.coerce.number().min(-180).max(180).optional(),
     caughtAt: z.coerce
       .date({ error: "Ogiltigt datum." })
-      .max(new Date(), { error: "Datumet kan inte vara i framtiden." })
+      // A plain .max(new Date()) would freeze "now" to whenever this schema
+      // module first loads — fine for a single request, but wrong in a
+      // long-running dev server or warm serverless instance, where it
+      // silently drifts into the past. .refine() re-evaluates its callback
+      // on every parse, so "now" stays current.
+      .refine((d) => d <= new Date(), {
+        error: "Datumet kan inte vara i framtiden.",
+      })
       .optional(),
   })
   .refine((data) => data.lengthCm !== undefined || data.weightKg !== undefined, {
@@ -69,6 +77,7 @@ export async function addCatch(
   const rawCaughtAt = formData.get("caughtAt");
   const rawLake = formData.get("lake");
   const rawLocation = formData.get("location");
+  const rawMethod = formData.get("method");
   const rawBait = formData.get("bait");
   const rawComment = formData.get("comment");
   const rawLatitude = formData.get("latitude");
@@ -92,6 +101,10 @@ export async function addCatch(
     location:
       typeof rawLocation === "string" && rawLocation.trim() !== ""
         ? rawLocation
+        : undefined,
+    method:
+      typeof rawMethod === "string" && rawMethod.trim() !== ""
+        ? rawMethod
         : undefined,
     bait: typeof rawBait === "string" && rawBait.trim() !== "" ? rawBait : undefined,
     comment:
@@ -123,6 +136,7 @@ export async function addCatch(
     weightKg,
     lake,
     location,
+    method,
     bait,
     comment,
     latitude,
@@ -148,11 +162,11 @@ export async function addCatch(
   // by exact species string.
   const [inserted] = await sql<{ id: number; species: string }[]>`
     insert into catches (
-      user_id, species, length_cm, weight_kg, lake, location, bait, comment, latitude, longitude, caught_at
+      user_id, species, length_cm, weight_kg, lake, location, method, bait, comment, latitude, longitude, caught_at
     )
     values (
       ${anglerId}, initcap(${species}), ${lengthCm ?? null}, ${weightKg ?? null},
-      ${lake ?? null}, ${location ?? null}, ${bait ?? null}, ${comment ?? null},
+      ${lake ?? null}, ${location ?? null}, ${method ?? null}, ${bait ?? null}, ${comment ?? null},
       ${latitude ?? null}, ${longitude ?? null}, ${caughtAt ?? new Date()}
     )
     returning id, species
@@ -300,13 +314,18 @@ const EditCatchSchema = z
       .optional(),
     lake: z.string().trim().max(100).optional(),
     location: z.string().trim().max(100).optional(),
+    method: z.string().trim().max(100).optional(),
     bait: z.string().trim().max(100).optional(),
     comment: z.string().trim().max(1000).optional(),
     latitude: z.coerce.number().min(-90).max(90).optional(),
     longitude: z.coerce.number().min(-180).max(180).optional(),
     caughtAt: z.coerce
       .date({ error: "Ogiltigt datum." })
-      .max(new Date(), { error: "Datumet kan inte vara i framtiden." }),
+      // See the comment on the same check in CatchSchema above — .refine()
+      // re-evaluates "now" per parse instead of freezing it at module load.
+      .refine((d) => d <= new Date(), {
+        error: "Datumet kan inte vara i framtiden.",
+      }),
   })
   .refine((data) => data.lengthCm !== undefined || data.weightKg !== undefined, {
     error: "Ange antingen längd eller vikt.",
@@ -328,6 +347,7 @@ export async function updateCatch(
   const rawWeight = formData.get("weightKg");
   const rawLake = formData.get("lake");
   const rawLocation = formData.get("location");
+  const rawMethod = formData.get("method");
   const rawBait = formData.get("bait");
   const rawComment = formData.get("comment");
   const rawLatitude = formData.get("latitude");
@@ -346,6 +366,10 @@ export async function updateCatch(
     location:
       typeof rawLocation === "string" && rawLocation.trim() !== ""
         ? rawLocation
+        : undefined,
+    method:
+      typeof rawMethod === "string" && rawMethod.trim() !== ""
+        ? rawMethod
         : undefined,
     bait: typeof rawBait === "string" && rawBait.trim() !== "" ? rawBait : undefined,
     comment:
@@ -373,6 +397,7 @@ export async function updateCatch(
     weightKg,
     lake,
     location,
+    method,
     bait,
     comment,
     latitude,
@@ -387,6 +412,7 @@ export async function updateCatch(
       weight_kg = ${weightKg ?? null},
       lake = ${lake ?? null},
       location = ${location ?? null},
+      method = ${method ?? null},
       bait = ${bait ?? null},
       comment = ${comment ?? null},
       latitude = ${latitude ?? null},

@@ -9,6 +9,7 @@ import type { SpeciesSuggestions } from "@/lib/species-suggestions";
 import type { BaitSuggestions } from "@/lib/bait-suggestions";
 import type { LakeSuggestions } from "@/lib/lake-suggestions";
 import type { LocationSuggestions } from "@/lib/location-suggestions";
+import type { MethodSuggestions } from "@/lib/method-suggestions";
 import { QUICK_LOG_FIELD_KEYS } from "@/lib/constants";
 import ImportCatchesForm from "./import-catches-form";
 import TextSuggestInput from "./text-suggest-input";
@@ -73,11 +74,13 @@ export default function CatchForm({
   baitSuggestions,
   lakeSuggestions,
   locationSuggestions,
+  methodSuggestions,
   currentUserId,
   currentUserName,
   teamMembers,
   defaultLake,
   defaultBait,
+  defaultMethod,
   quickLogFields,
   gpsDefaultEnabled,
 }: {
@@ -85,11 +88,13 @@ export default function CatchForm({
   baitSuggestions: BaitSuggestions;
   lakeSuggestions: LakeSuggestions;
   locationSuggestions: LocationSuggestions;
+  methodSuggestions: MethodSuggestions;
   currentUserId: number;
   currentUserName: string;
   teamMembers: { id: number; name: string }[];
   defaultLake: string | null;
   defaultBait: string | null;
+  defaultMethod: string | null;
   quickLogFields: string[] | null;
   gpsDefaultEnabled: boolean;
 }) {
@@ -113,6 +118,7 @@ export default function CatchForm({
   const showWeight = quickFields.includes("weightKg");
   const showLake = quickFields.includes("lake");
   const showLocation = quickFields.includes("location");
+  const showMethod = quickFields.includes("method");
   const showBait = quickFields.includes("bait");
   const showAngler = quickFields.includes("anglerId");
   const showComment = quickFields.includes("comment");
@@ -121,6 +127,7 @@ export default function CatchForm({
     !showWeight ||
     !showLake ||
     !showLocation ||
+    !showMethod ||
     !showBait ||
     !showComment ||
     !showGps ||
@@ -140,6 +147,7 @@ export default function CatchForm({
   const [weightKg, setWeightKg] = useState("");
   const [lake, setLake] = useState(defaultLake ?? "");
   const [location, setLocation] = useState("");
+  const [method, setMethod] = useState(defaultMethod ?? "");
   const [bait, setBait] = useState(defaultBait ?? "");
   const [comment, setComment] = useState("");
   const [caughtAtLocal, setCaughtAtLocal] = useState("");
@@ -608,33 +616,58 @@ export default function CatchForm({
             </div>
           </div>
 
-          <div className={showBait || showMore ? "flex flex-col gap-2" : "hidden"}>
-            <label htmlFor="bait" className="text-sm font-medium">
-              Bete <span className="font-normal text-zinc-500">(valfritt)</span>
-            </label>
+          <div className="grid grid-cols-2 gap-3">
+            <div className={showMethod || showMore ? "flex flex-col gap-2" : "hidden"}>
+              <label htmlFor="method" className="text-sm font-medium">
+                Fiskemetod{" "}
+                <span className="font-normal text-zinc-500">(valfritt)</span>
+              </label>
 
-            <Chips
-              label="Senaste"
-              options={baitSuggestions.recent}
-              selected={bait}
-              onSelect={setBait}
-            />
-            <Chips
-              label="Vanliga"
-              options={baitSuggestions.common}
-              selected={bait}
-              onSelect={setBait}
-            />
+              <Chips
+                label="Senaste"
+                options={methodSuggestions.recent}
+                selected={method}
+                onSelect={setMethod}
+              />
 
-            <TextSuggestInput
-              id="bait"
-              name="bait"
-              value={bait}
-              onChange={setBait}
-              options={baitSuggestions.all}
-              placeholder="Sök bete eller skriv eget namn"
-              className={inputClassName}
-            />
+              <TextSuggestInput
+                id="method"
+                name="method"
+                value={method}
+                onChange={setMethod}
+                options={methodSuggestions.all}
+                className={inputClassName}
+              />
+            </div>
+
+            <div className={showBait || showMore ? "flex flex-col gap-2" : "hidden"}>
+              <label htmlFor="bait" className="text-sm font-medium">
+                Bete <span className="font-normal text-zinc-500">(valfritt)</span>
+              </label>
+
+              <Chips
+                label="Senaste"
+                options={baitSuggestions.recent}
+                selected={bait}
+                onSelect={setBait}
+              />
+              <Chips
+                label="Vanliga"
+                options={baitSuggestions.common}
+                selected={bait}
+                onSelect={setBait}
+              />
+
+              <TextSuggestInput
+                id="bait"
+                name="bait"
+                value={bait}
+                onChange={setBait}
+                options={baitSuggestions.all}
+                placeholder="Sök bete eller skriv eget namn"
+                className={inputClassName}
+              />
+            </div>
           </div>
 
           <div className={showComment || showMore ? "flex flex-col gap-1.5" : "hidden"}>

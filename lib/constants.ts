@@ -27,6 +27,7 @@ export const QUICK_LOG_FIELDS = [
   { key: "weightKg", label: "Vikt" },
   { key: "lake", label: "Vatten" },
   { key: "location", label: "Plats" },
+  { key: "method", label: "Fiskemetod" },
   { key: "bait", label: "Bete" },
   { key: "anglerId", label: "Fiskare" },
   { key: "comment", label: "Kommentar" },

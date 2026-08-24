@@ -45,6 +45,7 @@ alter table catches add column if not exists deleted_at timestamptz;
 alter table catches add column if not exists latitude double precision;
 alter table catches add column if not exists longitude double precision;
 alter table catches add column if not exists comment text;
+alter table catches add column if not exists method text;
 
 -- Backfill any existing rows before enforcing NOT NULL (safe to re-run).
 update catches set species = 'Okänd art' where species is null;

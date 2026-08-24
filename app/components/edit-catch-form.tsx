@@ -150,17 +150,31 @@ export default function EditCatchForm({
         </div>
       </div>
 
-      <div className="flex flex-col gap-1.5">
-        <label htmlFor={`bait-${item.id}`} className="text-sm font-medium">
-          Bete
-        </label>
-        <input
-          id={`bait-${item.id}`}
-          name="bait"
-          type="text"
-          defaultValue={item.bait ?? ""}
-          className={inputClassName}
-        />
+      <div className="grid grid-cols-2 gap-3">
+        <div className="flex flex-col gap-1.5">
+          <label htmlFor={`method-${item.id}`} className="text-sm font-medium">
+            Fiskemetod
+          </label>
+          <input
+            id={`method-${item.id}`}
+            name="method"
+            type="text"
+            defaultValue={item.method ?? ""}
+            className={inputClassName}
+          />
+        </div>
+        <div className="flex flex-col gap-1.5">
+          <label htmlFor={`bait-${item.id}`} className="text-sm font-medium">
+            Bete
+          </label>
+          <input
+            id={`bait-${item.id}`}
+            name="bait"
+            type="text"
+            defaultValue={item.bait ?? ""}
+            className={inputClassName}
+          />
+        </div>
       </div>
 
       <div className="flex flex-col gap-1.5">

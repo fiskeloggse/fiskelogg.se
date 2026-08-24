@@ -50,6 +50,29 @@ export async function getTodaysLastBait(
   return row?.bait ?? null;
 }
 
+// Used to prefill "Fiskemetod" when logging another catch the same day.
+export async function getTodaysLastMethod(
+  userId: number,
+  teamId: number | null
+): Promise<string | null> {
+  const scopeCondition = teamId
+    ? sql`c.user_id in (select id from users where team_id = ${teamId})`
+    : sql`c.user_id = ${userId}`;
+
+  const [row] = await sql<{ method: string | null }[]>`
+    select c.method
+    from catches c
+    where ${scopeCondition}
+      and c.deleted_at is null
+      and c.method is not null
+      and (c.caught_at at time zone ${TIMEZONE})::date
+        = (now() at time zone ${TIMEZONE})::date
+    order by c.caught_at desc
+    limit 1
+  `;
+  return row?.method ?? null;
+}
+
 export async function getOwnCatchCount(userId: number): Promise<number> {
   const [row] = await sql<{ count: number }[]>`
     select count(*)::int as count from catches where user_id = ${userId} and deleted_at is null

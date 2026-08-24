@@ -5,8 +5,9 @@ import { getSpeciesSuggestions } from "@/lib/species-suggestions";
 import { getBaitSuggestions } from "@/lib/bait-suggestions";
 import { getLakeSuggestions } from "@/lib/lake-suggestions";
 import { getLocationSuggestions } from "@/lib/location-suggestions";
+import { getMethodSuggestions } from "@/lib/method-suggestions";
 import { getTeamMembers, getTeamName } from "@/lib/team";
-import { getTodaysLastLake, getTodaysLastBait } from "@/lib/catches";
+import { getTodaysLastLake, getTodaysLastBait, getTodaysLastMethod } from "@/lib/catches";
 import CatchForm from "@/app/components/catch-form";
 import CatchList, { type Catch } from "@/app/components/catch-list";
 import CompactLengthList from "@/app/components/compact-length-list";
@@ -98,10 +99,12 @@ export default async function Home(props: PageProps<"/">) {
     baitSuggestions,
     lakeSuggestions,
     locationSuggestions,
+    methodSuggestions,
     teamMembers,
     teamName,
     defaultLake,
     defaultBait,
+    defaultMethod,
     personalCatches,
     teamCatches,
   ] = await Promise.all([
@@ -109,10 +112,12 @@ export default async function Home(props: PageProps<"/">) {
     getBaitSuggestions(user.id),
     getLakeSuggestions(user.id),
     getLocationSuggestions(user.id),
+    getMethodSuggestions(user.id),
     user.team_id ? getTeamMembers(user.team_id) : Promise.resolve([]),
     user.team_id ? getTeamName(user.team_id) : Promise.resolve(null),
     getTodaysLastLake(user.id, user.team_id),
     getTodaysLastBait(user.id, user.team_id),
+    getTodaysLastMethod(user.id, user.team_id),
     personalCatchesQuery,
     teamCatchesQuery,
   ]);
@@ -129,11 +134,13 @@ export default async function Home(props: PageProps<"/">) {
         baitSuggestions={baitSuggestions}
         lakeSuggestions={lakeSuggestions}
         locationSuggestions={locationSuggestions}
+        methodSuggestions={methodSuggestions}
         currentUserId={user.id}
         currentUserName={user.name}
         teamMembers={teamMembers}
         defaultLake={defaultLake}
         defaultBait={defaultBait}
+        defaultMethod={defaultMethod}
         quickLogFields={user.quick_log_fields}
         gpsDefaultEnabled={user.gps_default_enabled}
       />
