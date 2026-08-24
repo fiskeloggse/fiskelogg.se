@@ -25,6 +25,15 @@ body {
   font-family: Arial, Helvetica, sans-serif;
 }
 
+/* Tailwind's preflight sets a global img { max-width: 100% }, which clips
+   Leaflet's absolutely-positioned tile images once their percentage-based
+   containing block resolves to less than the tile's actual 256px — visible
+   as blank tiles specifically in the fullscreen map (the inline card just
+   happens to be wide enough for it not to matter). */
+.leaflet-container img {
+  max-width: none;
+}
+
 /* Dual-handle range slider: two overlapping <input type="range"> elements
    whose track is hidden so only the draggable thumbs show. */
 .dual-range-input {

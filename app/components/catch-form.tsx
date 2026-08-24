@@ -710,12 +710,6 @@ export default function CatchForm({
                             selected={bait}
                             onSelect={setBait}
                           />
-                          <Chips
-                            label="Vanliga"
-                            options={baitSuggestions.common}
-                            selected={bait}
-                            onSelect={setBait}
-                          />
 
                           <TextSuggestInput
                             id="bait"
