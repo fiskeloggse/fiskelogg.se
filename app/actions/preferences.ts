@@ -6,17 +6,22 @@ import { requireUser } from "@/lib/dal";
 import {
   QUICK_LOG_FIELD_KEYS,
   REGISTER_COLUMN_KEYS,
+  GPS_MODE_KEYS,
   type QuickLogFieldKey,
   type RegisterColumnKey,
+  type GpsModeKey,
 } from "@/lib/constants";
 
 export async function updatePreferences(formData: FormData) {
   const user = await requireUser();
   const showBingo = formData.get("show_bingo") === "on";
-  const gpsDefaultEnabled = formData.get("gps_default_enabled") === "on";
+  const gpsModeRaw = String(formData.get("gps_mode") ?? "");
+  const gpsMode: GpsModeKey = (GPS_MODE_KEYS as readonly string[]).includes(gpsModeRaw)
+    ? (gpsModeRaw as GpsModeKey)
+    : "off";
 
   await sql`
-    update users set show_bingo = ${showBingo}, gps_default_enabled = ${gpsDefaultEnabled}
+    update users set show_bingo = ${showBingo}, gps_mode = ${gpsMode}
     where id = ${user.id}
   `;
 

@@ -5,7 +5,7 @@ import { getOwnCatchCount } from "@/lib/catches";
 import { logout } from "@/app/actions/auth";
 import { leaveTeam } from "@/app/actions/team";
 import { updatePreferences, updateQuickLogFields } from "@/app/actions/preferences";
-import { QUICK_LOG_FIELDS, QUICK_LOG_FIELD_KEYS } from "@/lib/constants";
+import { QUICK_LOG_FIELDS, QUICK_LOG_FIELD_KEYS, GPS_MODES } from "@/lib/constants";
 import InviteForm from "@/app/components/invite-form";
 import TeamNameForm from "@/app/components/team-name-form";
 import ThemeToggle from "@/app/components/theme-toggle";
@@ -60,14 +60,28 @@ export default async function KontoPage() {
             />
             Visa Challenges-fliken
           </label>
-          <label className="flex items-center gap-2 text-sm">
-            <input
-              type="checkbox"
-              name="gps_default_enabled"
-              defaultChecked={user.gps_default_enabled}
-            />
-            Förbocka GPS-position vid loggning
-          </label>
+          <fieldset className="flex flex-col gap-2">
+            <legend className="text-sm font-medium">GPS</legend>
+            {GPS_MODES.map((mode) => (
+              <label key={mode.value} className="flex items-start gap-2 text-sm">
+                <input
+                  type="radio"
+                  name="gps_mode"
+                  value={mode.value}
+                  defaultChecked={user.gps_mode === mode.value}
+                  className="mt-0.5"
+                />
+                <span>
+                  {mode.label}
+                  {"hint" in mode && (
+                    <span className="block text-xs text-zinc-500 dark:text-zinc-400">
+                      {mode.hint}
+                    </span>
+                  )}
+                </span>
+              </label>
+            ))}
+          </fieldset>
           <button
             type="submit"
             className="self-start rounded-full bg-foreground px-4 py-2 text-sm font-medium text-background"

@@ -11,6 +11,12 @@ export type Catch = {
   comment?: string | null;
   latitude?: number | null;
   longitude?: number | null;
+  weather_temp_c?: number | null;
+  weather_description?: string | null;
+  weather_wind_kmh?: number | null;
+  weather_wind_dir_deg?: number | null;
+  weather_pressure_hpa?: number | null;
+  weather_cloud_pct?: number | null;
   caught_at: Date;
   angler_name?: string;
 };

@@ -156,7 +156,7 @@ export default async function Home(props: PageProps<"/">) {
         defaultBait={defaultBait}
         defaultMethod={defaultMethod}
         quickLogFields={user.quick_log_fields}
-        gpsDefaultEnabled={user.gps_default_enabled}
+        gpsDefaultEnabled={user.gps_mode !== "off"}
       />
 
       <CatchesTable

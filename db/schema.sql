@@ -24,6 +24,16 @@ alter table users add column if not exists stats_widgets text[];
 alter table users add column if not exists quick_log_fields text[];
 alter table users add column if not exists visible_register_columns text[];
 alter table users add column if not exists gps_default_enabled boolean not null default false;
+alter table users add column if not exists gps_mode text;
+
+-- Replaces the old gps_default_enabled boolean with a 4-way choice — "off"
+-- keeps its meaning, "true" becomes "position" (the only thing GPS did
+-- before). Safe to re-run: only touches rows that haven't been migrated yet.
+update users set gps_mode = case when gps_default_enabled then 'position' else 'off' end
+  where gps_mode is null;
+alter table users alter column gps_mode set default 'off';
+alter table users alter column gps_mode set not null;
+alter table users drop column if exists gps_default_enabled;
 
 create table if not exists catches (
   id serial primary key,
@@ -46,6 +56,12 @@ alter table catches add column if not exists latitude double precision;
 alter table catches add column if not exists longitude double precision;
 alter table catches add column if not exists comment text;
 alter table catches add column if not exists method text;
+alter table catches add column if not exists weather_temp_c real;
+alter table catches add column if not exists weather_description text;
+alter table catches add column if not exists weather_wind_kmh real;
+alter table catches add column if not exists weather_wind_dir_deg real;
+alter table catches add column if not exists weather_pressure_hpa real;
+alter table catches add column if not exists weather_cloud_pct real;
 
 -- Backfill any existing rows before enforcing NOT NULL (safe to re-run).
 update catches set species = 'Okänd art' where species is null;

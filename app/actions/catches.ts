@@ -6,6 +6,7 @@ import sql from "@/lib/db";
 import { requireUser } from "@/lib/dal";
 import { findMatchingBingoCards } from "@/lib/bingo";
 import { getPreviousBest } from "@/lib/personal-bests";
+import { getWeatherAt } from "@/lib/weather";
 
 export type CatchNotices = {
   bingoMatch?: { species: string; cm: number };
@@ -157,17 +158,41 @@ export async function addCatch(
     }
   }
 
+  // A position was only submitted because the per-catch checkbox was
+  // checked (see catch-form.tsx's useGps) — the account's gps_mode only
+  // controls that checkbox's default state, not whether it's honored here.
+  // If the account mode is "off" but the box was checked anyway, that's
+  // never a no-op: it behaves like "position" (save the pin, skip weather).
+  let persistedLatitude = latitude ?? null;
+  let persistedLongitude = longitude ?? null;
+  let weather: Awaited<ReturnType<typeof getWeatherAt>> = null;
+
+  if (latitude !== undefined && longitude !== undefined) {
+    const wantsWeather = user.gps_mode === "weather" || user.gps_mode === "both";
+    if (wantsWeather) {
+      weather = await getWeatherAt(latitude, longitude, caughtAt ?? new Date());
+    }
+    if (user.gps_mode === "weather") {
+      // Position was only borrowed to look up the weather — never stored.
+      persistedLatitude = null;
+      persistedLongitude = null;
+    }
+  }
+
   // Normalize casing (e.g. "gädda" -> "Gädda") so the same species always
   // matches itself elsewhere — personbästa, filters, and bingo all compare
   // by exact species string.
   const [inserted] = await sql<{ id: number; species: string }[]>`
     insert into catches (
-      user_id, species, length_cm, weight_kg, lake, location, method, bait, comment, latitude, longitude, caught_at
+      user_id, species, length_cm, weight_kg, lake, location, method, bait, comment, latitude, longitude, caught_at,
+      weather_temp_c, weather_description, weather_wind_kmh, weather_wind_dir_deg, weather_pressure_hpa, weather_cloud_pct
     )
     values (
       ${anglerId}, initcap(${species}), ${lengthCm ?? null}, ${weightKg ?? null},
       ${lake ?? null}, ${location ?? null}, ${method ?? null}, ${bait ?? null}, ${comment ?? null},
-      ${latitude ?? null}, ${longitude ?? null}, ${caughtAt ?? new Date()}
+      ${persistedLatitude}, ${persistedLongitude}, ${caughtAt ?? new Date()},
+      ${weather?.temp_c ?? null}, ${weather?.description ?? null}, ${weather?.wind_kmh ?? null},
+      ${weather?.wind_dir_deg ?? null}, ${weather?.pressure_hpa ?? null}, ${weather?.cloud_pct ?? null}
     )
     returning id, species
   `;

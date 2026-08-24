@@ -13,6 +13,12 @@ function formatDateFull(date: Date) {
   return date.toLocaleString("sv-SE", { dateStyle: "full", timeStyle: "short" });
 }
 
+const COMPASS_DIRS = ["N", "NO", "O", "SO", "S", "SV", "V", "NV"];
+
+function windDirLabel(deg: number) {
+  return COMPASS_DIRS[Math.round(deg / 45) % 8];
+}
+
 export default function CatchDetail({ item }: { item: Catch }) {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -92,6 +98,30 @@ export default function CatchDetail({ item }: { item: Catch }) {
               <p className="text-zinc-500 dark:text-zinc-400">Kommentar</p>
               <p className="text-lg font-medium whitespace-pre-wrap">
                 {item.comment}
+              </p>
+            </div>
+          )}
+          {item.weather_description && (
+            <div className="col-span-2">
+              <p className="text-zinc-500 dark:text-zinc-400">Väder</p>
+              <p className="text-lg font-medium">
+                {item.weather_description}
+                {item.weather_temp_c != null && `, ${Math.round(item.weather_temp_c)}°`}
+              </p>
+              <p className="text-sm text-zinc-500 dark:text-zinc-400">
+                {[
+                  item.weather_wind_kmh != null &&
+                    `${Math.round(item.weather_wind_kmh)} km/h${
+                      item.weather_wind_dir_deg != null
+                        ? ` ${windDirLabel(item.weather_wind_dir_deg)}`
+                        : ""
+                    }`,
+                  item.weather_pressure_hpa != null &&
+                    `${Math.round(item.weather_pressure_hpa)} hPa`,
+                  item.weather_cloud_pct != null && `${Math.round(item.weather_cloud_pct)}% moln`,
+                ]
+                  .filter(Boolean)
+                  .join(" · ")}
               </p>
             </div>
           )}
