@@ -31,7 +31,6 @@ export const QUICK_LOG_FIELDS = [
   { key: "anglerId", label: "Fiskare" },
   { key: "comment", label: "Kommentar" },
   { key: "gps", label: "GPS-position" },
-  { key: "photo", label: "Bild" },
 ] as const;
 
 export type QuickLogFieldKey = (typeof QUICK_LOG_FIELDS)[number]["key"];

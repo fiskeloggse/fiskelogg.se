@@ -12,7 +12,6 @@ export type Catch = {
   comment?: string | null;
   latitude?: number | null;
   longitude?: number | null;
-  photo_url?: string | null;
   caught_at: Date;
   angler_name?: string;
 };

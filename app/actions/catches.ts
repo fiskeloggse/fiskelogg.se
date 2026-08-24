@@ -6,7 +6,6 @@ import sql from "@/lib/db";
 import { requireUser } from "@/lib/dal";
 import { findMatchingBingoCards } from "@/lib/bingo";
 import { getPreviousBest } from "@/lib/personal-bests";
-import { uploadCatchPhoto, deleteCatchPhoto } from "@/lib/photo";
 
 export type CatchNotices = {
   bingoMatch?: { species: string; cm: number };
@@ -144,29 +143,17 @@ export async function addCatch(
     }
   }
 
-  const rawPhoto = formData.get("photo");
-  let photoUrl: string | null = null;
-  if (rawPhoto instanceof File && rawPhoto.size > 0) {
-    try {
-      photoUrl = await uploadCatchPhoto(rawPhoto, anglerId);
-    } catch (err) {
-      return {
-        error: err instanceof Error ? err.message : "Kunde inte ladda upp bilden.",
-      };
-    }
-  }
-
   // Normalize casing (e.g. "gädda" -> "Gädda") so the same species always
   // matches itself elsewhere — personbästa, filters, and bingo all compare
   // by exact species string.
   const [inserted] = await sql<{ id: number; species: string }[]>`
     insert into catches (
-      user_id, species, length_cm, weight_kg, lake, location, bait, comment, latitude, longitude, caught_at, photo_url
+      user_id, species, length_cm, weight_kg, lake, location, bait, comment, latitude, longitude, caught_at
     )
     values (
       ${anglerId}, initcap(${species}), ${lengthCm ?? null}, ${weightKg ?? null},
       ${lake ?? null}, ${location ?? null}, ${bait ?? null}, ${comment ?? null},
-      ${latitude ?? null}, ${longitude ?? null}, ${caughtAt ?? new Date()}, ${photoUrl}
+      ${latitude ?? null}, ${longitude ?? null}, ${caughtAt ?? new Date()}
     )
     returning id, species
   `;
@@ -337,12 +324,6 @@ export async function updateCatch(
   const id = Number(formData.get("id"));
   if (!id) return { error: "Ogiltig fångst." };
 
-  const [existing] = await sql<{ photo_url: string | null }[]>`
-    select photo_url from catches
-    where id = ${id} and user_id = ${user.id} and deleted_at is null
-  `;
-  if (!existing) return { error: "Fångsten kunde inte hittas." };
-
   const rawLength = formData.get("lengthCm");
   const rawWeight = formData.get("weightKg");
   const rawLake = formData.get("lake");
@@ -399,23 +380,6 @@ export async function updateCatch(
     caughtAt,
   } = parsed.data;
 
-  const rawPhoto = formData.get("photo");
-  const removePhoto = formData.get("removePhoto") === "true";
-  let photoUrl = existing.photo_url;
-  if (rawPhoto instanceof File && rawPhoto.size > 0) {
-    try {
-      photoUrl = await uploadCatchPhoto(rawPhoto, user.id);
-    } catch (err) {
-      return {
-        error: err instanceof Error ? err.message : "Kunde inte ladda upp bilden.",
-      };
-    }
-    if (existing.photo_url) await deleteCatchPhoto(existing.photo_url);
-  } else if (removePhoto && existing.photo_url) {
-    await deleteCatchPhoto(existing.photo_url);
-    photoUrl = null;
-  }
-
   const result = await sql`
     update catches set
       species = initcap(${species}),
@@ -427,8 +391,7 @@ export async function updateCatch(
       comment = ${comment ?? null},
       latitude = ${latitude ?? null},
       longitude = ${longitude ?? null},
-      caught_at = ${caughtAt},
-      photo_url = ${photoUrl}
+      caught_at = ${caughtAt}
     where id = ${id} and user_id = ${user.id} and deleted_at is null
   `;
 

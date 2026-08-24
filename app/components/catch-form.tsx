@@ -13,7 +13,6 @@ import { QUICK_LOG_FIELD_KEYS } from "@/lib/constants";
 import ImportCatchesForm from "./import-catches-form";
 import TextSuggestInput from "./text-suggest-input";
 import MapPositionPicker from "./map-position-picker";
-import PhotoField from "./photo-field";
 
 const inputClassName =
   "rounded-lg border border-black/10 bg-white px-3 py-2 text-sm dark:border-white/15 dark:bg-transparent";
@@ -118,7 +117,6 @@ export default function CatchForm({
   const showAngler = quickFields.includes("anglerId");
   const showComment = quickFields.includes("comment");
   const showGps = quickFields.includes("gps");
-  const showPhoto = quickFields.includes("photo");
   const hasHiddenFields =
     !showWeight ||
     !showLake ||
@@ -126,7 +124,6 @@ export default function CatchForm({
     !showBait ||
     !showComment ||
     !showGps ||
-    !showPhoto ||
     (teamMembers.length > 0 && !showAngler);
   const [bingoNotice, setBingoNotice] = useState<
     CatchNotices["bingoMatch"] | null
@@ -153,10 +150,6 @@ export default function CatchForm({
   const [gpsCoords, setGpsCoords] = useState<{ lat: number; lng: number } | null>(null);
   const [lakeAutoFilled, setLakeAutoFilled] = useState(false);
   const [waterLookupPending, setWaterLookupPending] = useState(false);
-  // Forces PhotoField to remount (clearing its picked-file preview) whenever
-  // the form resets after a successful submit — the field itself doesn't
-  // unmount just because the dialog closes.
-  const [photoFieldKey, setPhotoFieldKey] = useState(0);
   // Logging a past catch has no live GPS fix to attach — let the user pin
   // the spot on a map instead.
   const [showPastMap, setShowPastMap] = useState(false);
@@ -250,7 +243,6 @@ export default function CatchForm({
       setComment("");
       setCaughtAtLocal("");
       setMode("closed");
-      setPhotoFieldKey((k) => k + 1);
       if (state && "insertedId" in state && pendingWaterNameRef.current) {
         updateCatchLake(state.insertedId, pendingWaterNameRef.current);
         pendingWaterNameRef.current = null;
@@ -647,11 +639,6 @@ export default function CatchForm({
               className={inputClassName}
             />
           </div>
-
-          <PhotoField
-            key={photoFieldKey}
-            className={showPhoto || showMore ? "flex flex-col gap-1.5" : "hidden"}
-          />
 
           {hasHiddenFields && (
             <button

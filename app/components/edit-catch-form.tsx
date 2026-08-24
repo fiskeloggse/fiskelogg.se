@@ -6,7 +6,6 @@ import { lookupWaterName } from "@/app/actions/geocode";
 import { FISH_SPECIES } from "@/lib/species";
 import type { Catch } from "./catch-list";
 import MapPositionPicker from "./map-position-picker";
-import PhotoField from "./photo-field";
 
 const inputClassName =
   "rounded-lg border border-black/10 bg-white px-3 py-2 text-sm dark:border-white/15 dark:bg-transparent";
@@ -163,8 +162,6 @@ export default function EditCatchForm({
           className={inputClassName}
         />
       </div>
-
-      <PhotoField idSuffix={String(item.id)} initialUrl={item.photo_url ?? null} />
 
       <div className="flex flex-col gap-1.5">
         <label htmlFor={`comment-${item.id}`} className="text-sm font-medium">

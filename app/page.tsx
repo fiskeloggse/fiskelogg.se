@@ -42,7 +42,7 @@ export default async function Home(props: PageProps<"/">) {
   const personalCatchesQuery =
     view === "today-longest"
       ? sql<Catch[]>`
-          select id, user_id, species, length_cm, weight_kg, lake, location, bait, comment, photo_url, caught_at
+          select id, user_id, species, length_cm, weight_kg, lake, location, bait, comment, caught_at
           from catches
           where user_id = ${user.id}
             and deleted_at is null
@@ -54,7 +54,7 @@ export default async function Home(props: PageProps<"/">) {
           limit ${CATCHES_LIMIT}
         `
       : sql<Catch[]>`
-          select id, user_id, species, length_cm, weight_kg, lake, location, bait, comment, photo_url, caught_at
+          select id, user_id, species, length_cm, weight_kg, lake, location, bait, comment, caught_at
           from catches
           where user_id = ${user.id}
             and deleted_at is null
@@ -67,7 +67,7 @@ export default async function Home(props: PageProps<"/">) {
     ? Promise.resolve([] as Catch[])
     : view === "today-longest"
       ? sql<Catch[]>`
-          select c.id, c.user_id, c.species, c.length_cm, c.weight_kg, c.lake, c.location, c.bait, c.comment, c.photo_url, c.caught_at,
+          select c.id, c.user_id, c.species, c.length_cm, c.weight_kg, c.lake, c.location, c.bait, c.comment, c.caught_at,
             u.name as angler_name
           from catches c
           join users u on u.id = c.user_id
@@ -81,7 +81,7 @@ export default async function Home(props: PageProps<"/">) {
           limit ${CATCHES_LIMIT}
         `
       : sql<Catch[]>`
-          select c.id, c.user_id, c.species, c.length_cm, c.weight_kg, c.lake, c.location, c.bait, c.comment, c.photo_url, c.caught_at,
+          select c.id, c.user_id, c.species, c.length_cm, c.weight_kg, c.lake, c.location, c.bait, c.comment, c.caught_at,
             u.name as angler_name
           from catches c
           join users u on u.id = c.user_id
