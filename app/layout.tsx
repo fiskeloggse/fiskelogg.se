@@ -76,7 +76,7 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
           // Room for the fixed mobile bottom tab bar so page content never
           // sits underneath it — desktop uses the regular in-flow tabs, no
           // extra padding needed there.
-          (user ? " pb-16 sm:pb-0" : "")
+          (user ? " pb-14 sm:pb-0" : "")
         }
       >
         <Header />

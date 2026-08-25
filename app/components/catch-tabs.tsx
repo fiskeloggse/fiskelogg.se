@@ -96,13 +96,13 @@ export default function CatchTabs({
               key={tab.href}
               href={tab.href}
               className={
-                "flex flex-1 flex-col items-center gap-0.5 py-2 text-[10.5px] leading-tight font-medium " +
+                "flex flex-1 flex-col items-center gap-0.5 py-1.5 text-[10.5px] leading-tight font-medium " +
                 (active
                   ? "text-foreground"
                   : "text-zinc-500 dark:text-zinc-400")
               }
             >
-              <TabIcon href={tab.href} className="h-5 w-5" />
+              <TabIcon href={tab.href} className="h-[18px] w-[18px]" />
               {tab.label}
             </Link>
           );
