@@ -31,9 +31,9 @@ function TabIcon({ href, className }: { href: string; className?: string }) {
     case "/":
       return (
         <svg {...props}>
-          <path d="M3 12c3-4.2 7.8-6.5 12.5-6.5 2 0 3.6.9 4.5 2-.9 1.4-.9 3.1 0 4.5-.9 1.1-2.5 2-4.5 2C10.8 14 6 15.5 3 12z" />
-          <circle cx="16.2" cy="10.3" r="0.6" fill="currentColor" stroke="none" />
-          <path d="M3 12c1 1.6 2.3 2.9 3.8 4M3 12c1-1.6 2.3-2.9 3.8-4" />
+          <ellipse cx="13" cy="12" rx="7" ry="4.2" />
+          <path d="M7.5 12 2.5 7.5v9z" strokeLinejoin="round" />
+          <circle cx="17.3" cy="10.8" r="0.9" fill="currentColor" stroke="none" />
         </svg>
       );
     case "/register":
