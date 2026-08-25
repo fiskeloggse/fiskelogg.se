@@ -34,11 +34,7 @@ export default async function Header() {
         )}
       </div>
 
-      {user && (
-        <div className="mx-auto max-w-4xl border-t border-black/10 px-4 sm:px-6 dark:border-white/10">
-          <CatchTabs showBingo={user.show_bingo} />
-        </div>
-      )}
+      {user && <CatchTabs showBingo={user.show_bingo} />}
     </header>
   );
 }
