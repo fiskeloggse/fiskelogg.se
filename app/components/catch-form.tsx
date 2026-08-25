@@ -346,7 +346,7 @@ export default function CatchForm({
 
   return (
     <>
-      <div className="fixed inset-x-4 bottom-20 z-50 mx-auto flex max-w-sm flex-col gap-2 sm:bottom-4">
+      <div className="fixed inset-x-4 bottom-4 z-50 mx-auto flex max-w-sm flex-col gap-2">
         {bingoNotice && (
           <div className="flex items-center justify-between gap-4 rounded-xl border border-black/10 bg-white p-4 shadow-lg dark:border-white/15 dark:bg-zinc-900">
             <p className="text-sm">

@@ -1,7 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import Header from "@/app/components/header";
-import { getCurrentUser } from "@/lib/dal";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -58,9 +57,7 @@ const THEME_INIT_SCRIPT = `
 })();
 `;
 
-export default async function RootLayout({ children }: LayoutProps<"/">) {
-  const user = await getCurrentUser();
-
+export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
       lang="sv"
@@ -70,15 +67,7 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
       <head>
         <script dangerouslySetInnerHTML={{ __html: THEME_INIT_SCRIPT }} />
       </head>
-      <body
-        className={
-          "min-h-full flex flex-col bg-zinc-50 dark:bg-black" +
-          // Room for the fixed mobile bottom tab bar so page content never
-          // sits underneath it — desktop uses the regular in-flow tabs, no
-          // extra padding needed there.
-          (user ? " pb-14 sm:pb-0" : "")
-        }
-      >
+      <body className="min-h-full flex flex-col bg-zinc-50 dark:bg-black">
         <Header />
         {children}
       </body>

@@ -3,8 +3,9 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
+// "Logga fisk" isn't listed here — the Fisklogg logo in the header is the
+// only link to it, so it's never duplicated in the tab menu.
 const ALL_TABS = [
-  { href: "/", label: "Logga fisk" },
   { href: "/register", label: "Register" },
   { href: "/statistik", label: "Statistik" },
   { href: "/challenges", label: "Challenges" },
@@ -12,7 +13,6 @@ const ALL_TABS = [
 ] as const;
 
 function isActive(pathname: string, href: string) {
-  if (href === "/") return pathname === "/";
   return pathname === href || pathname.startsWith(`${href}/`);
 }
 
@@ -28,14 +28,6 @@ function TabIcon({ href, className }: { href: string; className?: string }) {
   };
 
   switch (href) {
-    case "/":
-      return (
-        <svg {...props}>
-          <ellipse cx="13" cy="12" rx="7" ry="4.2" />
-          <path d="M7.5 12 2.5 7.5v9z" strokeLinejoin="round" />
-          <circle cx="17.3" cy="10.8" r="0.9" fill="currentColor" stroke="none" />
-        </svg>
-      );
     case "/register":
       return (
         <svg {...props}>
@@ -81,12 +73,10 @@ export default function CatchTabs({
     : ALL_TABS.filter((tab) => tab.href !== "/challenges");
 
   return (
-    <>
-      {/* Mobile: fixed bottom tab bar — a top-level sibling (not nested in
-          any hidden/collapsed wrapper) since position:fixed elements still
-          need visible ancestors, unlike the desktop nav below. */}
+    <div className="mx-auto max-w-4xl border-t border-black/10 px-4 sm:px-6 dark:border-white/10">
+      {/* Mobile: icon tab row, right under the header. */}
       <nav
-        className="fixed inset-x-0 bottom-0 z-40 flex justify-center gap-x-5 border-t border-black/10 bg-white px-4 pb-[env(safe-area-inset-bottom)] sm:hidden dark:border-white/15 dark:bg-zinc-950"
+        className="flex justify-center gap-x-5 sm:hidden"
         aria-label="Huvudmeny"
       >
         {tabs.map((tab) => {
@@ -109,26 +99,23 @@ export default function CatchTabs({
         })}
       </nav>
 
-      {/* Desktop: horizontal tabs, with the divider line under the header's
-          top row that the mobile version doesn't need (it has its own bar). */}
-      <div className="mx-auto hidden max-w-4xl border-t border-black/10 px-4 sm:block sm:px-6 dark:border-white/10">
-        <nav className="flex gap-2">
-          {tabs.map((tab) => (
-            <Link
-              key={tab.href}
-              href={tab.href}
-              className={
-                "-mb-px whitespace-nowrap border-b-2 px-4 py-2 text-sm font-medium " +
-                (isActive(pathname, tab.href)
-                  ? "border-foreground text-foreground"
-                  : "border-transparent text-zinc-500 hover:text-foreground dark:text-zinc-400")
-              }
-            >
-              {tab.label}
-            </Link>
-          ))}
-        </nav>
-      </div>
-    </>
+      {/* Desktop: horizontal text tabs. */}
+      <nav className="hidden gap-2 sm:flex">
+        {tabs.map((tab) => (
+          <Link
+            key={tab.href}
+            href={tab.href}
+            className={
+              "-mb-px whitespace-nowrap border-b-2 px-4 py-2 text-sm font-medium " +
+              (isActive(pathname, tab.href)
+                ? "border-foreground text-foreground"
+                : "border-transparent text-zinc-500 hover:text-foreground dark:text-zinc-400")
+            }
+          >
+            {tab.label}
+          </Link>
+        ))}
+      </nav>
+    </div>
   );
 }
