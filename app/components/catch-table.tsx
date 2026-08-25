@@ -9,8 +9,9 @@ import {
   DateColumnFilter,
   MeasurementColumnFilter,
   SelectColumnFilter,
+  WeatherColumnFilter,
 } from "./register-header-filters";
-import { REGISTER_COLUMN_KEYS } from "@/lib/constants";
+import { REGISTER_COLUMN_KEYS, windDirLabel } from "@/lib/constants";
 
 function formatDate(date: Date) {
   return date.toLocaleDateString("sv-SE", { day: "numeric", month: "short" });
@@ -56,11 +57,12 @@ export default function CatchTable({
   const showPlats = visible.includes("plats");
   const showMatt = visible.includes("matt");
   const showBete = visible.includes("bete");
+  const showVader = visible.includes("vader");
   const labelSpan =
     [showDatum, showArt, showPlats, showBete].filter(Boolean).length || 1;
   const totalColumns =
-    [showDatum, showArt, showPlats, showMatt, showBete].filter(Boolean).length +
-    (selectMode ? 1 : 0);
+    [showDatum, showArt, showPlats, showMatt, showBete, showVader].filter(Boolean)
+      .length + (selectMode ? 1 : 0);
 
   const totalLength = catches.reduce((sum, c) => sum + (c.length_cm ?? 0), 0);
   const totalWeight = catches.reduce((sum, c) => sum + (c.weight_kg ?? 0), 0);
@@ -194,6 +196,11 @@ export default function CatchTable({
                     />
                   </th>
                 )}
+                {showVader && (
+                  <th className="px-1 py-2 font-medium">
+                    <WeatherColumnFilter />
+                  </th>
+                )}
               </tr>
             </thead>
             <tbody className="divide-y divide-black/10 dark:divide-white/10">
@@ -308,6 +315,37 @@ export default function CatchTable({
                               {item.bait && (
                                 <div className="text-xs text-zinc-400 dark:text-zinc-500">
                                   {item.bait}
+                                </div>
+                              )}
+                            </>
+                          ) : (
+                            "–"
+                          )}
+                        </td>
+                      )}
+                      {showVader && (
+                        <td className="px-1 py-2 whitespace-nowrap text-zinc-500 dark:text-zinc-400">
+                          {item.weather_description ? (
+                            <>
+                              <div>
+                                {
+                                  [
+                                    item.weather_temp_c != null &&
+                                      `${item.weather_description}, ${Math.round(item.weather_temp_c)}°`,
+                                    item.weather_wind_kmh != null &&
+                                      `${Math.round(item.weather_wind_kmh)} km/h${
+                                        item.weather_wind_dir_deg != null
+                                          ? ` ${windDirLabel(item.weather_wind_dir_deg)}`
+                                          : ""
+                                      }`,
+                                  ]
+                                    .filter(Boolean)
+                                    .join(" · ") || item.weather_description
+                                }
+                              </div>
+                              {item.weather_pressure_hpa != null && (
+                                <div className="text-xs text-zinc-400 dark:text-zinc-500">
+                                  {Math.round(item.weather_pressure_hpa)} hPa
                                 </div>
                               )}
                             </>

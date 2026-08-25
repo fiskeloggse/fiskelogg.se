@@ -3,7 +3,19 @@
 import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { LENGTH_MAX, LENGTH_MIN, MONTHS, WEIGHT_MAX, WEIGHT_MIN } from "@/lib/constants";
+import {
+  LENGTH_MAX,
+  LENGTH_MIN,
+  MONTHS,
+  WEIGHT_MAX,
+  WEIGHT_MIN,
+  WEATHER_TEMP_MIN,
+  WEATHER_TEMP_MAX,
+  WEATHER_WIND_MIN,
+  WEATHER_WIND_MAX,
+  WEATHER_PRESSURE_MIN,
+  WEATHER_PRESSURE_MAX,
+} from "@/lib/constants";
 import DualRangeSlider from "./dual-range-slider";
 
 const inputClassName =
@@ -282,6 +294,116 @@ export function MeasurementColumnFilter() {
             <SortToggle label="Längd" sortAsc="length-asc" sortDesc="length-desc" />
             <SortToggle label="Vikt" sortAsc="weight-asc" sortDesc="weight-desc" />
           </div>
+        </div>
+      )}
+    </HeaderPopover>
+  );
+}
+
+// One popup with a dual-range slider per weather value (temperatur, vind,
+// lufttryck) — same pattern as MeasurementColumnFilter above.
+export function WeatherColumnFilter() {
+  const searchParams = useSearchParams();
+  const apply = useApply();
+  const currentTempMin = searchParams.get("weatherTempMin");
+  const currentTempMax = searchParams.get("weatherTempMax");
+  const currentWindMin = searchParams.get("weatherWindMin");
+  const currentWindMax = searchParams.get("weatherWindMax");
+  const currentPressureMin = searchParams.get("weatherPressureMin");
+  const currentPressureMax = searchParams.get("weatherPressureMax");
+  const [tempRange, setTempRange] = useState<[number, number]>([
+    currentTempMin ? Number(currentTempMin) : WEATHER_TEMP_MIN,
+    currentTempMax ? Number(currentTempMax) : WEATHER_TEMP_MAX,
+  ]);
+  const [windRange, setWindRange] = useState<[number, number]>([
+    currentWindMin ? Number(currentWindMin) : WEATHER_WIND_MIN,
+    currentWindMax ? Number(currentWindMax) : WEATHER_WIND_MAX,
+  ]);
+  const [pressureRange, setPressureRange] = useState<[number, number]>([
+    currentPressureMin ? Number(currentPressureMin) : WEATHER_PRESSURE_MIN,
+    currentPressureMax ? Number(currentPressureMax) : WEATHER_PRESSURE_MAX,
+  ]);
+  const active = Boolean(
+    currentTempMin ||
+      currentTempMax ||
+      currentWindMin ||
+      currentWindMax ||
+      currentPressureMin ||
+      currentPressureMax
+  );
+
+  return (
+    <HeaderPopover label="Väder" active={active}>
+      {(close) => (
+        <div className="flex flex-col gap-3 text-sm">
+          <DualRangeSlider
+            label="Temperatur"
+            min={WEATHER_TEMP_MIN}
+            max={WEATHER_TEMP_MAX}
+            step={1}
+            value={tempRange}
+            onChange={setTempRange}
+            unit="°"
+          />
+          <DualRangeSlider
+            label="Vind"
+            min={WEATHER_WIND_MIN}
+            max={WEATHER_WIND_MAX}
+            step={1}
+            value={windRange}
+            onChange={setWindRange}
+            unit="km/h"
+          />
+          <DualRangeSlider
+            label="Lufttryck"
+            min={WEATHER_PRESSURE_MIN}
+            max={WEATHER_PRESSURE_MAX}
+            step={1}
+            value={pressureRange}
+            onChange={setPressureRange}
+            unit="hPa"
+          />
+          <button
+            type="button"
+            onClick={() => {
+              apply((params) => {
+                if (tempRange[0] > WEATHER_TEMP_MIN) {
+                  params.set("weatherTempMin", String(tempRange[0]));
+                } else {
+                  params.delete("weatherTempMin");
+                }
+                if (tempRange[1] < WEATHER_TEMP_MAX) {
+                  params.set("weatherTempMax", String(tempRange[1]));
+                } else {
+                  params.delete("weatherTempMax");
+                }
+                if (windRange[0] > WEATHER_WIND_MIN) {
+                  params.set("weatherWindMin", String(windRange[0]));
+                } else {
+                  params.delete("weatherWindMin");
+                }
+                if (windRange[1] < WEATHER_WIND_MAX) {
+                  params.set("weatherWindMax", String(windRange[1]));
+                } else {
+                  params.delete("weatherWindMax");
+                }
+                if (pressureRange[0] > WEATHER_PRESSURE_MIN) {
+                  params.set("weatherPressureMin", String(pressureRange[0]));
+                } else {
+                  params.delete("weatherPressureMin");
+                }
+                if (pressureRange[1] < WEATHER_PRESSURE_MAX) {
+                  params.set("weatherPressureMax", String(pressureRange[1]));
+                } else {
+                  params.delete("weatherPressureMax");
+                }
+              });
+              close();
+            }}
+            className="self-start rounded-full bg-foreground px-3 py-1.5 text-xs font-medium text-background"
+          >
+            Filtrera
+          </button>
         </div>
       )}
     </HeaderPopover>

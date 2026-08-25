@@ -1,6 +1,18 @@
 import "server-only";
 import sql from "./db";
-import { LENGTH_MAX, LENGTH_MIN, TIMEZONE, WEIGHT_MAX, WEIGHT_MIN } from "./constants";
+import {
+  LENGTH_MAX,
+  LENGTH_MIN,
+  TIMEZONE,
+  WEIGHT_MAX,
+  WEIGHT_MIN,
+  WEATHER_TEMP_MIN,
+  WEATHER_TEMP_MAX,
+  WEATHER_WIND_MIN,
+  WEATHER_WIND_MAX,
+  WEATHER_PRESSURE_MIN,
+  WEATHER_PRESSURE_MAX,
+} from "./constants";
 import type { Catch } from "@/app/components/catch-list";
 
 export { LENGTH_MIN, LENGTH_MAX, WEIGHT_MIN, WEIGHT_MAX };
@@ -42,6 +54,12 @@ export type RegisterFilters = {
   lengthMax: number;
   weightMin: number;
   weightMax: number;
+  weatherTempMin: number;
+  weatherTempMax: number;
+  weatherWindMin: number;
+  weatherWindMax: number;
+  weatherPressureMin: number;
+  weatherPressureMax: number;
   sort: string;
   months: number[];
 };
@@ -66,6 +84,12 @@ export function parseRegisterFilters(params: URLSearchParams): RegisterFilters {
   const lengthMaxRaw = params.get("lengthMax");
   const weightMinRaw = params.get("weightMin");
   const weightMaxRaw = params.get("weightMax");
+  const weatherTempMinRaw = params.get("weatherTempMin");
+  const weatherTempMaxRaw = params.get("weatherTempMax");
+  const weatherWindMinRaw = params.get("weatherWindMin");
+  const weatherWindMaxRaw = params.get("weatherWindMax");
+  const weatherPressureMinRaw = params.get("weatherPressureMin");
+  const weatherPressureMaxRaw = params.get("weatherPressureMax");
 
   return {
     species: params.get("species") ?? "",
@@ -77,6 +101,16 @@ export function parseRegisterFilters(params: URLSearchParams): RegisterFilters {
     lengthMax: lengthMaxRaw ? Number(lengthMaxRaw) : LENGTH_MAX,
     weightMin: weightMinRaw ? Number(weightMinRaw) : WEIGHT_MIN,
     weightMax: weightMaxRaw ? Number(weightMaxRaw) : WEIGHT_MAX,
+    weatherTempMin: weatherTempMinRaw ? Number(weatherTempMinRaw) : WEATHER_TEMP_MIN,
+    weatherTempMax: weatherTempMaxRaw ? Number(weatherTempMaxRaw) : WEATHER_TEMP_MAX,
+    weatherWindMin: weatherWindMinRaw ? Number(weatherWindMinRaw) : WEATHER_WIND_MIN,
+    weatherWindMax: weatherWindMaxRaw ? Number(weatherWindMaxRaw) : WEATHER_WIND_MAX,
+    weatherPressureMin: weatherPressureMinRaw
+      ? Number(weatherPressureMinRaw)
+      : WEATHER_PRESSURE_MIN,
+    weatherPressureMax: weatherPressureMaxRaw
+      ? Number(weatherPressureMaxRaw)
+      : WEATHER_PRESSURE_MAX,
     sort: params.get("sort") || "date-desc",
     months: params
       .getAll("month")
@@ -96,6 +130,12 @@ export function hasActiveFilters(filters: RegisterFilters): boolean {
       filters.lengthMax < LENGTH_MAX ||
       filters.weightMin > WEIGHT_MIN ||
       filters.weightMax < WEIGHT_MAX ||
+      filters.weatherTempMin > WEATHER_TEMP_MIN ||
+      filters.weatherTempMax < WEATHER_TEMP_MAX ||
+      filters.weatherWindMin > WEATHER_WIND_MIN ||
+      filters.weatherWindMax < WEATHER_WIND_MAX ||
+      filters.weatherPressureMin > WEATHER_PRESSURE_MIN ||
+      filters.weatherPressureMax < WEATHER_PRESSURE_MAX ||
       filters.months.length > 0
   );
 }
@@ -122,6 +162,30 @@ export async function getFilteredCatches(
     filters.weightMin > WEIGHT_MIN ? sql`and weight_kg >= ${filters.weightMin}` : sql``;
   const weightMaxCondition =
     filters.weightMax < WEIGHT_MAX ? sql`and weight_kg <= ${filters.weightMax}` : sql``;
+  const weatherTempMinCondition =
+    filters.weatherTempMin > WEATHER_TEMP_MIN
+      ? sql`and weather_temp_c >= ${filters.weatherTempMin}`
+      : sql``;
+  const weatherTempMaxCondition =
+    filters.weatherTempMax < WEATHER_TEMP_MAX
+      ? sql`and weather_temp_c <= ${filters.weatherTempMax}`
+      : sql``;
+  const weatherWindMinCondition =
+    filters.weatherWindMin > WEATHER_WIND_MIN
+      ? sql`and weather_wind_kmh >= ${filters.weatherWindMin}`
+      : sql``;
+  const weatherWindMaxCondition =
+    filters.weatherWindMax < WEATHER_WIND_MAX
+      ? sql`and weather_wind_kmh <= ${filters.weatherWindMax}`
+      : sql``;
+  const weatherPressureMinCondition =
+    filters.weatherPressureMin > WEATHER_PRESSURE_MIN
+      ? sql`and weather_pressure_hpa >= ${filters.weatherPressureMin}`
+      : sql``;
+  const weatherPressureMaxCondition =
+    filters.weatherPressureMax < WEATHER_PRESSURE_MAX
+      ? sql`and weather_pressure_hpa <= ${filters.weatherPressureMax}`
+      : sql``;
   const monthCondition =
     filters.months.length > 0
       ? sql`and extract(month from caught_at at time zone ${TIMEZONE})::int = any(${sql.array(filters.months)}::int[])`
@@ -160,6 +224,12 @@ export async function getFilteredCatches(
       ${lengthMaxCondition}
       ${weightMinCondition}
       ${weightMaxCondition}
+      ${weatherTempMinCondition}
+      ${weatherTempMaxCondition}
+      ${weatherWindMinCondition}
+      ${weatherWindMaxCondition}
+      ${weatherPressureMinCondition}
+      ${weatherPressureMaxCondition}
       ${dateCondition}
       ${monthCondition}
     order by ${sql.unsafe(sortColumn)}

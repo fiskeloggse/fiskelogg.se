@@ -7,6 +7,18 @@ export const LENGTH_MIN = 0;
 export const LENGTH_MAX = 150;
 export const WEIGHT_MIN = 0;
 export const WEIGHT_MAX = 20;
+export const WEATHER_TEMP_MIN = -30;
+export const WEATHER_TEMP_MAX = 40;
+export const WEATHER_WIND_MIN = 0;
+export const WEATHER_WIND_MAX = 80;
+export const WEATHER_PRESSURE_MIN = 950;
+export const WEATHER_PRESSURE_MAX = 1050;
+
+export const COMPASS_DIRS = ["N", "NO", "O", "SO", "S", "SV", "V", "NV"];
+
+export function windDirLabel(deg: number): string {
+  return COMPASS_DIRS[Math.round(deg / 45) % 8];
+}
 
 export const MONTHS = [
   { value: 1, label: "Januari" },
@@ -46,6 +58,7 @@ export const REGISTER_COLUMNS = [
   { key: "plats", label: "Plats" },
   { key: "matt", label: "cm/kg" },
   { key: "bete", label: "Fiskemetod & Bete" },
+  { key: "vader", label: "Väder" },
 ] as const;
 
 export type RegisterColumnKey = (typeof REGISTER_COLUMNS)[number]["key"];

@@ -8,15 +8,10 @@ import ConfirmDeleteButton from "./confirm-delete-button";
 import EditCatchForm from "./edit-catch-form";
 import CatchesMap from "./catches-map";
 import type { Catch } from "./catch-list";
+import { windDirLabel } from "@/lib/constants";
 
 function formatDateFull(date: Date) {
   return date.toLocaleString("sv-SE", { dateStyle: "full", timeStyle: "short" });
-}
-
-const COMPASS_DIRS = ["N", "NO", "O", "SO", "S", "SV", "V", "NV"];
-
-function windDirLabel(deg: number) {
-  return COMPASS_DIRS[Math.round(deg / 45) % 8];
 }
 
 export default function CatchDetail({ item }: { item: Catch }) {
