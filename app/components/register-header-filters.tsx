@@ -238,7 +238,7 @@ export function MeasurementColumnFilter() {
   );
 
   return (
-    <HeaderPopover label="cm/kg" active={active}>
+    <HeaderPopover label="Storlek" active={active}>
       {(close) => (
         <div className="flex flex-col gap-3 text-sm">
           <DualRangeSlider

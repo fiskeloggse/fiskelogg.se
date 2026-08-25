@@ -97,7 +97,7 @@ export const REGISTER_COLUMNS = [
   { key: "datum", label: "Datum" },
   { key: "art", label: "Art" },
   { key: "plats", label: "Plats" },
-  { key: "matt", label: "cm/kg" },
+  { key: "matt", label: "Storlek" },
   { key: "bete", label: "Fiskemetod & Bete" },
   { key: "vader", label: "Väder" },
 ] as const;
