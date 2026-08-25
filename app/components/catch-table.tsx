@@ -327,13 +327,11 @@ export default function CatchTable({
                         <td className="px-1 py-2 whitespace-nowrap text-zinc-500 dark:text-zinc-400">
                           {item.weather_description ? (
                             <>
-                              <div>
-                                {WEATHER_DESCRIPTION_ICONS[item.weather_description] && (
-                                  <>{WEATHER_DESCRIPTION_ICONS[item.weather_description]} </>
-                                )}
-                                {item.weather_description}
+                              <div title={item.weather_description}>
+                                {WEATHER_DESCRIPTION_ICONS[item.weather_description] ??
+                                  item.weather_description}
                                 {item.weather_temp_c != null &&
-                                  `, ${Math.round(item.weather_temp_c)}°`}
+                                  ` ${Math.round(item.weather_temp_c)}°`}
                               </div>
                               {item.weather_wind_kmh != null && (
                                 <div className="text-xs text-zinc-400 dark:text-zinc-500">
