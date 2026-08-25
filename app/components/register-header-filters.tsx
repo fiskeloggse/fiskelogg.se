@@ -119,7 +119,7 @@ export function HeaderPopover({
   );
 }
 
-function useApply() {
+export function useApply() {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();

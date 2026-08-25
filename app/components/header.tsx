@@ -8,10 +8,14 @@ export default async function Header() {
   return (
     <header className="border-b border-black/10 dark:border-white/10">
       <div className="mx-auto flex max-w-4xl items-center justify-between px-4 py-2.5 sm:py-4 sm:px-6">
-        <Link href="/" className="flex items-center gap-2 text-base font-semibold sm:text-lg">
+        <Link
+          href="/"
+          aria-label="Fisklogg"
+          className="flex items-center gap-2 text-base font-semibold sm:text-lg"
+        >
           {/* eslint-disable-next-line @next/next/no-img-element -- small static logo mark, not worth next/image's overhead */}
           <img src="/logo-mark.png" alt="" className="h-6 w-6 sm:h-7 sm:w-7" />
-          Fisklogg
+          <span className="hidden sm:inline">Fisklogg</span>
         </Link>
 
         {!user && (

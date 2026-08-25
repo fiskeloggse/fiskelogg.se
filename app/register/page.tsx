@@ -13,6 +13,7 @@ import {
 import CatchTable from "@/app/components/catch-table";
 import ColumnVisibilityToggle from "@/app/components/column-visibility-toggle";
 import RegisterMapToggle from "@/app/components/register-map-toggle";
+import RegisterSearch from "@/app/components/register-search";
 import { REGISTER_COLUMN_KEYS } from "@/lib/constants";
 
 export const metadata: Metadata = {
@@ -74,6 +75,7 @@ export default async function RegisterPage(props: PageProps<"/register">) {
             </Link>
           </div>
         </div>
+        <RegisterSearch />
         <p className="text-xs text-zinc-500 dark:text-zinc-400">
           Klicka på en kolumnrubrik i tabellen för att filtrera eller sortera
           på den kolumnen.

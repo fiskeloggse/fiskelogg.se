@@ -45,6 +45,7 @@ export const SORT_OPTIONS = [
 ] as const;
 
 export type RegisterFilters = {
+  q: string;
   species: string;
   lake: string;
   bait: string;
@@ -92,6 +93,7 @@ export function parseRegisterFilters(params: URLSearchParams): RegisterFilters {
   const weatherPressureMaxRaw = params.get("weatherPressureMax");
 
   return {
+    q: params.get("q") ?? "",
     species: params.get("species") ?? "",
     lake: params.get("lake") ?? "",
     bait: params.get("bait") ?? "",
@@ -121,7 +123,8 @@ export function parseRegisterFilters(params: URLSearchParams): RegisterFilters {
 
 export function hasActiveFilters(filters: RegisterFilters): boolean {
   return Boolean(
-    filters.species ||
+    filters.q ||
+      filters.species ||
       filters.lake ||
       filters.bait ||
       filters.from ||
@@ -149,6 +152,14 @@ export async function getFilteredCatches(
   userId: number,
   filters: RegisterFilters
 ): Promise<Catch[]> {
+  // % and _ are LIKE wildcards — escape them so a literal search term (e.g.
+  // a water named "St_rsjön") doesn't accidentally match more than typed.
+  // Postgres' default LIKE escape character is backslash, no ESCAPE clause
+  // needed.
+  const searchPattern = filters.q ? `%${filters.q.replace(/[%_\\]/g, "\\$&")}%` : "";
+  const searchCondition = filters.q
+    ? sql`and (species ilike ${searchPattern} or lake ilike ${searchPattern})`
+    : sql``;
   const speciesCondition = filters.species
     ? sql`and species = ${filters.species}`
     : sql``;
@@ -217,6 +228,7 @@ export async function getFilteredCatches(
     from catches
     where user_id = ${userId}
       and deleted_at is null
+      ${searchCondition}
       ${speciesCondition}
       ${lakeCondition}
       ${baitCondition}
