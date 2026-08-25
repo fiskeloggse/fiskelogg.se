@@ -9,6 +9,7 @@ import EditCatchForm from "./edit-catch-form";
 import CatchesMap from "./catches-map";
 import type { Catch } from "./catch-list";
 import { windDirLabel } from "@/lib/constants";
+import { getMoonPhase } from "@/lib/moon-phase";
 
 function formatDateFull(date: Date) {
   return date.toLocaleString("sv-SE", { dateStyle: "full", timeStyle: "short" });
@@ -23,6 +24,7 @@ export default function CatchDetail({ item }: { item: Catch }) {
   // user clicked into this catch, so navigating back restores them.
   const query = searchParams.toString();
   const backHref = `/register${query ? `?${query}` : ""}`;
+  const moonPhase = getMoonPhase(item.caught_at);
 
   async function handleDelete(formData: FormData) {
     await deleteCatch(formData);
@@ -120,6 +122,12 @@ export default function CatchDetail({ item }: { item: Catch }) {
               </p>
             </div>
           )}
+          <div className="col-span-2">
+            <p className="text-zinc-500 dark:text-zinc-400">Månfas</p>
+            <p className="text-lg font-medium">
+              {moonPhase.icon} {moonPhase.label}
+            </p>
+          </div>
         </div>
 
         {item.latitude != null && item.longitude != null && (
