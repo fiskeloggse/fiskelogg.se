@@ -106,7 +106,7 @@ export default function CatchDetail({ item }: { item: Catch }) {
               <p className="text-sm text-zinc-500 dark:text-zinc-400">
                 {[
                   item.weather_wind_kmh != null &&
-                    `${Math.round(item.weather_wind_kmh)} km/h${
+                    `${Math.round(item.weather_wind_kmh / 3.6)} m/s${
                       item.weather_wind_dir_deg != null
                         ? ` ${windDirLabel(item.weather_wind_dir_deg)}`
                         : ""
