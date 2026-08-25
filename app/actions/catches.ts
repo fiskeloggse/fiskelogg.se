@@ -158,24 +158,23 @@ export async function addCatch(
     }
   }
 
-  // A position was only submitted because the per-catch checkbox was
-  // checked (see catch-form.tsx's useGps) — the account's gps_mode only
-  // controls that checkbox's default state, not whether it's honored here.
-  // If the account mode is "off" but the box was checked anyway, that's
-  // never a no-op: it behaves like "position" (save the pin, skip weather).
-  let persistedLatitude = latitude ?? null;
-  let persistedLongitude = longitude ?? null;
+  // Position and weather are logged independently per catch (see the
+  // "Logga position"/"Logga väder" checkboxes in catch-form.tsx) — the
+  // account's gps_mode only controls their default checked state, not
+  // whether they're honored here.
+  const logPosition = formData.get("logPosition") === "on";
+  const logWeather = formData.get("logWeather") === "on";
+  let persistedLatitude: number | null = null;
+  let persistedLongitude: number | null = null;
   let weather: Awaited<ReturnType<typeof getWeatherAt>> = null;
 
   if (latitude !== undefined && longitude !== undefined) {
-    const wantsWeather = user.gps_mode === "weather" || user.gps_mode === "both";
-    if (wantsWeather) {
-      weather = await getWeatherAt(latitude, longitude, caughtAt ?? new Date());
+    if (logPosition) {
+      persistedLatitude = latitude;
+      persistedLongitude = longitude;
     }
-    if (user.gps_mode === "weather") {
-      // Position was only borrowed to look up the weather — never stored.
-      persistedLatitude = null;
-      persistedLongitude = null;
+    if (logWeather) {
+      weather = await getWeatherAt(latitude, longitude, caughtAt ?? new Date());
     }
   }
 

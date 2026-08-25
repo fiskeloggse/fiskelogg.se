@@ -10,7 +10,7 @@ import type { BaitSuggestions } from "@/lib/bait-suggestions";
 import type { LakeSuggestions } from "@/lib/lake-suggestions";
 import type { LocationSuggestions } from "@/lib/location-suggestions";
 import type { MethodSuggestions } from "@/lib/method-suggestions";
-import { QUICK_LOG_FIELD_KEYS } from "@/lib/constants";
+import { QUICK_LOG_FIELD_KEYS, type GpsModeKey } from "@/lib/constants";
 import TextSuggestInput from "./text-suggest-input";
 import MapPositionPicker from "./map-position-picker";
 
@@ -18,23 +18,20 @@ const inputClassName =
   "rounded-lg border border-black/10 bg-white px-3 py-2 text-sm dark:border-white/15 dark:bg-transparent";
 
 function Chips({
-  label,
   options,
   selected,
   onSelect,
 }: {
-  label: string;
   options: string[];
   selected: string;
   onSelect: (value: string) => void;
 }) {
   // Always takes up the same height as a row with a chip in it, even with
-  // zero options — otherwise a field with no "Senaste" suggestion yet sits
+  // zero options — otherwise a field with no recent suggestion yet sits
   // shorter than its paired field that has one (e.g. Fiskemetod vs. Bete
   // when only Bete has history), throwing the two out of alignment.
   return (
     <div className="flex min-h-8 flex-wrap items-center gap-1.5">
-      <span className="text-xs text-zinc-500 dark:text-zinc-400">{label}</span>
       {options.map((s) => (
         <button
           key={s}
@@ -125,7 +122,7 @@ export default function CatchForm({
   defaultBait,
   defaultMethod,
   quickLogFields,
-  gpsDefaultEnabled,
+  gpsMode,
 }: {
   suggestions: SpeciesSuggestions;
   baitSuggestions: BaitSuggestions;
@@ -139,7 +136,7 @@ export default function CatchForm({
   defaultBait: string | null;
   defaultMethod: string | null;
   quickLogFields: string[] | null;
-  gpsDefaultEnabled: boolean;
+  gpsMode: GpsModeKey;
 }) {
   const [state, formAction, pending] = useActionState(addCatch, undefined);
   const wasPending = useRef(false);
@@ -200,7 +197,10 @@ export default function CatchForm({
   const [bait, setBait] = useState(defaultBait ?? "");
   const [comment, setComment] = useState("");
   const [caughtAtLocal, setCaughtAtLocal] = useState("");
-  const [useGps, setUseGps] = useState(gpsDefaultEnabled);
+  const defaultLogPosition = gpsMode === "position" || gpsMode === "both";
+  const defaultLogWeather = gpsMode === "weather" || gpsMode === "both";
+  const [useGps, setUseGps] = useState(defaultLogPosition);
+  const [logWeather, setLogWeather] = useState(defaultLogWeather);
   const [gpsStatus, setGpsStatus] = useState<"idle" | "loading" | "success" | "error">(
     "idle"
   );
@@ -257,7 +257,8 @@ export default function CatchForm({
   }, [pending]);
 
   useEffect(() => {
-    if (!useGps || mode !== "now" || gpsCoords || gpsStatus === "loading") return;
+    if ((!useGps && !logWeather) || mode !== "now" || gpsCoords || gpsStatus === "loading")
+      return;
     if (!navigator.geolocation) {
       // eslint-disable-next-line react-hooks/set-state-in-effect
       setGpsStatus("error");
@@ -294,7 +295,7 @@ export default function CatchForm({
       { enableHighAccuracy: true, timeout: 10000 }
     );
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [useGps, mode]);
+  }, [useGps, logWeather, mode]);
 
   useEffect(() => {
     if (wasPending.current && !pending && !errorMessage) {
@@ -425,13 +426,6 @@ export default function CatchForm({
               Art
             </label>
 
-            <Chips
-              label="Senaste"
-              options={suggestions.recent}
-              selected={species}
-              onSelect={setSpecies}
-            />
-
             <input
               id="species"
               name="species"
@@ -449,6 +443,8 @@ export default function CatchForm({
                 <option key={s} value={s} />
               ))}
             </datalist>
+
+            <Chips options={suggestions.recent} selected={species} onSelect={setSpecies} />
           </div>
 
           {showPlatsSection && (
@@ -462,21 +458,40 @@ export default function CatchForm({
                     content:
                       mode === "now" ? (
                         <div className="flex flex-col gap-1">
-                          <label className="flex items-center gap-2 text-sm">
-                            <input
-                              type="checkbox"
-                              checked={useGps}
-                              onChange={(e) => {
-                                setUseGps(e.target.checked);
-                                if (!e.target.checked) {
-                                  setGpsCoords(null);
-                                  setGpsStatus("idle");
-                                  setLakeAutoFilled(false);
-                                }
-                              }}
-                            />
-                            Bifoga GPS-position
-                          </label>
+                          <div className="flex items-center gap-4">
+                            <label className="flex items-center gap-2 text-sm">
+                              <input
+                                type="checkbox"
+                                checked={useGps}
+                                onChange={(e) => {
+                                  const checked = e.target.checked;
+                                  setUseGps(checked);
+                                  if (!checked && !logWeather) {
+                                    setGpsCoords(null);
+                                    setGpsStatus("idle");
+                                    setLakeAutoFilled(false);
+                                  }
+                                }}
+                              />
+                              Logga position
+                            </label>
+                            <label className="flex items-center gap-2 text-sm">
+                              <input
+                                type="checkbox"
+                                checked={logWeather}
+                                onChange={(e) => {
+                                  const checked = e.target.checked;
+                                  setLogWeather(checked);
+                                  if (!checked && !useGps) {
+                                    setGpsCoords(null);
+                                    setGpsStatus("idle");
+                                    setLakeAutoFilled(false);
+                                  }
+                                }}
+                              />
+                              Logga väder
+                            </label>
+                          </div>
                           {gpsStatus === "loading" && (
                             <p className="text-xs text-zinc-500 dark:text-zinc-400">
                               Hämtar position…
@@ -499,6 +514,16 @@ export default function CatchForm({
                             <>
                               <input type="hidden" name="latitude" value={gpsCoords.lat} />
                               <input type="hidden" name="longitude" value={gpsCoords.lng} />
+                              <input
+                                type="hidden"
+                                name="logPosition"
+                                value={useGps ? "on" : ""}
+                              />
+                              <input
+                                type="hidden"
+                                name="logWeather"
+                                value={logWeather ? "on" : ""}
+                              />
                             </>
                           )}
                         </div>
@@ -540,6 +565,12 @@ export default function CatchForm({
                             <>
                               <input type="hidden" name="latitude" value={pastLatitude} />
                               <input type="hidden" name="longitude" value={pastLongitude} />
+                              <input type="hidden" name="logPosition" value="on" />
+                              <input
+                                type="hidden"
+                                name="logWeather"
+                                value={defaultLogWeather ? "on" : ""}
+                              />
                             </>
                           )}
                         </div>
@@ -552,18 +583,8 @@ export default function CatchForm({
                       <div className="grid grid-cols-2 gap-3">
                         <div className="flex flex-col gap-2">
                           <label htmlFor="lake" className="text-sm font-medium">
-                            Vatten{" "}
-                            <span className="font-normal text-zinc-500">
-                              (valfritt)
-                            </span>
+                            Vatten
                           </label>
-
-                          <Chips
-                            label="Senaste"
-                            options={lakeSuggestions.recent}
-                            selected={lake}
-                            onSelect={setLake}
-                          />
 
                           <TextSuggestInput
                             id="lake"
@@ -573,22 +594,14 @@ export default function CatchForm({
                             options={lakeSuggestions.all}
                             className={inputClassName}
                           />
+
+                          <Chips options={lakeSuggestions.recent} selected={lake} onSelect={setLake} />
                         </div>
 
                         <div className="flex flex-col gap-2">
                           <label htmlFor="location" className="text-sm font-medium">
-                            Plats{" "}
-                            <span className="font-normal text-zinc-500">
-                              (valfritt)
-                            </span>
+                            Plats
                           </label>
-
-                          <Chips
-                            label="Senaste"
-                            options={locationSuggestions.recent}
-                            selected={location}
-                            onSelect={setLocation}
-                          />
 
                           <TextSuggestInput
                             id="location"
@@ -597,6 +610,12 @@ export default function CatchForm({
                             onChange={setLocation}
                             options={locationOptions}
                             className={inputClassName}
+                          />
+
+                          <Chips
+                            options={locationSuggestions.recent}
+                            selected={location}
+                            onSelect={setLocation}
                           />
                         </div>
                       </div>
@@ -612,8 +631,7 @@ export default function CatchForm({
               <div className="grid grid-cols-2 gap-3">
                 <div className={showLength || showMore ? "flex flex-col gap-1.5" : "hidden"}>
                   <label htmlFor="lengthCm" className="text-sm font-medium">
-                    Längd (cm){" "}
-                    <span className="font-normal text-zinc-500">(valfritt)</span>
+                    Längd (cm)
                   </label>
                   <input
                     id="lengthCm"
@@ -630,8 +648,7 @@ export default function CatchForm({
 
                 <div className={showWeight || showMore ? "flex flex-col gap-1.5" : "hidden"}>
                   <label htmlFor="weightKg" className="text-sm font-medium">
-                    Vikt (kg){" "}
-                    <span className="font-normal text-zinc-500">(valfritt)</span>
+                    Vikt (kg)
                   </label>
                   <input
                     id="weightKg"
@@ -661,18 +678,8 @@ export default function CatchForm({
                       <div className="grid grid-cols-2 gap-3">
                         <div className="flex flex-col gap-2">
                           <label htmlFor="method" className="text-sm font-medium">
-                            Fiskemetod{" "}
-                            <span className="font-normal text-zinc-500">
-                              (valfritt)
-                            </span>
+                            Fiskemetod
                           </label>
-
-                          <Chips
-                            label="Senaste"
-                            options={methodSuggestions.recent}
-                            selected={method}
-                            onSelect={setMethod}
-                          />
 
                           <TextSuggestInput
                             id="method"
@@ -682,22 +689,18 @@ export default function CatchForm({
                             options={methodSuggestions.all}
                             className={inputClassName}
                           />
+
+                          <Chips
+                            options={methodSuggestions.recent}
+                            selected={method}
+                            onSelect={setMethod}
+                          />
                         </div>
 
                         <div className="flex flex-col gap-2">
                           <label htmlFor="bait" className="text-sm font-medium">
-                            Bete{" "}
-                            <span className="font-normal text-zinc-500">
-                              (valfritt)
-                            </span>
+                            Bete
                           </label>
-
-                          <Chips
-                            label="Senaste"
-                            options={baitSuggestions.recent}
-                            selected={bait}
-                            onSelect={setBait}
-                          />
 
                           <TextSuggestInput
                             id="bait"
@@ -708,6 +711,8 @@ export default function CatchForm({
                             placeholder="Sök bete eller skriv eget namn"
                             className={inputClassName}
                           />
+
+                          <Chips options={baitSuggestions.recent} selected={bait} onSelect={setBait} />
                         </div>
                       </div>
                     ),
@@ -718,10 +723,7 @@ export default function CatchForm({
                     content: (
                       <div className="flex flex-col gap-1.5">
                         <label htmlFor="comment" className="text-sm font-medium">
-                          Kommentar{" "}
-                          <span className="font-normal text-zinc-500">
-                            (valfritt)
-                          </span>
+                          Kommentar
                         </label>
                         <textarea
                           id="comment"
