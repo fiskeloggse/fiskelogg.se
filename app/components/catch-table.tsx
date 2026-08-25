@@ -213,7 +213,7 @@ export default function CatchTable({
                   </th>
                 )}
                 {showMatt && (
-                  <th className="px-1 py-2 text-right font-medium">
+                  <th className="w-px px-1 py-2 text-right font-medium whitespace-nowrap">
                     <MeasurementColumnFilter />
                   </th>
                 )}
