@@ -128,7 +128,7 @@ export default function BingoCardGrid({
           on a round decade (e.g. 72–115) still lines up — 72 lands in the
           "2" row under its decade instead of shifting the whole column up. */}
       <div
-        className="inline-grid gap-x-0.5 gap-y-1.5"
+        className="inline-grid gap-0.5"
         style={{
           gridTemplateColumns: `repeat(${decadeRows.length}, auto)`,
         }}
