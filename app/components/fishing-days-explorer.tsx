@@ -202,23 +202,25 @@ export default function FishingDaysExplorer({
       <p className="text-xs text-zinc-500 dark:text-zinc-400">
         Klicka på ett år för att se per månad.
       </p>
-      <div className="flex h-32 items-end gap-2 sm:gap-3">
+      <div className="flex flex-col gap-2">
         {yearTotals.map((d) => (
           <button
             key={d.year}
             type="button"
             onClick={() => setSelectedYear(d.year)}
-            className="flex flex-1 flex-col items-center gap-1"
+            className="flex w-full items-center gap-3 text-sm hover:opacity-80"
           >
-            <div className="flex h-24 w-full items-end">
+            <span className="w-12 shrink-0 text-left text-zinc-500 dark:text-zinc-400">
+              {d.year}
+            </span>
+            <div className="h-2 flex-1 rounded-full bg-black/5 dark:bg-white/10">
               <div
-                className="w-full rounded-t bg-foreground/70 transition-colors hover:bg-foreground"
-                style={{ height: `${(d.days / max) * 100}%` }}
-                title={`${d.days} dagar`}
+                className="h-2 rounded-full bg-foreground/70"
+                style={{ width: `${(d.days / max) * 100}%` }}
               />
             </div>
-            <span className="text-xs text-zinc-500 dark:text-zinc-400">
-              {d.year}
+            <span className="w-6 shrink-0 text-right text-zinc-500 dark:text-zinc-400">
+              {d.days}
             </span>
           </button>
         ))}
