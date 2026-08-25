@@ -98,8 +98,8 @@ export default function CatchTabs({
         })}
       </nav>
 
-      {/* Desktop: horizontal text tabs, right after the logo. */}
-      <nav className="hidden flex-1 gap-2 sm:flex">
+      {/* Desktop: horizontal text tabs. */}
+      <nav className="hidden gap-2 sm:flex">
         {tabs.map((tab) => (
           <Link
             key={tab.href}
