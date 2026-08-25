@@ -100,6 +100,7 @@ export const REGISTER_COLUMNS = [
   { key: "matt", label: "Storlek" },
   { key: "bete", label: "Fiskemetod & Bete" },
   { key: "vader", label: "Väder" },
+  { key: "manfas", label: "Månfas" },
 ] as const;
 
 export type RegisterColumnKey = (typeof REGISTER_COLUMNS)[number]["key"];

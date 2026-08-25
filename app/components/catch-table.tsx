@@ -12,6 +12,7 @@ import {
   WeatherColumnFilter,
 } from "./register-header-filters";
 import { REGISTER_COLUMN_KEYS, WEATHER_DESCRIPTION_ICONS } from "@/lib/constants";
+import { getMoonPhase } from "@/lib/moon-phase";
 
 function formatDate(date: Date) {
   return date.toLocaleDateString("sv-SE", { day: "numeric", month: "short" });
@@ -58,11 +59,13 @@ export default function CatchTable({
   const showMatt = visible.includes("matt");
   const showBete = visible.includes("bete");
   const showVader = visible.includes("vader");
+  const showManfas = visible.includes("manfas");
   const labelSpan =
     [showDatum, showArt, showPlats, showBete].filter(Boolean).length || 1;
   const totalColumns =
-    [showDatum, showArt, showPlats, showMatt, showBete, showVader].filter(Boolean)
-      .length + (selectMode ? 1 : 0);
+    [showDatum, showArt, showPlats, showMatt, showBete, showVader, showManfas].filter(
+      Boolean
+    ).length + (selectMode ? 1 : 0);
 
   const totalLength = catches.reduce((sum, c) => sum + (c.length_cm ?? 0), 0);
   const totalWeight = catches.reduce((sum, c) => sum + (c.weight_kg ?? 0), 0);
@@ -201,6 +204,7 @@ export default function CatchTable({
                     <WeatherColumnFilter />
                   </th>
                 )}
+                {showManfas && <th className="px-1 py-2 font-medium">Månfas</th>}
               </tr>
             </thead>
             <tbody className="divide-y divide-black/10 dark:divide-white/10">
@@ -349,6 +353,18 @@ export default function CatchTable({
                           )}
                         </td>
                       )}
+                      {showManfas &&
+                        (() => {
+                          const moonPhase = getMoonPhase(item.caught_at);
+                          return (
+                            <td
+                              className="px-1 py-2 text-center text-lg"
+                              title={moonPhase.label}
+                            >
+                              {moonPhase.icon}
+                            </td>
+                          );
+                        })()}
                     </tr>
                   );
                 })
