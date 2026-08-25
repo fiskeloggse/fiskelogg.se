@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { deleteCatches } from "@/app/actions/catches";
 import type { Catch } from "./catch-list";
@@ -51,6 +51,29 @@ export default function CatchTable({
   const [selectedIds, setSelectedIds] = useState<Set<number>>(new Set());
   const [confirming, setConfirming] = useState(false);
   const bulkDeleteFormRef = useRef<HTMLFormElement>(null);
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const [canScrollLeft, setCanScrollLeft] = useState(false);
+  const [canScrollRight, setCanScrollRight] = useState(false);
+
+  // The table can be wider than its container (more columns than fit on a
+  // phone screen) — without this, there's no hint that Väder/Månfas etc.
+  // are just a swipe away instead of missing.
+  useEffect(() => {
+    const el = scrollRef.current;
+    if (!el) return;
+    const update = () => {
+      setCanScrollLeft(el.scrollLeft > 4);
+      setCanScrollRight(el.scrollWidth - el.scrollLeft - el.clientWidth > 4);
+    };
+    update();
+    el.addEventListener("scroll", update);
+    const observer = new ResizeObserver(update);
+    observer.observe(el);
+    return () => {
+      el.removeEventListener("scroll", update);
+      observer.disconnect();
+    };
+  }, [catches, visibleColumns]);
 
   const visible = visibleColumns ?? REGISTER_COLUMN_KEYS;
   const showDatum = visible.includes("datum");
@@ -157,7 +180,11 @@ export default function CatchTable({
           }}
         />
 
-        <div className="overflow-x-auto rounded-xl border border-black/10 dark:border-white/15">
+        <div className="relative">
+          <div
+            ref={scrollRef}
+            className="overflow-x-auto rounded-xl border border-black/10 dark:border-white/15"
+          >
           <table className="w-full text-left text-sm">
             <thead>
               <tr className="border-b border-black/10 text-zinc-500 dark:border-white/15 dark:text-zinc-400">
@@ -393,6 +420,13 @@ export default function CatchTable({
               </tr>
             </tfoot>
           </table>
+          </div>
+          {canScrollLeft && (
+            <div className="pointer-events-none absolute inset-y-0 left-0 w-8 rounded-l-xl bg-gradient-to-r from-zinc-50 to-transparent dark:from-black" />
+          )}
+          {canScrollRight && (
+            <div className="pointer-events-none absolute inset-y-0 right-0 w-8 rounded-r-xl bg-gradient-to-l from-zinc-50 to-transparent dark:from-black" />
+          )}
         </div>
       </div>
     </div>
