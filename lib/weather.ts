@@ -1,5 +1,5 @@
 import "server-only";
-import { TIMEZONE } from "./constants";
+import { TIMEZONE, WEATHER_CODES } from "./constants";
 
 export type WeatherResult = {
   temp_c: number | null;
@@ -10,43 +10,9 @@ export type WeatherResult = {
   cloud_pct: number | null;
 };
 
-// WMO weather codes (used by Open-Meteo) mapped to short Swedish
-// descriptions. https://open-meteo.com/en/docs — "WMO Weather interpretation
-// codes".
-const WEATHER_CODES: Record<number, string> = {
-  0: "Klart",
-  1: "Mest klart",
-  2: "Växlande molnighet",
-  3: "Mulet",
-  45: "Dimma",
-  48: "Underkylt dimma",
-  51: "Lätt duggregn",
-  53: "Duggregn",
-  55: "Kraftigt duggregn",
-  56: "Lätt underkylt duggregn",
-  57: "Underkylt duggregn",
-  61: "Lätt regn",
-  63: "Regn",
-  65: "Kraftigt regn",
-  66: "Lätt underkylt regn",
-  67: "Underkylt regn",
-  71: "Lätt snöfall",
-  73: "Snöfall",
-  75: "Kraftigt snöfall",
-  77: "Snökorn",
-  80: "Lätta regnskurar",
-  81: "Regnskurar",
-  82: "Kraftiga regnskurar",
-  85: "Lätta snöbyar",
-  86: "Kraftiga snöbyar",
-  95: "Åska",
-  96: "Åska med hagel",
-  99: "Kraftig åska med hagel",
-};
-
 function describeCode(code: number | undefined): string {
   if (code == null) return "Okänt";
-  return WEATHER_CODES[code] ?? "Okänt";
+  return WEATHER_CODES[code]?.description ?? "Okänt";
 }
 
 // Only the archive API has data older than a couple of days, and it only

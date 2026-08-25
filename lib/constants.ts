@@ -20,6 +20,47 @@ export function windDirLabel(deg: number): string {
   return COMPASS_DIRS[Math.round(deg / 45) % 8];
 }
 
+// WMO weather codes (used by Open-Meteo) mapped to short Swedish
+// descriptions and an icon. https://open-meteo.com/en/docs — "WMO Weather
+// interpretation codes". Descriptions are already persisted verbatim on
+// existing catches (lib/weather.ts writes them at log time) — never change
+// the text of an existing entry, only add new ones, or older rows won't
+// match their icon (or anything else keyed by description) any more.
+export const WEATHER_CODES: Record<number, { description: string; icon: string }> = {
+  0: { description: "Klart", icon: "☀️" },
+  1: { description: "Mest klart", icon: "🌤️" },
+  2: { description: "Växlande molnighet", icon: "⛅" },
+  3: { description: "Mulet", icon: "☁️" },
+  45: { description: "Dimma", icon: "🌫️" },
+  48: { description: "Underkylt dimma", icon: "🌫️" },
+  51: { description: "Lätt duggregn", icon: "🌦️" },
+  53: { description: "Duggregn", icon: "🌦️" },
+  55: { description: "Kraftigt duggregn", icon: "🌧️" },
+  56: { description: "Lätt underkylt duggregn", icon: "🌧️" },
+  57: { description: "Underkylt duggregn", icon: "🌧️" },
+  61: { description: "Lätt regn", icon: "🌦️" },
+  63: { description: "Regn", icon: "🌧️" },
+  65: { description: "Kraftigt regn", icon: "🌧️" },
+  66: { description: "Lätt underkylt regn", icon: "🌧️" },
+  67: { description: "Underkylt regn", icon: "🌧️" },
+  71: { description: "Lätt snöfall", icon: "🌨️" },
+  73: { description: "Snöfall", icon: "❄️" },
+  75: { description: "Kraftigt snöfall", icon: "❄️" },
+  77: { description: "Snökorn", icon: "🌨️" },
+  80: { description: "Lätta regnskurar", icon: "🌦️" },
+  81: { description: "Regnskurar", icon: "🌧️" },
+  82: { description: "Kraftiga regnskurar", icon: "⛈️" },
+  85: { description: "Lätta snöbyar", icon: "🌨️" },
+  86: { description: "Kraftiga snöbyar", icon: "❄️" },
+  95: { description: "Åska", icon: "⛈️" },
+  96: { description: "Åska med hagel", icon: "⛈️" },
+  99: { description: "Kraftig åska med hagel", icon: "⛈️" },
+};
+
+export const WEATHER_DESCRIPTION_ICONS: Record<string, string> = Object.fromEntries(
+  Object.values(WEATHER_CODES).map((w) => [w.description, w.icon])
+);
+
 export const MONTHS = [
   { value: 1, label: "Januari" },
   { value: 2, label: "Februari" },

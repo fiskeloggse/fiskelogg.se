@@ -11,7 +11,7 @@ import {
   SelectColumnFilter,
   WeatherColumnFilter,
 } from "./register-header-filters";
-import { REGISTER_COLUMN_KEYS, windDirLabel } from "@/lib/constants";
+import { REGISTER_COLUMN_KEYS, WEATHER_DESCRIPTION_ICONS } from "@/lib/constants";
 
 function formatDate(date: Date) {
   return date.toLocaleDateString("sv-SE", { day: "numeric", month: "short" });
@@ -328,21 +328,18 @@ export default function CatchTable({
                           {item.weather_description ? (
                             <>
                               <div>
-                                {
-                                  [
-                                    item.weather_temp_c != null &&
-                                      `${item.weather_description}, ${Math.round(item.weather_temp_c)}°`,
-                                    item.weather_wind_kmh != null &&
-                                      `${Math.round(item.weather_wind_kmh)} km/h${
-                                        item.weather_wind_dir_deg != null
-                                          ? ` ${windDirLabel(item.weather_wind_dir_deg)}`
-                                          : ""
-                                      }`,
-                                  ]
-                                    .filter(Boolean)
-                                    .join(" · ") || item.weather_description
-                                }
+                                {WEATHER_DESCRIPTION_ICONS[item.weather_description] && (
+                                  <>{WEATHER_DESCRIPTION_ICONS[item.weather_description]} </>
+                                )}
+                                {item.weather_description}
+                                {item.weather_temp_c != null &&
+                                  `, ${Math.round(item.weather_temp_c)}°`}
                               </div>
+                              {item.weather_wind_kmh != null && (
+                                <div className="text-xs text-zinc-400 dark:text-zinc-500">
+                                  {Math.round(item.weather_wind_kmh / 3.6)} m/s
+                                </div>
+                              )}
                               {item.weather_pressure_hpa != null && (
                                 <div className="text-xs text-zinc-400 dark:text-zinc-500">
                                   {Math.round(item.weather_pressure_hpa)} hPa
