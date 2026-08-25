@@ -41,7 +41,7 @@ function groupByDecade(min: number, max: number): [number, number[]][] {
 function BingoCell({ cm, matches }: { cm: number; matches: BingoCatch[] | undefined }) {
   if (!matches) {
     return (
-      <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-black/10 text-xs text-zinc-500 sm:h-12 sm:w-12 sm:text-sm dark:bg-white/10 dark:text-zinc-400">
+      <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-black/10 text-xs text-zinc-500 sm:h-12 sm:w-12 sm:text-sm dark:bg-white/10 dark:text-zinc-400">
         {cm}
       </div>
     );
@@ -49,7 +49,7 @@ function BingoCell({ cm, matches }: { cm: number; matches: BingoCatch[] | undefi
 
   return (
     <details className="group relative">
-      <summary className="flex h-9 w-9 shrink-0 cursor-pointer list-none items-center justify-center rounded-lg bg-green-600 text-xs font-medium text-white transition-colors hover:bg-green-700 sm:h-12 sm:w-12 sm:text-sm">
+      <summary className="flex h-8 w-8 shrink-0 cursor-pointer list-none items-center justify-center rounded-lg bg-green-600 text-xs font-medium text-white transition-colors hover:bg-green-700 sm:h-12 sm:w-12 sm:text-sm">
         {cm}
       </summary>
       <div className="absolute z-10 mt-1 w-56 rounded-lg border border-black/10 bg-white p-3 text-sm shadow-lg dark:border-white/15 dark:bg-zinc-900">
@@ -86,7 +86,7 @@ export default function BingoCardGrid({
   const status = dateStatus(card.to_date);
 
   return (
-    <div className="flex flex-col gap-3 rounded-xl border border-black/10 bg-white p-5 dark:border-white/15 dark:bg-white/5">
+    <div className="flex flex-col gap-3 rounded-xl border border-black/10 bg-white p-3 sm:p-5 dark:border-white/15 dark:bg-white/5">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h2 className="text-lg font-semibold">
@@ -121,17 +121,13 @@ export default function BingoCardGrid({
         />
       </div>
 
-      <p className="text-xs text-zinc-400 sm:hidden dark:text-zinc-500">
-        ← Bläddra sidledes för fler rutor →
-      </p>
-
-      <div className="flex flex-col gap-2 overflow-x-auto">
+      <div className="flex flex-col gap-2">
         {decadeRows.map(([decade, cms]) => (
-          <div key={decade} className="flex items-center gap-2">
-            <span className="w-14 shrink-0 text-xs text-zinc-500 dark:text-zinc-400">
+          <div key={decade} className="flex items-start gap-2">
+            <span className="w-10 shrink-0 pt-1.5 text-xs text-zinc-500 sm:w-14 dark:text-zinc-400">
               {decade}–{decade + 9}
             </span>
-            <div className="flex gap-1.5">
+            <div className="flex flex-wrap gap-1.5">
               {cms.map((cm) => (
                 <BingoCell key={cm} cm={cm} matches={catchesByCm.get(cm)} />
               ))}
