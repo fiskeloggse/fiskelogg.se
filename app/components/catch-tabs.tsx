@@ -86,7 +86,7 @@ export default function CatchTabs({
           any hidden/collapsed wrapper) since position:fixed elements still
           need visible ancestors, unlike the desktop nav below. */}
       <nav
-        className="fixed inset-x-0 bottom-0 z-40 flex border-t border-black/10 bg-white pb-[env(safe-area-inset-bottom)] sm:hidden dark:border-white/15 dark:bg-zinc-950"
+        className="fixed inset-x-0 bottom-0 z-40 flex justify-center gap-x-5 border-t border-black/10 bg-white px-4 pb-[env(safe-area-inset-bottom)] sm:hidden dark:border-white/15 dark:bg-zinc-950"
         aria-label="Huvudmeny"
       >
         {tabs.map((tab) => {
@@ -96,7 +96,7 @@ export default function CatchTabs({
               key={tab.href}
               href={tab.href}
               className={
-                "flex flex-1 flex-col items-center gap-0.5 py-1.5 text-[10.5px] leading-tight font-medium " +
+                "flex flex-col items-center gap-0.5 py-1.5 text-[10.5px] leading-tight font-medium " +
                 (active
                   ? "text-foreground"
                   : "text-zinc-500 dark:text-zinc-400")
