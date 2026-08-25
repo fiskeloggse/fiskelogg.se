@@ -121,19 +121,37 @@ export default function BingoCardGrid({
         />
       </div>
 
-      <div className="flex flex-col gap-2">
-        {decadeRows.map(([decade, cms]) => (
-          <div key={decade} className="flex items-start gap-2">
-            <span className="w-10 shrink-0 pt-1.5 text-xs text-zinc-500 sm:w-14 dark:text-zinc-400">
-              {decade}–{decade + 9}
-            </span>
-            <div className="flex flex-wrap gap-1.5">
-              {cms.map((cm) => (
-                <BingoCell key={cm} cm={cm} matches={catchesByCm.get(cm)} />
-              ))}
-            </div>
-          </div>
+      {/* One column per decade, values running top to bottom within it
+          (70–79 in column 1, 80–89 in column 2, ...). Each cell is placed
+          explicitly by its own ones-digit (row) and decade index (column)
+          instead of relying on source order, so a range that doesn't start
+          on a round decade (e.g. 72–115) still lines up — 72 lands in the
+          "2" row under its decade instead of shifting the whole column up. */}
+      <div
+        className="inline-grid gap-1.5"
+        style={{
+          gridTemplateColumns: `repeat(${decadeRows.length}, auto)`,
+        }}
+      >
+        {decadeRows.map(([decade], colIndex) => (
+          <span
+            key={`h-${decade}`}
+            style={{ gridColumn: colIndex + 1, gridRow: 1 }}
+            className="text-center text-xs text-zinc-500 dark:text-zinc-400"
+          >
+            {decade}
+          </span>
         ))}
+        {decadeRows.flatMap(([, cms], colIndex) =>
+          cms.map((cm) => (
+            <div
+              key={cm}
+              style={{ gridColumn: colIndex + 1, gridRow: (cm % 10) + 2 }}
+            >
+              <BingoCell cm={cm} matches={catchesByCm.get(cm)} />
+            </div>
+          ))
+        )}
       </div>
     </div>
   );
