@@ -47,8 +47,15 @@ export default function CatchesMap({ catches }: { catches: MapCatch[] }) {
   useEffect(() => {
     let cancelled = false;
 
-    Promise.all([import("leaflet"), import("leaflet.markercluster")]).then(
-      ([leafletModule]) => {
+    // leaflet.markercluster is a plain UMD script that assumes a global `L`
+    // already exists (it never imports/requires leaflet itself) — leaflet's
+    // own module sets that global as a side effect, but only once its top-
+    // level code has actually run. Importing both in parallel races the two
+    // module evaluations, so markercluster's factory can execute before
+    // that global exists ("L is not defined"). Awaiting leaflet first
+    // guarantees the global is set before markercluster loads.
+    import("leaflet").then((leafletModule) =>
+      import("leaflet.markercluster").then(() => {
         if (cancelled || !containerRef.current || catches.length === 0) return;
         const L = leafletModule.default;
 
@@ -86,7 +93,7 @@ export default function CatchesMap({ catches }: { catches: MapCatch[] }) {
             .addTo(clusterGroup);
         }
         clusterGroup.addTo(map);
-      }
+      })
     );
 
     return () => {
