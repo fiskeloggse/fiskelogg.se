@@ -73,10 +73,13 @@ export default function CatchTabs({
     : ALL_TABS.filter((tab) => tab.href !== "/challenges");
 
   return (
-    <div className="mx-auto max-w-4xl border-t border-black/10 px-4 sm:px-6 dark:border-white/10">
-      {/* Mobile: icon tab row, right under the header. */}
+    <>
+      {/* Mobile: icon tab row, sharing the header's top row with the logo.
+          flex-1 fills the space next to the logo, and centering within
+          that (rather than across the whole screen) keeps icons clear of
+          the physical screen edges near the top corners. */}
       <nav
-        className="flex justify-center gap-x-5 sm:hidden"
+        className="flex flex-1 justify-center gap-x-5 sm:hidden"
         aria-label="Huvudmeny"
       >
         {tabs.map((tab) => {
@@ -86,7 +89,7 @@ export default function CatchTabs({
               key={tab.href}
               href={tab.href}
               className={
-                "flex flex-col items-center gap-0.5 py-1.5 text-[10.5px] leading-tight font-medium " +
+                "flex flex-col items-center gap-0.5 text-[10.5px] leading-tight font-medium " +
                 (active
                   ? "text-foreground"
                   : "text-zinc-500 dark:text-zinc-400")
@@ -99,8 +102,8 @@ export default function CatchTabs({
         })}
       </nav>
 
-      {/* Desktop: horizontal text tabs. */}
-      <nav className="hidden gap-2 sm:flex">
+      {/* Desktop: horizontal text tabs, right after the logo. */}
+      <nav className="hidden flex-1 gap-2 sm:flex">
         {tabs.map((tab) => (
           <Link
             key={tab.href}
@@ -116,6 +119,6 @@ export default function CatchTabs({
           </Link>
         ))}
       </nav>
-    </div>
+    </>
   );
 }
