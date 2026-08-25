@@ -75,13 +75,9 @@ export default function CatchTabs({
   return (
     <>
       {/* Mobile: icon tab row, sharing the header's top row with the logo.
-          flex-1 fills the space next to the logo, and centering within
-          that (rather than across the whole screen) keeps icons clear of
-          the physical screen edges near the top corners. */}
-      <nav
-        className="flex flex-1 justify-center gap-x-5 sm:hidden"
-        aria-label="Huvudmeny"
-      >
+          gap-4 matches the parent row's own gap so the logo-to-first-tab
+          spacing lines up with the spacing between the tabs themselves. */}
+      <nav className="flex gap-4 sm:hidden" aria-label="Huvudmeny">
         {tabs.map((tab) => {
           const active = isActive(pathname, tab.href);
           return (
