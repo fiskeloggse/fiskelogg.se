@@ -24,48 +24,43 @@ export type CatchState =
   | (CatchNotices & { insertedId: number })
   | undefined;
 
-const CatchSchema = z
-  .object({
-    anglerId: z.coerce.number({ error: "Ogiltig fiskare." }).int().positive(),
-    species: z
-      .string()
-      .trim()
-      .min(1, { error: "Välj eller ange en art." })
-      .max(100),
-    lengthCm: z.coerce
-      .number({ error: "Ange fiskens längd." })
-      .int({ error: "Längden anges i hela cm." })
-      .positive({ error: "Längden måste vara större än noll." })
-      .max(1000, { error: "Det verkar vara en väldigt stor fisk." })
-      .optional(),
-    weightKg: z.coerce
-      .number({ error: "Ange fiskens vikt." })
-      .positive({ error: "Vikten måste vara större än noll." })
-      .max(1000, { error: "Det verkar vara en väldigt tung fisk." })
-      .optional(),
-    lake: z.string().trim().max(100).optional(),
-    location: z.string().trim().max(100).optional(),
-    method: z.string().trim().max(100).optional(),
-    bait: z.string().trim().max(100).optional(),
-    comment: z.string().trim().max(1000).optional(),
-    latitude: z.coerce.number().min(-90).max(90).optional(),
-    longitude: z.coerce.number().min(-180).max(180).optional(),
-    caughtAt: z.coerce
-      .date({ error: "Ogiltigt datum." })
-      // A plain .max(new Date()) would freeze "now" to whenever this schema
-      // module first loads — fine for a single request, but wrong in a
-      // long-running dev server or warm serverless instance, where it
-      // silently drifts into the past. .refine() re-evaluates its callback
-      // on every parse, so "now" stays current.
-      .refine((d) => d <= new Date(), {
-        error: "Datumet kan inte vara i framtiden.",
-      })
-      .optional(),
-  })
-  .refine((data) => data.lengthCm !== undefined || data.weightKg !== undefined, {
-    error: "Ange antingen längd eller vikt.",
-    path: ["lengthCm"],
-  });
+const CatchSchema = z.object({
+  anglerId: z.coerce.number({ error: "Ogiltig fiskare." }).int().positive(),
+  species: z
+    .string()
+    .trim()
+    .min(1, { error: "Välj eller ange en art." })
+    .max(100),
+  lengthCm: z.coerce
+    .number({ error: "Ange fiskens längd." })
+    .int({ error: "Längden anges i hela cm." })
+    .positive({ error: "Längden måste vara större än noll." })
+    .max(1000, { error: "Det verkar vara en väldigt stor fisk." })
+    .optional(),
+  weightKg: z.coerce
+    .number({ error: "Ange fiskens vikt." })
+    .positive({ error: "Vikten måste vara större än noll." })
+    .max(1000, { error: "Det verkar vara en väldigt tung fisk." })
+    .optional(),
+  lake: z.string().trim().max(100).optional(),
+  location: z.string().trim().max(100).optional(),
+  method: z.string().trim().max(100).optional(),
+  bait: z.string().trim().max(100).optional(),
+  comment: z.string().trim().max(1000).optional(),
+  latitude: z.coerce.number().min(-90).max(90).optional(),
+  longitude: z.coerce.number().min(-180).max(180).optional(),
+  caughtAt: z.coerce
+    .date({ error: "Ogiltigt datum." })
+    // A plain .max(new Date()) would freeze "now" to whenever this schema
+    // module first loads — fine for a single request, but wrong in a
+    // long-running dev server or warm serverless instance, where it
+    // silently drifts into the past. .refine() re-evaluates its callback
+    // on every parse, so "now" stays current.
+    .refine((d) => d <= new Date(), {
+      error: "Datumet kan inte vara i framtiden.",
+    })
+    .optional(),
+});
 
 export async function addCatch(
   _prevState: CatchState,
@@ -318,43 +313,38 @@ export async function deleteAllCatches() {
   revalidatePath("/konto");
 }
 
-const EditCatchSchema = z
-  .object({
-    species: z
-      .string()
-      .trim()
-      .min(1, { error: "Välj eller ange en art." })
-      .max(100),
-    lengthCm: z.coerce
-      .number({ error: "Ange fiskens längd." })
-      .int({ error: "Längden anges i hela cm." })
-      .positive({ error: "Längden måste vara större än noll." })
-      .max(1000, { error: "Det verkar vara en väldigt stor fisk." })
-      .optional(),
-    weightKg: z.coerce
-      .number({ error: "Ange fiskens vikt." })
-      .positive({ error: "Vikten måste vara större än noll." })
-      .max(1000, { error: "Det verkar vara en väldigt tung fisk." })
-      .optional(),
-    lake: z.string().trim().max(100).optional(),
-    location: z.string().trim().max(100).optional(),
-    method: z.string().trim().max(100).optional(),
-    bait: z.string().trim().max(100).optional(),
-    comment: z.string().trim().max(1000).optional(),
-    latitude: z.coerce.number().min(-90).max(90).optional(),
-    longitude: z.coerce.number().min(-180).max(180).optional(),
-    caughtAt: z.coerce
-      .date({ error: "Ogiltigt datum." })
-      // See the comment on the same check in CatchSchema above — .refine()
-      // re-evaluates "now" per parse instead of freezing it at module load.
-      .refine((d) => d <= new Date(), {
-        error: "Datumet kan inte vara i framtiden.",
-      }),
-  })
-  .refine((data) => data.lengthCm !== undefined || data.weightKg !== undefined, {
-    error: "Ange antingen längd eller vikt.",
-    path: ["lengthCm"],
-  });
+const EditCatchSchema = z.object({
+  species: z
+    .string()
+    .trim()
+    .min(1, { error: "Välj eller ange en art." })
+    .max(100),
+  lengthCm: z.coerce
+    .number({ error: "Ange fiskens längd." })
+    .int({ error: "Längden anges i hela cm." })
+    .positive({ error: "Längden måste vara större än noll." })
+    .max(1000, { error: "Det verkar vara en väldigt stor fisk." })
+    .optional(),
+  weightKg: z.coerce
+    .number({ error: "Ange fiskens vikt." })
+    .positive({ error: "Vikten måste vara större än noll." })
+    .max(1000, { error: "Det verkar vara en väldigt tung fisk." })
+    .optional(),
+  lake: z.string().trim().max(100).optional(),
+  location: z.string().trim().max(100).optional(),
+  method: z.string().trim().max(100).optional(),
+  bait: z.string().trim().max(100).optional(),
+  comment: z.string().trim().max(1000).optional(),
+  latitude: z.coerce.number().min(-90).max(90).optional(),
+  longitude: z.coerce.number().min(-180).max(180).optional(),
+  caughtAt: z.coerce
+    .date({ error: "Ogiltigt datum." })
+    // See the comment on the same check in CatchSchema above — .refine()
+    // re-evaluates "now" per parse instead of freezing it at module load.
+    .refine((d) => d <= new Date(), {
+      error: "Datumet kan inte vara i framtiden.",
+    }),
+});
 
 export type EditCatchState = { error: string } | { success: true } | undefined;
 

@@ -150,6 +150,17 @@ export default function CatchForm({
     const shouldBeOpen = mode === "now" || mode === "past";
     if (shouldBeOpen && !dialog.open) dialog.showModal();
     if (!shouldBeOpen && dialog.open) dialog.close();
+
+    // showModal() alone doesn't reliably stop the page behind it from
+    // scrolling (notably on mobile touch-scroll), so lock it explicitly
+    // while the dialog is open.
+    if (shouldBeOpen) {
+      const previousOverflow = document.body.style.overflow;
+      document.body.style.overflow = "hidden";
+      return () => {
+        document.body.style.overflow = previousOverflow;
+      };
+    }
   }, [mode]);
 
   const quickFields = quickLogFields ?? QUICK_LOG_FIELD_KEYS;
@@ -807,7 +818,6 @@ export default function CatchForm({
           )}
 
           <p className="text-xs text-zinc-500 dark:text-zinc-400">
-            Ange minst en av längd eller vikt.{" "}
             {mode === "past"
               ? "Välj datum och tid för fångsten ovan."
               : "Tidpunkten sätts automatiskt till nu."}
