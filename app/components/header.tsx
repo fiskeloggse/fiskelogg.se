@@ -14,14 +14,7 @@ export default async function Header() {
           Fisklogg
         </Link>
 
-        {user ? (
-          <Link
-            href="/konto"
-            className="text-sm text-zinc-500 hover:text-foreground dark:text-zinc-400"
-          >
-            Konto
-          </Link>
-        ) : (
+        {!user && (
           <nav className="flex items-center gap-4 text-sm font-medium">
             <Link href="/login">Logga in</Link>
             <Link
