@@ -387,7 +387,7 @@ export default function CatchForm({
         )}
       </div>
 
-      <div className="flex flex-wrap gap-2">
+      <div className="flex flex-wrap justify-center gap-2">
         <button
           type="button"
           onClick={() => setMode("now")}
