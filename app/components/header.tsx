@@ -7,12 +7,7 @@ export default async function Header() {
 
   return (
     <header className="border-b border-black/10 dark:border-white/10">
-      <div
-        className={
-          "mx-auto flex max-w-4xl items-center gap-4 px-4 py-2.5 sm:py-4 sm:px-6" +
-          (user ? " justify-center" : "")
-        }
-      >
+      <div className="mx-auto flex max-w-4xl items-center gap-4 px-4 py-2.5 sm:py-4 sm:px-6">
         <Link
           href="/"
           aria-label="Fisklogg"

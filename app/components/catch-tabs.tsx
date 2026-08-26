@@ -3,9 +3,8 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
-// "Logga fisk" isn't listed here — the Fisklogg logo in the header is the
-// only link to it, so it's never duplicated in the tab menu.
 const ALL_TABS = [
+  { href: "/", label: "Logga fisk" },
   { href: "/register", label: "Register" },
   { href: "/statistik", label: "Statistik" },
   { href: "/challenges", label: "Challenges" },
@@ -28,6 +27,14 @@ function TabIcon({ href, className }: { href: string; className?: string }) {
   };
 
   switch (href) {
+    case "/":
+      return (
+        <svg {...props}>
+          <ellipse cx="13" cy="12" rx="7" ry="4.2" />
+          <path d="M7.5 12 2.5 7.5v9z" strokeLinejoin="round" />
+          <circle cx="17.3" cy="10.8" r="0.9" fill="currentColor" stroke="none" />
+        </svg>
+      );
     case "/register":
       return (
         <svg {...props}>
