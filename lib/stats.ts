@@ -24,19 +24,30 @@ export async function getSpeciesBreakdown(
   `;
 }
 
-export type LakeBreakdownRow = { lake: string; count: number };
+// Per-water stats for the "Antal vatten" drill-down: how many distinct
+// days fished there, how many distinct platser logged, and total fish.
+export type LakeStatsRow = {
+  lake: string;
+  days: number;
+  platser: number;
+  fish: number;
+};
 
-export async function getLakeBreakdown(
+export async function getLakeStats(
   userId: number,
   teamId: number | null
-): Promise<LakeBreakdownRow[]> {
-  return sql<LakeBreakdownRow[]>`
-    select lake, count(*)::int as count
+): Promise<LakeStatsRow[]> {
+  return sql<LakeStatsRow[]>`
+    select
+      lake,
+      count(distinct (caught_at at time zone ${TIMEZONE})::date)::int as days,
+      count(distinct nullif(location, ''))::int as platser,
+      count(*)::int as fish
     from catches c
     where ${scopeCondition(userId, teamId)}
       and lake is not null and lake <> ''
     group by lake
-    order by count desc, lake asc
+    order by fish desc, lake asc
   `;
 }
 
@@ -48,17 +59,22 @@ export type MappedCatchRow = {
   caught_at: Date;
   latitude: number;
   longitude: number;
+  lake: string;
 };
 
+// Only catches with both a position and a named water — each one needs to
+// belong to a "vatten" pin on the map (lib/waters-map.tsx groups these by
+// `lake` client-side to place one pin per water).
 export async function getCatchesWithPosition(
   userId: number,
   teamId: number | null
 ): Promise<MappedCatchRow[]> {
   return sql<MappedCatchRow[]>`
-    select c.id, c.species, c.length_cm, c.weight_kg, c.caught_at, c.latitude, c.longitude
+    select c.id, c.species, c.length_cm, c.weight_kg, c.caught_at, c.latitude, c.longitude, c.lake
     from catches c
     where ${scopeCondition(userId, teamId)}
       and c.latitude is not null and c.longitude is not null
+      and c.lake is not null and c.lake <> ''
     order by c.caught_at desc
   `;
 }

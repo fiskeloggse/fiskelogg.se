@@ -3,7 +3,7 @@ import { requireUser } from "@/lib/dal";
 import {
   getCatchesWithPosition,
   getFishingDaysByDate,
-  getLakeBreakdown,
+  getLakeStats,
   getSpeciesBreakdown,
 } from "@/lib/stats";
 import { getPersonalBests } from "@/lib/personal-bests";
@@ -18,10 +18,10 @@ export default async function StatistikPage(props: PageProps<"/statistik">) {
   const searchParams = await props.searchParams;
   const initialExpanded = searchParams.expand === "species" ? "species" : null;
 
-  const [speciesBreakdown, lakeBreakdown, fishingDays, personalBests, mappedCatches] =
+  const [speciesBreakdown, lakeStats, fishingDays, personalBests, mappedCatches] =
     await Promise.all([
       getSpeciesBreakdown(user.id, user.team_id),
-      getLakeBreakdown(user.id, user.team_id),
+      getLakeStats(user.id, user.team_id),
       getFishingDaysByDate(user.id, user.team_id),
       getPersonalBests(user.id),
       getCatchesWithPosition(user.id, user.team_id),
@@ -31,7 +31,7 @@ export default async function StatistikPage(props: PageProps<"/statistik">) {
     <main className="mx-auto flex w-full max-w-4xl flex-1 flex-col gap-8 px-4 py-10 sm:px-6">
       <StatsDashboard
         speciesBreakdown={speciesBreakdown}
-        lakeBreakdown={lakeBreakdown}
+        lakeStats={lakeStats}
         fishingDays={fishingDays}
         personalBests={personalBests}
         mappedCatches={mappedCatches}

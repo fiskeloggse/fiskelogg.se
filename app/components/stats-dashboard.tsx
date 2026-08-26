@@ -4,14 +4,14 @@ import { useState } from "react";
 import Link from "next/link";
 import type {
   FishingDayRow,
-  LakeBreakdownRow,
+  LakeStatsRow,
   MappedCatchRow,
   SpeciesBreakdownRow,
 } from "@/lib/stats";
 import type { PersonalBest } from "@/lib/personal-bests";
 import FishingDaysExplorer from "./fishing-days-explorer";
 import PersonalBests from "./personal-bests";
-import CatchesMap from "./catches-map";
+import WatersMap from "./waters-map";
 
 function StatCard({
   label,
@@ -143,14 +143,14 @@ function BarChart({
 
 export default function StatsDashboard({
   speciesBreakdown,
-  lakeBreakdown,
+  lakeStats,
   fishingDays,
   personalBests,
   mappedCatches,
   initialExpanded = null,
 }: {
   speciesBreakdown: SpeciesBreakdownRow[];
-  lakeBreakdown: LakeBreakdownRow[];
+  lakeStats: LakeStatsRow[];
   fishingDays: FishingDayRow[];
   personalBests: PersonalBest[];
   mappedCatches: MappedCatchRow[];
@@ -162,7 +162,7 @@ export default function StatsDashboard({
   );
 
   const speciesCount = speciesBreakdown.length;
-  const lakeCount = lakeBreakdown.length;
+  const lakeCount = lakeStats.length;
   const fishCount = speciesBreakdown.reduce((sum, s) => sum + s.count, 0);
   const fishingDaysCount = fishingDays.length;
   const hasAnyCatches = fishCount > 0;
@@ -194,9 +194,8 @@ export default function StatsDashboard({
     );
   }
 
-  // Both already ordered by count desc, highest first — straight from the query.
+  // Already ordered by count desc, highest first — straight from the query.
   const speciesRows = speciesBreakdown.map((s) => ({ label: s.species, count: s.count }));
-  const lakeRows = lakeBreakdown.map((l) => ({ label: l.lake, count: l.count }));
 
   return (
     <div className="flex flex-col gap-4">
@@ -244,23 +243,39 @@ export default function StatsDashboard({
       {expanded === "lakes" && (
         <div className="flex flex-col gap-6 rounded-xl border border-black/10 bg-white p-5 dark:border-white/15 dark:bg-white/5">
           <div>
-            <h2 className="text-lg font-semibold">Alla vatten</h2>
-            {lakeRows.length === 0 ? (
-              <Empty>Inget vatten har fyllts i på några fångster än.</Empty>
-            ) : (
-              <BarChart rows={lakeRows} getHref={lakeHref} />
-            )}
-          </div>
-
-          <div>
             <h2 className="text-lg font-semibold">Karta</h2>
             <div className="mt-3">
               {mappedCatches.length > 0 ? (
-                <CatchesMap catches={mappedCatches} />
+                <WatersMap catches={mappedCatches} />
               ) : (
-                <Empty>Inga fångster med sparad position än.</Empty>
+                <Empty>Inga fångster med sparad position och vatten än.</Empty>
               )}
             </div>
+          </div>
+
+          <div>
+            <h2 className="text-lg font-semibold">Alla vatten</h2>
+            {lakeStats.length === 0 ? (
+              <Empty>Inget vatten har fyllts i på några fångster än.</Empty>
+            ) : (
+              <ul className="mt-3 flex flex-col gap-2">
+                {lakeStats.map((l) => (
+                  <li key={l.lake}>
+                    <Link
+                      href={lakeHref(l.lake)}
+                      className="flex items-center justify-between gap-3 rounded-xl border border-black/10 px-4 py-3 text-sm hover:bg-black/5 dark:border-white/15 dark:hover:bg-white/10"
+                    >
+                      <span className="font-medium">{l.lake}</span>
+                      <span className="text-right text-zinc-500 dark:text-zinc-400">
+                        {l.days} {l.days === 1 ? "dag" : "dagar"} · {l.platser}{" "}
+                        {l.platser === 1 ? "plats" : "platser"} · {l.fish}{" "}
+                        {l.fish === 1 ? "fisk" : "fiskar"}
+                      </span>
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            )}
           </div>
         </div>
       )}
