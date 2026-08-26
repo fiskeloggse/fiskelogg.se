@@ -7,6 +7,7 @@ import "leaflet.markercluster/dist/MarkerCluster.Default.css";
 import markerIconUrl from "leaflet/dist/images/marker-icon.png";
 import markerIcon2xUrl from "leaflet/dist/images/marker-icon-2x.png";
 import markerShadowUrl from "leaflet/dist/images/marker-shadow.png";
+import { MAP_TILE_LAYERS, type MapTileType } from "@/lib/map-tiles";
 
 export type MapCatch = {
   id: number;
@@ -42,7 +43,12 @@ function popupHtml(item: MapCatch) {
 export default function CatchesMap({ catches }: { catches: MapCatch[] }) {
   const containerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<import("leaflet").Map | null>(null);
+  const leafletRef = useRef<typeof import("leaflet") | null>(null);
+  const tileLayerRef = useRef<import("leaflet").TileLayer | null>(null);
+  const appliedTileTypeRef = useRef<MapTileType | null>(null);
   const [fullscreen, setFullscreen] = useState(false);
+  const [mapReady, setMapReady] = useState(false);
+  const [tileType, setTileType] = useState<MapTileType>("street");
 
   useEffect(() => {
     let cancelled = false;
@@ -58,6 +64,7 @@ export default function CatchesMap({ catches }: { catches: MapCatch[] }) {
       import("leaflet.markercluster").then(() => {
         if (cancelled || !containerRef.current || catches.length === 0) return;
         const L = leafletModule.default;
+        leafletRef.current = L;
 
         delete (L.Icon.Default.prototype as { _getIconUrl?: unknown })._getIconUrl;
         L.Icon.Default.mergeOptions({
@@ -68,11 +75,16 @@ export default function CatchesMap({ catches }: { catches: MapCatch[] }) {
 
         const map = L.map(containerRef.current);
         mapRef.current = map;
-        L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-          attribution:
-            '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
-          maxZoom: 19,
+        // fitBounds below needs a tile layer already present — it queries
+        // the map's maxZoom internally and throws ("Map has no maxZoom
+        // specified") if no layer has defined one yet. The toggle effect
+        // still owns switching between street/satellite after this.
+        const initialConfig = MAP_TILE_LAYERS[tileType];
+        tileLayerRef.current = L.tileLayer(initialConfig.url, {
+          attribution: initialConfig.attribution,
+          maxZoom: initialConfig.maxZoom,
         }).addTo(map);
+        appliedTileTypeRef.current = tileType;
 
         if (catches.length === 1) {
           map.setView([catches[0].latitude, catches[0].longitude], 13);
@@ -93,6 +105,7 @@ export default function CatchesMap({ catches }: { catches: MapCatch[] }) {
             .addTo(clusterGroup);
         }
         clusterGroup.addTo(map);
+        setMapReady(true);
       })
     );
 
@@ -100,8 +113,31 @@ export default function CatchesMap({ catches }: { catches: MapCatch[] }) {
       cancelled = true;
       mapRef.current?.remove();
       mapRef.current = null;
+      tileLayerRef.current = null;
+      appliedTileTypeRef.current = null;
+      setMapReady(false);
     };
+    // tileType is intentionally read only for its value at mount time here
+    // — the toggle effect below owns switching it later; including it would
+    // tear down and rebuild the whole map (losing fitBounds) on every click.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [catches]);
+
+  // Switches the tile layer after the user toggles it — the initial layer
+  // is created above (fitBounds needs one to exist already), so this only
+  // acts once tileType actually differs from what's currently shown.
+  useEffect(() => {
+    const L = leafletRef.current;
+    const map = mapRef.current;
+    if (!L || !map || !mapReady || appliedTileTypeRef.current === tileType) return;
+    if (tileLayerRef.current) map.removeLayer(tileLayerRef.current);
+    const config = MAP_TILE_LAYERS[tileType];
+    tileLayerRef.current = L.tileLayer(config.url, {
+      attribution: config.attribution,
+      maxZoom: config.maxZoom,
+    }).addTo(map);
+    appliedTileTypeRef.current = tileType;
+  }, [mapReady, tileType]);
 
   // Leaflet doesn't notice its container resizing on its own (inline card
   // <-> fullscreen overlay). A one-shot requestAnimationFrame after toggling
@@ -142,6 +178,13 @@ export default function CatchesMap({ catches }: { catches: MapCatch[] }) {
           that changes across renders; all fullscreen sizing lives on the
           wrapper above instead. */}
       <div ref={containerRef} className="h-full w-full" />
+      <button
+        type="button"
+        onClick={() => setTileType((t) => (t === "street" ? "satellite" : "street"))}
+        className="absolute left-2 top-2 z-[1000] rounded-lg border border-black/10 bg-white px-2 py-1 text-xs font-medium shadow dark:border-white/15 dark:bg-zinc-900"
+      >
+        {tileType === "street" ? "Satellit" : "Karta"}
+      </button>
       <button
         type="button"
         onClick={() => setFullscreen((v) => !v)}

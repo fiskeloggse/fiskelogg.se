@@ -8,6 +8,7 @@ import markerIconUrl from "leaflet/dist/images/marker-icon.png";
 import markerIcon2xUrl from "leaflet/dist/images/marker-icon-2x.png";
 import markerShadowUrl from "leaflet/dist/images/marker-shadow.png";
 import type { MappedCatchRow } from "@/lib/stats";
+import { MAP_TILE_LAYERS, type MapTileType } from "@/lib/map-tiles";
 
 function formatSv(n: number): string {
   return (Math.round(n * 100) / 100).toString().replace(".", ",");
@@ -56,9 +57,12 @@ export default function WatersMap({ catches }: { catches: MappedCatchRow[] }) {
   const mapRef = useRef<import("leaflet").Map | null>(null);
   const leafletRef = useRef<typeof import("leaflet") | null>(null);
   const layerRef = useRef<import("leaflet").LayerGroup | null>(null);
+  const tileLayerRef = useRef<import("leaflet").TileLayer | null>(null);
+  const appliedTileTypeRef = useRef<MapTileType | null>(null);
   const [mapReady, setMapReady] = useState(false);
   const [fullscreen, setFullscreen] = useState(false);
   const [expandedLake, setExpandedLake] = useState<string | null>(null);
+  const [tileType, setTileType] = useState<MapTileType>("street");
 
   const lakeGroups = groupByLake(catches);
 
@@ -84,11 +88,16 @@ export default function WatersMap({ catches }: { catches: MappedCatchRow[] }) {
 
         const map = L.map(containerRef.current);
         mapRef.current = map;
-        L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-          attribution:
-            '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
-          maxZoom: 19,
+        // fitBounds below needs a tile layer already present — it queries
+        // the map's maxZoom internally and throws ("Map has no maxZoom
+        // specified") if no layer has defined one yet. The toggle effect
+        // still owns switching between street/satellite after this.
+        const initialConfig = MAP_TILE_LAYERS[tileType];
+        tileLayerRef.current = L.tileLayer(initialConfig.url, {
+          attribution: initialConfig.attribution,
+          maxZoom: initialConfig.maxZoom,
         }).addTo(map);
+        appliedTileTypeRef.current = tileType;
 
         if (lakeGroups.length === 1) {
           map.setView([lakeGroups[0].lat, lakeGroups[0].lng], 11);
@@ -107,9 +116,28 @@ export default function WatersMap({ catches }: { catches: MappedCatchRow[] }) {
       cancelled = true;
       mapRef.current?.remove();
       mapRef.current = null;
+      tileLayerRef.current = null;
+      appliedTileTypeRef.current = null;
+      setMapReady(false);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  // Switches the tile layer after the user toggles it — the initial layer
+  // is created above (fitBounds needs one to exist already), so this only
+  // acts once tileType actually differs from what's currently shown.
+  useEffect(() => {
+    const L = leafletRef.current;
+    const map = mapRef.current;
+    if (!L || !map || !mapReady || appliedTileTypeRef.current === tileType) return;
+    if (tileLayerRef.current) map.removeLayer(tileLayerRef.current);
+    const config = MAP_TILE_LAYERS[tileType];
+    tileLayerRef.current = L.tileLayer(config.url, {
+      attribution: config.attribution,
+      maxZoom: config.maxZoom,
+    }).addTo(map);
+    appliedTileTypeRef.current = tileType;
+  }, [mapReady, tileType]);
 
   // Marker layer: one pin per water, or — for the expanded water — its
   // individual catch pins instead. Rebuilt whenever the expanded water
@@ -194,6 +222,13 @@ export default function WatersMap({ catches }: { catches: MappedCatchRow[] }) {
         className="absolute right-2 top-2 z-[1000] rounded-lg border border-black/10 bg-white px-2 py-1 text-xs font-medium shadow dark:border-white/15 dark:bg-zinc-900"
       >
         {fullscreen ? "Stäng" : "Fullskärm"}
+      </button>
+      <button
+        type="button"
+        onClick={() => setTileType((t) => (t === "street" ? "satellite" : "street"))}
+        className="absolute left-2 bottom-2 z-[1000] rounded-lg border border-black/10 bg-white px-2 py-1 text-xs font-medium shadow dark:border-white/15 dark:bg-zinc-900"
+      >
+        {tileType === "street" ? "Satellit" : "Karta"}
       </button>
     </div>
   );
