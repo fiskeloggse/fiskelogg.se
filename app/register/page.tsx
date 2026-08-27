@@ -61,8 +61,7 @@ export default async function RegisterPage(props: PageProps<"/register">) {
             />
             <a
               href={exportHref}
-              target="_blank"
-              rel="noopener noreferrer"
+              download="fangster.xlsx"
               className="text-zinc-500 underline dark:text-zinc-400"
             >
               Exportera

@@ -181,7 +181,7 @@ export default function CatchesMap({ catches }: { catches: MapCatch[] }) {
       <button
         type="button"
         onClick={() => setTileType((t) => (t === "street" ? "satellite" : "street"))}
-        className="absolute left-2 top-2 z-[1000] rounded-lg border border-black/10 bg-white px-2 py-1 text-xs font-medium shadow dark:border-white/15 dark:bg-zinc-900"
+        className="absolute bottom-2 left-2 z-[1000] rounded-lg border border-black/10 bg-white px-2 py-1 text-xs font-medium shadow dark:border-white/15 dark:bg-zinc-900"
       >
         {tileType === "street" ? "Satellit" : "Karta"}
       </button>
