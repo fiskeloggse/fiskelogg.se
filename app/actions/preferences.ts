@@ -12,18 +12,23 @@ import {
   type GpsModeKey,
 } from "@/lib/constants";
 
-export async function updatePreferences(formData: FormData) {
+export async function updateShowBingo(formData: FormData) {
   const user = await requireUser();
   const showBingo = formData.get("show_bingo") === "on";
+
+  await sql`update users set show_bingo = ${showBingo} where id = ${user.id}`;
+
+  revalidatePath("/", "layout");
+}
+
+export async function updateGpsMode(formData: FormData) {
+  const user = await requireUser();
   const gpsModeRaw = String(formData.get("gps_mode") ?? "");
   const gpsMode: GpsModeKey = (GPS_MODE_KEYS as readonly string[]).includes(gpsModeRaw)
     ? (gpsModeRaw as GpsModeKey)
     : "off";
 
-  await sql`
-    update users set show_bingo = ${showBingo}, gps_mode = ${gpsMode}
-    where id = ${user.id}
-  `;
+  await sql`update users set gps_mode = ${gpsMode} where id = ${user.id}`;
 
   revalidatePath("/", "layout");
 }

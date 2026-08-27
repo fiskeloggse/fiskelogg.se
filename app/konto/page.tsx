@@ -4,7 +4,11 @@ import { getTeamMembers, getTeamName } from "@/lib/team";
 import { getOwnCatchCount } from "@/lib/catches";
 import { logout } from "@/app/actions/auth";
 import { leaveTeam } from "@/app/actions/team";
-import { updatePreferences, updateQuickLogFields } from "@/app/actions/preferences";
+import {
+  updateShowBingo,
+  updateGpsMode,
+  updateQuickLogFields,
+} from "@/app/actions/preferences";
 import { QUICK_LOG_FIELDS, QUICK_LOG_FIELD_KEYS, GPS_MODES } from "@/lib/constants";
 import InviteForm from "@/app/components/invite-form";
 import TeamNameForm from "@/app/components/team-name-form";
@@ -51,7 +55,7 @@ export default async function KontoPage() {
 
       <div className="flex flex-col gap-4 rounded-xl border border-black/10 bg-white p-5 dark:border-white/15 dark:bg-white/5">
         <h2 className="text-lg font-semibold">Funktioner</h2>
-        <form action={updatePreferences} className="flex flex-col gap-3">
+        <form action={updateShowBingo} className="flex flex-col gap-3">
           <label className="flex items-center gap-2 text-sm">
             <input
               type="checkbox"
@@ -60,6 +64,19 @@ export default async function KontoPage() {
             />
             Visa Challenges-fliken
           </label>
+          <button
+            type="submit"
+            className="self-start rounded-full bg-foreground px-4 py-2 text-sm font-medium text-background"
+          >
+            Spara
+          </button>
+        </form>
+      </div>
+
+      <div className="flex flex-col gap-6 rounded-xl border border-black/10 bg-white p-5 dark:border-white/15 dark:bg-white/5">
+        <h2 className="text-lg font-semibold">Loggning</h2>
+
+        <form action={updateGpsMode} className="flex flex-col gap-3">
           <fieldset className="flex flex-col gap-2">
             <legend className="text-sm font-medium">GPS</legend>
             {GPS_MODES.map((mode) => (
@@ -89,44 +106,44 @@ export default async function KontoPage() {
             Spara
           </button>
         </form>
-      </div>
 
-      <div className="flex flex-col gap-4 rounded-xl border border-black/10 bg-white p-5 dark:border-white/15 dark:bg-white/5">
-        <div>
-          <h2 className="text-lg font-semibold">Snabbloggning</h2>
-          <p className="text-sm text-zinc-500 dark:text-zinc-400">
-            Art syns alltid. Välj vilka övriga fält som alltid ska synas när
-            du loggar en fångst — resten hittar du bakom &quot;Fler
-            fält&quot;.
-          </p>
-        </div>
-        <form action={updateQuickLogFields} className="flex flex-col gap-3">
-          <div className="flex flex-wrap gap-3">
-            {QUICK_LOG_FIELDS.filter(
-              (field) => field.key !== "anglerId" || teamMembers.length > 0
-            ).map((field) => (
-              <label key={field.key} className="flex items-center gap-2 text-sm">
-                <input
-                  type="checkbox"
-                  name="fields"
-                  value={field.key}
-                  defaultChecked={
-                    user.quick_log_fields
-                      ? user.quick_log_fields.includes(field.key)
-                      : QUICK_LOG_FIELD_KEYS.includes(field.key)
-                  }
-                />
-                {field.label}
-              </label>
-            ))}
+        <div className="flex flex-col gap-3 border-t border-black/10 pt-4 dark:border-white/15">
+          <div>
+            <p className="text-sm font-medium">Snabbloggning</p>
+            <p className="text-sm text-zinc-500 dark:text-zinc-400">
+              Art syns alltid. Välj vilka övriga fält som alltid ska synas
+              när du loggar en fångst — resten hittar du bakom &quot;Fler
+              fält&quot;.
+            </p>
           </div>
-          <button
-            type="submit"
-            className="self-start rounded-full bg-foreground px-4 py-2 text-sm font-medium text-background"
-          >
-            Spara
-          </button>
-        </form>
+          <form action={updateQuickLogFields} className="flex flex-col gap-3">
+            <div className="flex flex-wrap gap-3">
+              {QUICK_LOG_FIELDS.filter(
+                (field) => field.key !== "anglerId" || teamMembers.length > 0
+              ).map((field) => (
+                <label key={field.key} className="flex items-center gap-2 text-sm">
+                  <input
+                    type="checkbox"
+                    name="fields"
+                    value={field.key}
+                    defaultChecked={
+                      user.quick_log_fields
+                        ? user.quick_log_fields.includes(field.key)
+                        : QUICK_LOG_FIELD_KEYS.includes(field.key)
+                    }
+                  />
+                  {field.label}
+                </label>
+              ))}
+            </div>
+            <button
+              type="submit"
+              className="self-start rounded-full bg-foreground px-4 py-2 text-sm font-medium text-background"
+            >
+              Spara
+            </button>
+          </form>
+        </div>
       </div>
 
       <div className="flex flex-col gap-4 rounded-xl border border-black/10 bg-white p-5 dark:border-white/15 dark:bg-white/5">
