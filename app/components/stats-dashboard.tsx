@@ -84,9 +84,6 @@ function CombinedStatCard({
           </p>
         </div>
       </div>
-      <p className="mt-0.5 text-xs text-zinc-400 dark:text-zinc-500">
-        + personbästa
-      </p>
     </button>
   );
 }
@@ -154,12 +151,12 @@ export default function StatsDashboard({
   fishingDays: FishingDayRow[];
   personalBests: PersonalBest[];
   mappedCatches: MappedCatchRow[];
-  initialExpanded?: "species" | null;
+  initialExpanded?: "species" | "personalbests" | null;
 }) {
   const [view, setView] = useState<"overview" | "fishingdays">("overview");
-  const [expanded, setExpanded] = useState<"species" | "lakes" | null>(
-    initialExpanded
-  );
+  const [expanded, setExpanded] = useState<
+    "species" | "lakes" | "personalbests" | null
+  >(initialExpanded);
 
   const speciesCount = speciesBreakdown.length;
   const lakeCount = lakeStats.length;
@@ -199,7 +196,7 @@ export default function StatsDashboard({
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
+      <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
         <CombinedStatCard
           speciesCount={speciesCount}
           fishCount={fishCount}
@@ -218,6 +215,14 @@ export default function StatsDashboard({
           value={fishingDaysCount}
           onClick={() => setView("fishingdays")}
         />
+        <StatCard
+          label="Personbästa"
+          value={personalBests.length}
+          active={expanded === "personalbests"}
+          onClick={() =>
+            setExpanded(expanded === "personalbests" ? null : "personalbests")
+          }
+        />
       </div>
 
       {expanded === "species" && (
@@ -230,12 +235,14 @@ export default function StatsDashboard({
               <BarChart rows={speciesRows} getHref={speciesHref} />
             )}
           </div>
+        </div>
+      )}
 
-          <div>
-            <h2 className="text-lg font-semibold">Personbästa</h2>
-            <div className="mt-3">
-              <PersonalBests bests={personalBests} getHref={speciesHref} />
-            </div>
+      {expanded === "personalbests" && (
+        <div className="rounded-xl border border-black/10 bg-white p-5 dark:border-white/15 dark:bg-white/5">
+          <h2 className="text-lg font-semibold">Personbästa</h2>
+          <div className="mt-3">
+            <PersonalBests bests={personalBests} getHref={speciesHref} />
           </div>
         </div>
       )}

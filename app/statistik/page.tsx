@@ -16,7 +16,12 @@ export const metadata: Metadata = {
 export default async function StatistikPage(props: PageProps<"/statistik">) {
   const user = await requireUser();
   const searchParams = await props.searchParams;
-  const initialExpanded = searchParams.expand === "species" ? "species" : null;
+  const initialExpanded =
+    searchParams.expand === "species"
+      ? "species"
+      : searchParams.expand === "personalbests"
+        ? "personalbests"
+        : null;
 
   const [speciesBreakdown, lakeStats, fishingDays, personalBests, mappedCatches] =
     await Promise.all([

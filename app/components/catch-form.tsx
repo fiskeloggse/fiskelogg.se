@@ -404,7 +404,7 @@ export default function CatchForm({
           <div className="flex items-center justify-between gap-4 rounded-xl border border-black/10 bg-white p-4 shadow-lg dark:border-white/15 dark:bg-zinc-900">
             <p className="text-sm">
               🏆 Nytt personbästa! {personalBestText(personalBestNotice)}.{" "}
-              <Link href="/statistik?expand=species" className="underline">
+              <Link href="/statistik?expand=personalbests" className="underline">
                 Visa personbästa
               </Link>
             </p>
