@@ -1,5 +1,7 @@
 import Link from "next/link";
 import type { PersonalBest } from "@/lib/personal-bests";
+import { getStorfiskPercent } from "@/lib/storfisk";
+import StorfiskBadge from "./storfisk-badge";
 
 function formatDate(date: Date) {
   return date.toLocaleDateString("sv-SE", { dateStyle: "medium" });
@@ -25,11 +27,16 @@ export default function PersonalBests({
       ) : (
         <ul className="flex flex-col gap-3">
           {bests.map((pb) => {
+            const isStorfisk =
+              pb.heaviest != null &&
+              (getStorfiskPercent(pb.species, pb.heaviest.weight_kg) ?? 0) >= 100;
+
             const content = (
               <>
                 <div className="flex items-center gap-2">
                   <span className="text-lg">🏆</span>
                   <p className="font-semibold">{pb.species}</p>
+                  {isStorfisk && <StorfiskBadge />}
                 </div>
                 <div className="mt-3 flex gap-8">
                   {pb.longest && (

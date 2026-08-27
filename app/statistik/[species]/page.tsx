@@ -3,6 +3,8 @@ import Link from "next/link";
 import { requireUser } from "@/lib/dal";
 import { getTopCatchesForSpecies } from "@/app/actions/stats";
 import { getPersonalBests } from "@/lib/personal-bests";
+import { getStorfiskPercent } from "@/lib/storfisk";
+import StorfiskBadge from "@/app/components/storfisk-badge";
 
 function formatDate(date: Date) {
   return date.toLocaleDateString("sv-SE", { dateStyle: "medium" });
@@ -51,6 +53,9 @@ export default async function SpeciesStatsPage(
           {catches.map((c) => {
             const isLongestPb = pb?.longest?.id === c.id;
             const isHeaviestPb = pb?.heaviest?.id === c.id;
+            const isStorfisk =
+              c.weight_kg != null &&
+              (getStorfiskPercent(species, c.weight_kg) ?? 0) >= 100;
             const rowClassName =
               "flex items-center justify-between gap-3 rounded-xl border border-black/10 bg-white px-4 py-3 dark:border-white/15 dark:bg-white/5";
             const content = (
@@ -74,6 +79,7 @@ export default async function SpeciesStatsPage(
                           : "Tyngst"}
                     </span>
                   )}
+                  {isStorfisk && <StorfiskBadge />}
                 </span>
                 <span className="text-right text-sm text-zinc-500 dark:text-zinc-400">
                   {c.angler_name}

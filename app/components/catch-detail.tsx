@@ -8,6 +8,7 @@ import ConfirmDeleteButton from "./confirm-delete-button";
 import EditCatchForm from "./edit-catch-form";
 import CatchesMap from "./catches-map";
 import ShareCardPanel from "./share-card-panel";
+import StorfiskBadge from "./storfisk-badge";
 import type { Catch } from "./catch-list";
 import { windDirLabel } from "@/lib/constants";
 import { getMoonPhase } from "@/lib/moon-phase";
@@ -79,11 +80,7 @@ export default function CatchDetail({
               🏆 Personbästa
             </span>
           )}
-          {isStorfisk && (
-            <span className="inline-flex items-center gap-1.5 rounded-full bg-blue-500 px-3 py-1 text-xs font-bold text-white">
-              🎣 Storfisk
-            </span>
-          )}
+          {isStorfisk && <StorfiskBadge size="md" />}
         </div>
         <p className="text-sm text-zinc-500 dark:text-zinc-400">
           {formatDateFull(item.caught_at)}
