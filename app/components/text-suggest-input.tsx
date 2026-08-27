@@ -24,11 +24,15 @@ export default function TextSuggestInput({
   const [open, setOpen] = useState(false);
 
   const query = value.trim().toLowerCase();
-  const matches = query
-    ? options
-        .filter((o) => o.toLowerCase().includes(query) && o.toLowerCase() !== query)
-        .slice(0, 6)
-    : [];
+  // Once the typed value exactly matches an option, hide the list entirely
+  // instead of showing whatever else happens to contain the same text —
+  // otherwise finishing "Abborre" left only "Havsabborre" in the dropdown,
+  // which read as if the typed species had vanished.
+  const exactMatch = options.some((o) => o.toLowerCase() === query);
+  const matches =
+    query && !exactMatch
+      ? options.filter((o) => o.toLowerCase().includes(query)).slice(0, 6)
+      : [];
 
   return (
     <div className="relative">
