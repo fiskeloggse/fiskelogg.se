@@ -62,7 +62,14 @@ export default function CatchDetail({
       </Link>
 
       <div className="rounded-xl border border-black/10 bg-white p-6 dark:border-white/15 dark:bg-white/5">
-        <h2 className="text-2xl font-semibold">{item.species || "Okänd art"}</h2>
+        <div className="flex flex-wrap items-center gap-3">
+          <h2 className="text-2xl font-semibold">{item.species || "Okänd art"}</h2>
+          {isPersonalBest && (
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-yellow-400 px-3 py-1 text-xs font-bold text-zinc-900">
+              🏆 Personbästa
+            </span>
+          )}
+        </div>
         <p className="text-sm text-zinc-500 dark:text-zinc-400">
           {formatDateFull(item.caught_at)}
           {item.angler_name && ` · ${item.angler_name}`}

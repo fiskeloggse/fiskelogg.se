@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { requireUser } from "@/lib/dal";
 import { getTopCatchesForSpecies } from "@/app/actions/stats";
+import { getPersonalBests } from "@/lib/personal-bests";
 
 function formatDate(date: Date) {
   return date.toLocaleDateString("sv-SE", { dateStyle: "medium" });
@@ -24,7 +25,11 @@ export default async function SpeciesStatsPage(
   const user = await requireUser();
   const { species: rawSpecies } = await props.params;
   const species = decodeURIComponent(rawSpecies);
-  const catches = await getTopCatchesForSpecies(species);
+  const [catches, personalBests] = await Promise.all([
+    getTopCatchesForSpecies(species),
+    getPersonalBests(user.id),
+  ]);
+  const pb = personalBests.find((p) => p.species === species);
 
   return (
     <main className="mx-auto flex w-full max-w-4xl flex-1 flex-col gap-6 px-4 py-10 sm:px-6">
@@ -44,17 +49,31 @@ export default async function SpeciesStatsPage(
       ) : (
         <ul className="flex flex-col gap-2">
           {catches.map((c) => {
+            const isLongestPb = pb?.longest?.id === c.id;
+            const isHeaviestPb = pb?.heaviest?.id === c.id;
             const rowClassName =
               "flex items-center justify-between gap-3 rounded-xl border border-black/10 bg-white px-4 py-3 dark:border-white/15 dark:bg-white/5";
             const content = (
               <>
-                <span className="text-lg font-medium">
-                  {[
-                    c.length_cm != null ? `${c.length_cm} cm` : null,
-                    c.weight_kg != null ? `${formatSv(c.weight_kg)} kg` : null,
-                  ]
-                    .filter(Boolean)
-                    .join(" · ")}
+                <span className="flex items-center gap-2">
+                  <span className="text-lg font-medium">
+                    {[
+                      c.length_cm != null ? `${c.length_cm} cm` : null,
+                      c.weight_kg != null ? `${formatSv(c.weight_kg)} kg` : null,
+                    ]
+                      .filter(Boolean)
+                      .join(" · ")}
+                  </span>
+                  {(isLongestPb || isHeaviestPb) && (
+                    <span className="inline-flex items-center gap-1 rounded-full bg-yellow-400 px-2 py-0.5 text-xs font-bold text-zinc-900">
+                      🏆{" "}
+                      {isLongestPb && isHeaviestPb
+                        ? "Personbästa"
+                        : isLongestPb
+                          ? "Längst"
+                          : "Tyngst"}
+                    </span>
+                  )}
                 </span>
                 <span className="text-right text-sm text-zinc-500 dark:text-zinc-400">
                   {c.angler_name}
