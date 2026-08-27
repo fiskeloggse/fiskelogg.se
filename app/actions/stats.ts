@@ -6,6 +6,7 @@ import { TIMEZONE } from "@/lib/constants";
 
 export type TopCatchRow = {
   id: number;
+  user_id: number;
   length_cm: number | null;
   weight_kg: number | null;
   caught_at: Date;
@@ -23,7 +24,7 @@ export async function getTopCatchesForSpecies(
     : sql`c.user_id = ${user.id}`;
 
   return sql<TopCatchRow[]>`
-    select c.id, c.length_cm, c.weight_kg, c.caught_at, u.name as angler_name
+    select c.id, c.user_id, c.length_cm, c.weight_kg, c.caught_at, u.name as angler_name
     from catches c
     join users u on u.id = c.user_id
     where ${scopeCondition}
@@ -71,10 +72,10 @@ export async function getTopCatchesByLake(
     : sql`c.user_id = ${user.id}`;
 
   return sql<TopCatchBySpeciesRow[]>`
-    select id, species, length_cm, weight_kg, caught_at, angler_name
+    select id, user_id, species, length_cm, weight_kg, caught_at, angler_name
     from (
       select
-        c.id, c.species, c.length_cm, c.weight_kg, c.caught_at, u.name as angler_name,
+        c.id, c.user_id, c.species, c.length_cm, c.weight_kg, c.caught_at, u.name as angler_name,
         row_number() over (
           partition by c.species
           order by c.length_cm desc nulls last, c.weight_kg desc nulls last

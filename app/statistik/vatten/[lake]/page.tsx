@@ -40,7 +40,7 @@ export async function generateMetadata(
 export default async function LakeStatsPage(
   props: PageProps<"/statistik/vatten/[lake]">
 ) {
-  await requireUser();
+  const user = await requireUser();
   const { lake: rawLake } = await props.params;
   const lake = decodeURIComponent(rawLake);
   const [visitStats, catches] = await Promise.all([
@@ -76,26 +76,42 @@ export default async function LakeStatsPage(
             <div key={group.species}>
               <h2 className="text-lg font-semibold">{group.species}</h2>
               <ul className="mt-3 flex flex-col gap-2">
-                {group.catches.map((c) => (
-                  <li
-                    key={c.id}
-                    className="flex items-center justify-between gap-3 rounded-xl border border-black/10 bg-white px-4 py-3 dark:border-white/15 dark:bg-white/5"
-                  >
-                    <span className="text-lg font-medium">
-                      {[
-                        c.length_cm != null ? `${c.length_cm} cm` : null,
-                        c.weight_kg != null ? `${formatSv(c.weight_kg)} kg` : null,
-                      ]
-                        .filter(Boolean)
-                        .join(" · ")}
-                    </span>
-                    <span className="text-right text-sm text-zinc-500 dark:text-zinc-400">
-                      {c.angler_name}
-                      <br />
-                      <span className="text-xs">{formatDate(c.caught_at)}</span>
-                    </span>
-                  </li>
-                ))}
+                {group.catches.map((c) => {
+                  const rowClassName =
+                    "flex items-center justify-between gap-3 rounded-xl border border-black/10 bg-white px-4 py-3 dark:border-white/15 dark:bg-white/5";
+                  const content = (
+                    <>
+                      <span className="text-lg font-medium">
+                        {[
+                          c.length_cm != null ? `${c.length_cm} cm` : null,
+                          c.weight_kg != null ? `${formatSv(c.weight_kg)} kg` : null,
+                        ]
+                          .filter(Boolean)
+                          .join(" · ")}
+                      </span>
+                      <span className="text-right text-sm text-zinc-500 dark:text-zinc-400">
+                        {c.angler_name}
+                        <br />
+                        <span className="text-xs">{formatDate(c.caught_at)}</span>
+                      </span>
+                    </>
+                  );
+
+                  return (
+                    <li key={c.id}>
+                      {c.user_id === user.id ? (
+                        <Link
+                          href={`/register/${c.id}`}
+                          className={rowClassName + " transition-colors hover:bg-black/5 dark:hover:bg-white/10"}
+                        >
+                          {content}
+                        </Link>
+                      ) : (
+                        <div className={rowClassName}>{content}</div>
+                      )}
+                    </li>
+                  );
+                })}
               </ul>
             </div>
           ))}
