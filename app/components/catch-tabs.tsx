@@ -81,10 +81,12 @@ export default function CatchTabs({
 
   return (
     <>
-      {/* Mobile: icon tab row, sharing the header's top row with the logo.
-          gap-4 matches the parent row's own gap so the logo-to-first-tab
-          spacing lines up with the spacing between the tabs themselves. */}
-      <nav className="flex gap-4 sm:hidden" aria-label="Huvudmeny">
+      {/* Mobile: fixed bottom tab bar, centered so icons stay clear of the
+          screen's rounded corners near the edges. */}
+      <nav
+        className="fixed inset-x-0 bottom-0 z-40 flex justify-center gap-4 border-t border-black/10 bg-white px-4 pb-[env(safe-area-inset-bottom)] sm:hidden dark:border-white/15 dark:bg-zinc-950"
+        aria-label="Huvudmeny"
+      >
         {tabs.map((tab) => {
           const active = isActive(pathname, tab.href);
           return (
@@ -92,7 +94,7 @@ export default function CatchTabs({
               key={tab.href}
               href={tab.href}
               className={
-                "flex flex-col items-center gap-0.5 text-[10.5px] leading-tight font-medium " +
+                "flex flex-col items-center gap-0.5 py-1.5 text-[10.5px] leading-tight font-medium " +
                 (active
                   ? "text-foreground"
                   : "text-zinc-500 dark:text-zinc-400")
