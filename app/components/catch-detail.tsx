@@ -69,12 +69,25 @@ export default function CatchDetail({
         </p>
 
         {item.photo_url && (
-          // eslint-disable-next-line @next/next/no-img-element -- externally hosted blob URL, not a local/optimizable asset
-          <img
-            src={item.photo_url}
-            alt={item.species ?? "Fångst"}
-            className="mt-4 max-h-96 w-full rounded-lg object-cover"
-          />
+          <div className="relative mt-4 h-96 w-full overflow-hidden rounded-lg">
+            {/* A blurred, cover-cropped copy fills the frame as backdrop —
+                the photo is rarely shaped like this box, so cropping it
+                outright can cut off the subject (a raised fish, a face).
+                The sharp copy on top is never cropped, only letterboxed. */}
+            {/* eslint-disable-next-line @next/next/no-img-element -- externally hosted blob URL, not a local/optimizable asset */}
+            <img
+              src={item.photo_url}
+              alt=""
+              aria-hidden="true"
+              className="absolute inset-0 h-full w-full scale-110 object-cover blur-2xl brightness-50"
+            />
+            {/* eslint-disable-next-line @next/next/no-img-element -- externally hosted blob URL, not a local/optimizable asset */}
+            <img
+              src={item.photo_url}
+              alt={item.species ?? "Fångst"}
+              className="relative h-full w-full object-contain"
+            />
+          </div>
         )}
 
         <div className="mt-5 grid grid-cols-2 gap-4 text-sm">
