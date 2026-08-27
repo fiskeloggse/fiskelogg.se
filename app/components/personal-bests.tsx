@@ -5,6 +5,10 @@ function formatDate(date: Date) {
   return date.toLocaleDateString("sv-SE", { dateStyle: "medium" });
 }
 
+function formatSv(n: number): string {
+  return (Math.round(n * 100) / 100).toString().replace(".", ",");
+}
+
 export default function PersonalBests({
   bests,
   getHref,
@@ -21,37 +25,34 @@ export default function PersonalBests({
       ) : (
         <ul className="flex flex-col gap-3">
           {bests.map((pb) => {
-            const isSameCatch =
-              pb.longest && pb.heaviest && pb.longest.id === pb.heaviest.id;
-
             const content = (
               <>
-                <p className="font-medium">{pb.species}</p>
-                <p className="text-sm text-zinc-500 dark:text-zinc-400">
-                  {isSameCatch && pb.longest && pb.heaviest ? (
-                    <>
-                      Längst &amp; tyngst: {pb.longest.length_cm} cm ·{" "}
-                      {pb.heaviest.weight_kg} kg (
-                      {formatDate(pb.longest.caught_at)})
-                    </>
-                  ) : (
-                    <>
-                      {pb.longest && (
-                        <>
-                          Längst: {pb.longest.length_cm} cm (
-                          {formatDate(pb.longest.caught_at)})
-                        </>
-                      )}
-                      {pb.longest && pb.heaviest && " · "}
-                      {pb.heaviest && (
-                        <>
-                          Tyngst: {pb.heaviest.weight_kg} kg (
-                          {formatDate(pb.heaviest.caught_at)})
-                        </>
-                      )}
-                    </>
+                <div className="flex items-center gap-2">
+                  <span className="text-lg">🏆</span>
+                  <p className="font-semibold">{pb.species}</p>
+                </div>
+                <div className="mt-3 flex gap-8">
+                  {pb.longest && (
+                    <div>
+                      <p className="text-2xl font-semibold tabular-nums">
+                        {pb.longest.length_cm} cm
+                      </p>
+                      <p className="text-xs text-zinc-500 dark:text-zinc-400">
+                        Längst · {formatDate(pb.longest.caught_at)}
+                      </p>
+                    </div>
                   )}
-                </p>
+                  {pb.heaviest && (
+                    <div>
+                      <p className="text-2xl font-semibold tabular-nums">
+                        {formatSv(pb.heaviest.weight_kg)} kg
+                      </p>
+                      <p className="text-xs text-zinc-500 dark:text-zinc-400">
+                        Tyngst · {formatDate(pb.heaviest.caught_at)}
+                      </p>
+                    </div>
+                  )}
+                </div>
               </>
             );
 
@@ -60,7 +61,7 @@ export default function PersonalBests({
                 {getHref ? (
                   <Link
                     href={getHref(pb.species)}
-                    className="block rounded-xl border border-black/10 bg-white p-4 transition-colors hover:bg-black/5 dark:border-white/15 dark:bg-white/5 dark:hover:bg-white/10"
+                    className="block rounded-xl border border-black/10 bg-white p-4 transition-colors hover:border-foreground/30 hover:bg-black/5 dark:border-white/15 dark:bg-white/5 dark:hover:bg-white/10"
                   >
                     {content}
                   </Link>
