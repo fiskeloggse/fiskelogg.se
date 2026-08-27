@@ -131,19 +131,17 @@ export default function EditCatchForm({
       </div>
 
       <div className="flex flex-col gap-1.5">
-        <label htmlFor={`photo-${item.id}`} className="text-sm font-medium">
-          Foto
-        </label>
+        <span className="text-sm font-medium">Foto</span>
         <div className="flex items-center gap-3">
           {photoPreview && (
             // eslint-disable-next-line @next/next/no-img-element -- object URL preview or an already-uploaded blob URL, neither worth next/image
             <img
               src={photoPreview}
               alt=""
-              className="h-16 w-16 shrink-0 rounded-lg object-cover"
+              className="h-16 w-16 shrink-0 rounded-lg border border-black/10 object-cover dark:border-white/15"
             />
           )}
-          <div className="flex flex-col items-start gap-1">
+          <div className="flex flex-col items-start gap-1.5">
             <input
               ref={photoInputRef}
               id={`photo-${item.id}`}
@@ -152,8 +150,16 @@ export default function EditCatchForm({
               accept="image/*"
               capture="environment"
               onChange={handlePhotoChange}
-              className="text-sm"
+              className="hidden"
             />
+            <button
+              type="button"
+              onClick={() => photoInputRef.current?.click()}
+              disabled={compressingPhoto}
+              className="flex items-center gap-1.5 rounded-full border border-black/10 px-4 py-2 text-sm font-medium transition-colors hover:bg-black/5 disabled:opacity-60 dark:border-white/15 dark:hover:bg-white/10"
+            >
+              📷 {photoPreview ? "Byt foto" : "Lägg till foto"}
+            </button>
             {compressingPhoto && (
               <p className="text-xs text-zinc-500 dark:text-zinc-400">
                 Bearbetar bild…
