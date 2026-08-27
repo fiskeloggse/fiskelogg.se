@@ -94,21 +94,22 @@ export default function CatchTabs({
               key={tab.href}
               href={tab.href}
               className={
-                "flex flex-col items-center gap-0.5 py-1.5 text-[10.5px] leading-tight font-medium " +
+                "flex flex-col items-center gap-1 py-2.5 text-xs leading-tight font-medium " +
                 (active
                   ? "text-foreground"
                   : "text-zinc-500 dark:text-zinc-400")
               }
             >
-              <TabIcon href={tab.href} className="h-[18px] w-[18px]" />
+              <TabIcon href={tab.href} className="h-5 w-5" />
               {tab.label}
             </Link>
           );
         })}
       </nav>
 
-      {/* Desktop: horizontal text tabs. */}
-      <nav className="hidden gap-2 sm:flex">
+      {/* Desktop: horizontal text tabs, centered in the space next to the
+          logo (which sits shrink-0 to its left in the header row). */}
+      <nav className="hidden flex-1 justify-center gap-2 sm:flex">
         {tabs.map((tab) => (
           <Link
             key={tab.href}
