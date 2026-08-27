@@ -7,6 +7,7 @@ import { deleteCatch } from "@/app/actions/catches";
 import ConfirmDeleteButton from "./confirm-delete-button";
 import EditCatchForm from "./edit-catch-form";
 import CatchesMap from "./catches-map";
+import ShareCardPanel from "./share-card-panel";
 import type { Catch } from "./catch-list";
 import { windDirLabel } from "@/lib/constants";
 import { getMoonPhase } from "@/lib/moon-phase";
@@ -15,7 +16,13 @@ function formatDateFull(date: Date) {
   return date.toLocaleString("sv-SE", { dateStyle: "full", timeStyle: "short" });
 }
 
-export default function CatchDetail({ item }: { item: Catch }) {
+export default function CatchDetail({
+  item,
+  isPersonalBest,
+}: {
+  item: Catch;
+  isPersonalBest: boolean;
+}) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [editing, setEditing] = useState(false);
@@ -159,6 +166,10 @@ export default function CatchDetail({ item }: { item: Catch }) {
             />
           </div>
         )}
+
+        <div className="mt-6">
+          <ShareCardPanel item={item} isPersonalBest={isPersonalBest} />
+        </div>
 
         <div className="mt-6 flex items-center gap-3">
           <button
