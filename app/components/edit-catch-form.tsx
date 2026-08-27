@@ -7,6 +7,7 @@ import { compressImage, replaceInputFile } from "@/lib/compress-image";
 import { FISH_SPECIES } from "@/lib/species";
 import type { Catch } from "./catch-list";
 import MapPositionPicker from "./map-position-picker";
+import TextSuggestInput from "./text-suggest-input";
 
 const inputClassName =
   "rounded-lg border border-black/10 bg-white px-3 py-2 text-sm dark:border-white/15 dark:bg-transparent";
@@ -36,6 +37,7 @@ export default function EditCatchForm({
   const errorMessage = state && "error" in state ? state.error : undefined;
   const succeeded = state && "success" in state;
 
+  const [species, setSpecies] = useState(item.species ?? "");
   const [caughtAtLocal, setCaughtAtLocal] = useState(
     toDatetimeLocalValue(item.caught_at)
   );
@@ -113,21 +115,15 @@ export default function EditCatchForm({
         <label htmlFor={`species-${item.id}`} className="text-sm font-medium">
           Art
         </label>
-        <input
+        <TextSuggestInput
           id={`species-${item.id}`}
           name="species"
-          type="text"
-          list={`species-catalog-${item.id}`}
-          defaultValue={item.species ?? ""}
+          value={species}
+          onChange={setSpecies}
+          options={FISH_SPECIES}
           required
-          autoComplete="off"
           className={inputClassName}
         />
-        <datalist id={`species-catalog-${item.id}`}>
-          {FISH_SPECIES.map((s) => (
-            <option key={s} value={s} />
-          ))}
-        </datalist>
       </div>
 
       <div className="flex flex-col gap-1.5">

@@ -470,23 +470,16 @@ export default function CatchForm({
               Art
             </label>
 
-            <input
+            <TextSuggestInput
               id="species"
               name="species"
-              type="text"
-              list="species-catalog"
               value={species}
-              onChange={(e) => setSpecies(e.target.value)}
+              onChange={setSpecies}
+              options={FISH_SPECIES}
               required
-              autoComplete="off"
               placeholder="Sök art eller skriv eget namn"
               className={inputClassName}
             />
-            <datalist id="species-catalog">
-              {FISH_SPECIES.map((s) => (
-                <option key={s} value={s} />
-              ))}
-            </datalist>
 
             <Chips options={suggestions.recent} selected={species} onSelect={setSpecies} />
           </div>

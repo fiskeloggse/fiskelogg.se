@@ -10,14 +10,16 @@ export default function TextSuggestInput({
   options,
   className,
   placeholder,
+  required,
 }: {
   id: string;
   name: string;
   value: string;
   onChange: (value: string) => void;
-  options: string[];
+  options: readonly string[];
   className: string;
   placeholder?: string;
+  required?: boolean;
 }) {
   const [open, setOpen] = useState(false);
 
@@ -43,6 +45,7 @@ export default function TextSuggestInput({
         onBlur={() => setOpen(false)}
         autoComplete="off"
         placeholder={placeholder}
+        required={required}
         className={className}
       />
       {open && matches.length > 0 && (
