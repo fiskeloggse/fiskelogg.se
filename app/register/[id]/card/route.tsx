@@ -84,23 +84,11 @@ export async function GET(
           fontFamily: "Geist",
         }}
       >
-        {item.photo_url ? (
-          // eslint-disable-next-line @next/next/no-img-element -- Satori JSX, not a browser <img>
-          <img
-            src={item.photo_url}
-            alt=""
-            style={{
-              position: "absolute",
-              top: 0,
-              left: 0,
-              right: 0,
-              bottom: 0,
-              width: "100%",
-              height: "100%",
-              objectFit: "cover",
-            }}
-          />
-        ) : (
+        {/* Note for future edits: Satori silently drops an <img> that's
+            wrapped in a Fragment (<>...</>) inside a ternary branch — no
+            error, it just never renders. Keep each <img> as a direct,
+            unwrapped child (use && instead of a ternary) or it vanishes. */}
+        {!item.photo_url && (
           <div
             style={{
               position: "absolute",
@@ -117,6 +105,50 @@ export async function GET(
           >
             🐟
           </div>
+        )}
+        {item.photo_url && (
+          // A cover-cropped, blurred copy fills the frame as ambient
+          // backdrop — the photo itself often isn't shaped like a 4:5
+          // portrait, so cropping it outright can cut off the subject (a
+          // raised fish, a face). The sharp copy below is never cropped,
+          // only letterboxed, so nothing important is lost.
+          // eslint-disable-next-line @next/next/no-img-element -- Satori JSX, not a browser <img>
+          <img
+            src={item.photo_url}
+            width={WIDTH}
+            height={HEIGHT}
+            alt=""
+            style={{
+              position: "absolute",
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              width: "100%",
+              height: "100%",
+              objectFit: "cover",
+              filter: "blur(50px) brightness(0.6)",
+            }}
+          />
+        )}
+        {item.photo_url && (
+          // eslint-disable-next-line @next/next/no-img-element -- Satori JSX, not a browser <img>
+          <img
+            src={item.photo_url}
+            width={WIDTH}
+            height={HEIGHT}
+            alt=""
+            style={{
+              position: "absolute",
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              width: "100%",
+              height: "100%",
+              objectFit: "contain",
+            }}
+          />
         )}
 
         <div
