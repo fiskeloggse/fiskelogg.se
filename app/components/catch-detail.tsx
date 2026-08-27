@@ -11,9 +11,14 @@ import ShareCardPanel from "./share-card-panel";
 import type { Catch } from "./catch-list";
 import { windDirLabel } from "@/lib/constants";
 import { getMoonPhase } from "@/lib/moon-phase";
+import { getStorfiskPercent, STORFISKREGISTRET_URL } from "@/lib/storfisk";
 
 function formatDateFull(date: Date) {
   return date.toLocaleString("sv-SE", { dateStyle: "full", timeStyle: "short" });
+}
+
+function formatSv(n: number): string {
+  return (Math.round(n * 10) / 10).toString().replace(".", ",");
 }
 
 export default function CatchDetail({
@@ -32,6 +37,11 @@ export default function CatchDetail({
   const query = searchParams.toString();
   const backHref = `/register${query ? `?${query}` : ""}`;
   const moonPhase = getMoonPhase(item.caught_at);
+  const storfiskPercent =
+    item.species && item.weight_kg != null
+      ? getStorfiskPercent(item.species, item.weight_kg)
+      : null;
+  const isStorfisk = storfiskPercent != null && storfiskPercent >= 100;
 
   async function handleDelete(formData: FormData) {
     await deleteCatch(formData);
@@ -67,6 +77,11 @@ export default function CatchDetail({
           {isPersonalBest && (
             <span className="inline-flex items-center gap-1.5 rounded-full bg-yellow-400 px-3 py-1 text-xs font-bold text-zinc-900">
               🏆 Personbästa
+            </span>
+          )}
+          {isStorfisk && (
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-blue-500 px-3 py-1 text-xs font-bold text-white">
+              🎣 Storfisk
             </span>
           )}
         </div>
@@ -109,6 +124,26 @@ export default function CatchDetail({
             <p className="text-lg font-medium">
               {item.weight_kg != null ? `${item.weight_kg} kg` : "–"}
             </p>
+            {storfiskPercent != null && (
+              <p
+                className={
+                  "mt-0.5 text-xs " +
+                  (isStorfisk
+                    ? "font-semibold text-blue-600 dark:text-blue-400"
+                    : "text-zinc-400 dark:text-zinc-500")
+                }
+              >
+                {formatSv(storfiskPercent)}% av{" "}
+                <a
+                  href={STORFISKREGISTRET_URL}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="underline"
+                >
+                  Sportfiskarnas minimivikt
+                </a>
+              </p>
+            )}
           </div>
           <div className="col-span-2">
             <p className="text-zinc-500 dark:text-zinc-400">Vatten</p>
