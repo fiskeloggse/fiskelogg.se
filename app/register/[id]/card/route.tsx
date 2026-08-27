@@ -145,7 +145,7 @@ export async function GET(
             color: "white",
           }}
         >
-          🎣 Fisklogg
+          🎣 fisklogg.se
         </div>
 
         {isPersonalBest && (
