@@ -262,6 +262,19 @@ export default function CatchForm({
   const [pastLongitude, setPastLongitude] = useState<number | null>(null);
   const pastHasPosition = pastLatitude != null && pastLongitude != null;
 
+  // Without this, closing the dialog (cancel or a successful submit) left
+  // the map/pin from that catch showing the next time "Logga tidigare
+  // fisk" was opened — easy to mistake for a map bug when really it was
+  // just stale state from the previous entry.
+  useEffect(() => {
+    if (mode === "closed") {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setShowPastMap(false);
+      setPastLatitude(null);
+      setPastLongitude(null);
+    }
+  }, [mode]);
+
   const errorMessage = state && "error" in state ? state.error : undefined;
 
   // Plats suggestions are scoped to whatever Vatten currently holds — once
