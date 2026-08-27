@@ -9,6 +9,7 @@ import type {
   SpeciesBreakdownRow,
 } from "@/lib/stats";
 import type { PersonalBest } from "@/lib/personal-bests";
+import { getStorfiskPercent } from "@/lib/storfisk";
 import FishingDaysExplorer from "./fishing-days-explorer";
 import PersonalBests from "./personal-bests";
 import WatersMap from "./waters-map";
@@ -96,7 +97,7 @@ function BarChart({
   rows,
   getHref,
 }: {
-  rows: { label: string; count: number }[];
+  rows: { label: string; count: number; storfisk?: boolean }[];
   getHref?: (label: string) => string;
 }) {
   if (rows.length === 0) return null;
@@ -107,7 +108,10 @@ function BarChart({
       {rows.map((r) => {
         const content = (
           <>
-            <span className="w-24 shrink-0 truncate sm:w-32">{r.label}</span>
+            <span className="flex w-24 shrink-0 items-center gap-1 truncate sm:w-32">
+              {r.label}
+              {r.storfisk && <span title="Storfisk">🎣</span>}
+            </span>
             <div className="h-2 flex-1 rounded-full bg-black/5 dark:bg-white/10">
               <div
                 className="h-2 rounded-full bg-foreground/70"
@@ -192,7 +196,20 @@ export default function StatsDashboard({
   }
 
   // Already ordered by count desc, highest first — straight from the query.
-  const speciesRows = speciesBreakdown.map((s) => ({ label: s.species, count: s.count }));
+  const storfiskSpecies = new Set(
+    personalBests
+      .filter(
+        (pb) =>
+          pb.heaviest &&
+          (getStorfiskPercent(pb.species, pb.heaviest.weight_kg) ?? 0) >= 100
+      )
+      .map((pb) => pb.species)
+  );
+  const speciesRows = speciesBreakdown.map((s) => ({
+    label: s.species,
+    count: s.count,
+    storfisk: storfiskSpecies.has(s.species),
+  }));
 
   return (
     <div className="flex flex-col gap-4">
