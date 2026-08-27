@@ -96,7 +96,7 @@ export const STORFISK_MIN_WEIGHT_KG: Record<string, number> = {
   Tunga: 0.25,
   "Tunnläppad Multe": 0.25,
   Tånglake: 0.25,
-  Vimba: 1.0,
+  Vimma: 1.0,
   Vitling: 0.8,
   Vitrocka: 6.0,
   Vrakfisk: 0.25,

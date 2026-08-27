@@ -113,7 +113,7 @@ export const FISH_SPECIES = [
   "Tunga",
   "Tunnläppad Multe",
   "Tånglake",
-  "Vimba",
+  "Vimma",
   "Vitling",
   "Vitrocka",
   "Vrakfisk",
