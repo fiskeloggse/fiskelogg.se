@@ -11,6 +11,7 @@ import type { LakeSuggestions } from "@/lib/lake-suggestions";
 import type { LocationSuggestions } from "@/lib/location-suggestions";
 import type { MethodSuggestions } from "@/lib/method-suggestions";
 import { QUICK_LOG_FIELD_KEYS, type GpsModeKey } from "@/lib/constants";
+import { compressImage, replaceInputFile } from "@/lib/compress-image";
 import TextSuggestInput from "./text-suggest-input";
 import MapPositionPicker from "./map-position-picker";
 
@@ -140,6 +141,37 @@ export default function CatchForm({
 }) {
   const [state, formAction, pending] = useActionState(addCatch, undefined);
   const wasPending = useRef(false);
+  const photoInputRef = useRef<HTMLInputElement>(null);
+  const [photoPreview, setPhotoPreview] = useState<string | null>(null);
+  const [compressingPhoto, setCompressingPhoto] = useState(false);
+
+  async function handlePhotoChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const input = e.target;
+    const file = input.files?.[0];
+    if (!file) {
+      setPhotoPreview((prev) => {
+        if (prev) URL.revokeObjectURL(prev);
+        return null;
+      });
+      return;
+    }
+    setCompressingPhoto(true);
+    const compressed = await compressImage(file);
+    replaceInputFile(input, compressed);
+    setCompressingPhoto(false);
+    setPhotoPreview((prev) => {
+      if (prev) URL.revokeObjectURL(prev);
+      return URL.createObjectURL(compressed);
+    });
+  }
+
+  function clearPhoto() {
+    if (photoInputRef.current) photoInputRef.current.value = "";
+    setPhotoPreview((prev) => {
+      if (prev) URL.revokeObjectURL(prev);
+      return null;
+    });
+  }
   const [mode, setMode] = useState<"closed" | "now" | "past">("closed");
   const [showMore, setShowMore] = useState(false);
   const dialogRef = useRef<HTMLDialogElement>(null);
@@ -317,6 +349,7 @@ export default function CatchForm({
       setComment("");
       setCaughtAtLocal("");
       setMode("closed");
+      clearPhoto();
       if (state && "insertedId" in state && pendingWaterNameRef.current) {
         updateCatchLake(state.insertedId, pendingWaterNameRef.current);
         pendingWaterNameRef.current = null;
@@ -456,6 +489,48 @@ export default function CatchForm({
             </datalist>
 
             <Chips options={suggestions.recent} selected={species} onSelect={setSpecies} />
+          </div>
+
+          <div className="flex flex-col gap-2">
+            <label htmlFor="photo" className="text-sm font-medium">
+              Foto
+            </label>
+            <div className="flex items-center gap-3">
+              {photoPreview && (
+                // eslint-disable-next-line @next/next/no-img-element -- local object URL preview, not a remote/optimizable image
+                <img
+                  src={photoPreview}
+                  alt=""
+                  className="h-16 w-16 shrink-0 rounded-lg object-cover"
+                />
+              )}
+              <div className="flex flex-col items-start gap-1">
+                <input
+                  ref={photoInputRef}
+                  id="photo"
+                  name="photo"
+                  type="file"
+                  accept="image/*"
+                  capture="environment"
+                  onChange={handlePhotoChange}
+                  className="text-sm"
+                />
+                {compressingPhoto && (
+                  <p className="text-xs text-zinc-500 dark:text-zinc-400">
+                    Bearbetar bild…
+                  </p>
+                )}
+                {photoPreview && !compressingPhoto && (
+                  <button
+                    type="button"
+                    onClick={clearPhoto}
+                    className="text-sm text-zinc-500 underline hover:text-foreground dark:text-zinc-400"
+                  >
+                    Ta bort bild
+                  </button>
+                )}
+              </div>
+            </div>
           </div>
 
           {showPlatsSection && (
@@ -831,7 +906,7 @@ export default function CatchForm({
 
           <button
             type="submit"
-            disabled={pending}
+            disabled={pending || compressingPhoto}
             className="rounded-full bg-foreground px-4 py-2 text-sm font-medium text-background disabled:opacity-60"
           >
             {pending ? "Loggar…" : "Logga fisk"}

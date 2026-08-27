@@ -295,13 +295,25 @@ export default function CatchTable({
                       )}
                       {showArt && (
                         <td className="px-1 py-2">
-                          {item.species || "Okänd art"}
-                          {item.angler_name && (
-                            <span className="text-zinc-400 dark:text-zinc-500">
-                              {" "}
-                              · {item.angler_name}
+                          <div className="flex items-center gap-2">
+                            {item.photo_url && (
+                              // eslint-disable-next-line @next/next/no-img-element -- externally hosted blob URL, not a local/optimizable asset
+                              <img
+                                src={item.photo_url}
+                                alt=""
+                                className="h-8 w-8 shrink-0 rounded object-cover"
+                              />
+                            )}
+                            <span>
+                              {item.species || "Okänd art"}
+                              {item.angler_name && (
+                                <span className="text-zinc-400 dark:text-zinc-500">
+                                  {" "}
+                                  · {item.angler_name}
+                                </span>
+                              )}
                             </span>
-                          )}
+                          </div>
                         </td>
                       )}
                       {showPlats && (

@@ -7,6 +7,7 @@ import { requireUser } from "@/lib/dal";
 import { findMatchingBingoCards } from "@/lib/bingo";
 import { getPreviousBest } from "@/lib/personal-bests";
 import { getWeatherAt } from "@/lib/weather";
+import { uploadCatchPhoto, deleteCatchPhoto, validatePhotoFile } from "@/lib/photos";
 
 export type CatchNotices = {
   bingoMatch?: { species: string; cm: number };
@@ -153,6 +154,14 @@ export async function addCatch(
     }
   }
 
+  const photoFile = formData.get("photo");
+  let photoUrl: string | null = null;
+  if (photoFile instanceof File && photoFile.size > 0) {
+    const photoError = validatePhotoFile(photoFile);
+    if (photoError) return { error: photoError };
+    photoUrl = await uploadCatchPhoto(photoFile, anglerId);
+  }
+
   // Position and weather are logged independently per catch (see the
   // "Logga position"/"Logga väder" checkboxes in catch-form.tsx) — the
   // account's gps_mode only controls their default checked state, not
@@ -179,14 +188,16 @@ export async function addCatch(
   const [inserted] = await sql<{ id: number; species: string }[]>`
     insert into catches (
       user_id, species, length_cm, weight_kg, lake, location, method, bait, comment, latitude, longitude, caught_at,
-      weather_temp_c, weather_description, weather_wind_kmh, weather_wind_dir_deg, weather_pressure_hpa, weather_cloud_pct
+      weather_temp_c, weather_description, weather_wind_kmh, weather_wind_dir_deg, weather_pressure_hpa, weather_cloud_pct,
+      photo_url
     )
     values (
       ${anglerId}, initcap(${species}), ${lengthCm ?? null}, ${weightKg ?? null},
       ${lake ?? null}, ${location ?? null}, ${method ?? null}, ${bait ?? null}, ${comment ?? null},
       ${persistedLatitude}, ${persistedLongitude}, ${caughtAt ?? new Date()},
       ${weather?.temp_c ?? null}, ${weather?.description ?? null}, ${weather?.wind_kmh ?? null},
-      ${weather?.wind_dir_deg ?? null}, ${weather?.pressure_hpa ?? null}, ${weather?.cloud_pct ?? null}
+      ${weather?.wind_dir_deg ?? null}, ${weather?.pressure_hpa ?? null}, ${weather?.cloud_pct ?? null},
+      ${photoUrl}
     )
     returning id, species
   `;
@@ -357,6 +368,23 @@ export async function updateCatch(
   const id = Number(formData.get("id"));
   if (!id) return { error: "Ogiltig fångst." };
 
+  const [existing] = await sql<{ photo_url: string | null }[]>`
+    select photo_url from catches
+    where id = ${id} and user_id = ${user.id} and deleted_at is null
+  `;
+  if (!existing) return { error: "Fångsten kunde inte hittas." };
+
+  const photoFile = formData.get("photo");
+  const removePhoto = formData.get("removePhoto") === "on";
+  let photoUrl = existing.photo_url;
+  if (photoFile instanceof File && photoFile.size > 0) {
+    const photoError = validatePhotoFile(photoFile);
+    if (photoError) return { error: photoError };
+    photoUrl = await uploadCatchPhoto(photoFile, user.id);
+  } else if (removePhoto) {
+    photoUrl = null;
+  }
+
   const rawLength = formData.get("lengthCm");
   const rawWeight = formData.get("weightKg");
   const rawLake = formData.get("lake");
@@ -431,12 +459,17 @@ export async function updateCatch(
       comment = ${comment ?? null},
       latitude = ${latitude ?? null},
       longitude = ${longitude ?? null},
-      caught_at = ${caughtAt}
+      caught_at = ${caughtAt},
+      photo_url = ${photoUrl}
     where id = ${id} and user_id = ${user.id} and deleted_at is null
   `;
 
   if (result.count === 0) {
     return { error: "Fångsten kunde inte hittas." };
+  }
+
+  if (existing.photo_url && existing.photo_url !== photoUrl) {
+    await deleteCatchPhoto(existing.photo_url);
   }
 
   revalidatePath("/");

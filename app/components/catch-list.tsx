@@ -17,6 +17,7 @@ export type Catch = {
   weather_wind_dir_deg?: number | null;
   weather_pressure_hpa?: number | null;
   weather_cloud_pct?: number | null;
+  photo_url?: string | null;
   caught_at: Date;
   angler_name?: string;
 };

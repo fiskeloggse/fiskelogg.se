@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import sql from "@/lib/db";
 import { requireUser } from "@/lib/dal";
+import { deleteCatchPhoto } from "@/lib/photos";
 
 function parseIds(formData: FormData): number[] {
   return formData
@@ -33,10 +34,18 @@ export async function permanentlyDeleteCatches(formData: FormData) {
   const ids = parseIds(formData);
   if (ids.length === 0) return;
 
+  const photos = await sql<{ photo_url: string }[]>`
+    select photo_url from catches
+    where user_id = ${user.id} and id = any(${sql.array(ids)}::int[]) and deleted_at is not null
+      and photo_url is not null
+  `;
+
   await sql`
     delete from catches
     where user_id = ${user.id} and id = any(${sql.array(ids)}::int[]) and deleted_at is not null
   `;
+
+  await Promise.all(photos.map((p) => deleteCatchPhoto(p.photo_url)));
 
   revalidatePath("/register/papperskorg");
 }

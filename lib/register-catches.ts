@@ -224,7 +224,8 @@ export async function getFilteredCatches(
 
   return sql<Catch[]>`
     select id, user_id, species, length_cm, weight_kg, lake, location, method, bait, comment, latitude, longitude, caught_at,
-      weather_temp_c, weather_description, weather_wind_kmh, weather_wind_dir_deg, weather_pressure_hpa, weather_cloud_pct
+      weather_temp_c, weather_description, weather_wind_kmh, weather_wind_dir_deg, weather_pressure_hpa, weather_cloud_pct,
+      photo_url
     from catches
     where user_id = ${userId}
       and deleted_at is null
@@ -272,7 +273,8 @@ export async function getCatchById(
 ): Promise<Catch | null> {
   const [row] = await sql<Catch[]>`
     select id, user_id, species, length_cm, weight_kg, lake, location, method, bait, comment, latitude, longitude, caught_at,
-      weather_temp_c, weather_description, weather_wind_kmh, weather_wind_dir_deg, weather_pressure_hpa, weather_cloud_pct
+      weather_temp_c, weather_description, weather_wind_kmh, weather_wind_dir_deg, weather_pressure_hpa, weather_cloud_pct,
+      photo_url
     from catches
     where id = ${id} and user_id = ${userId} and deleted_at is null
   `;

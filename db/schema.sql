@@ -62,6 +62,7 @@ alter table catches add column if not exists weather_wind_kmh real;
 alter table catches add column if not exists weather_wind_dir_deg real;
 alter table catches add column if not exists weather_pressure_hpa real;
 alter table catches add column if not exists weather_cloud_pct real;
+alter table catches add column if not exists photo_url text;
 
 -- Backfill any existing rows before enforcing NOT NULL (safe to re-run).
 update catches set species = 'Okänd art' where species is null;

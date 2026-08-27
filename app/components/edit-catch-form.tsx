@@ -3,6 +3,7 @@
 import { useActionState, useEffect, useRef, useState } from "react";
 import { updateCatch, type EditCatchState } from "@/app/actions/catches";
 import { lookupWaterName } from "@/app/actions/geocode";
+import { compressImage, replaceInputFile } from "@/lib/compress-image";
 import { FISH_SPECIES } from "@/lib/species";
 import type { Catch } from "./catch-list";
 import MapPositionPicker from "./map-position-picker";
@@ -44,11 +45,51 @@ export default function EditCatchForm({
   const hasPosition = latitude != null && longitude != null;
   const lakeInputRef = useRef<HTMLInputElement>(null);
   const [waterAutoFilled, setWaterAutoFilled] = useState(false);
+  const photoInputRef = useRef<HTMLInputElement>(null);
+  const createdObjectUrlRef = useRef<string | null>(null);
+  const [photoPreview, setPhotoPreview] = useState<string | null>(item.photo_url ?? null);
+  const [removePhoto, setRemovePhoto] = useState(false);
+  const [compressingPhoto, setCompressingPhoto] = useState(false);
 
   useEffect(() => {
     if (succeeded) onClose();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [succeeded]);
+
+  useEffect(() => {
+    return () => {
+      if (createdObjectUrlRef.current) URL.revokeObjectURL(createdObjectUrlRef.current);
+    };
+  }, []);
+
+  async function handlePhotoChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const input = e.target;
+    const file = input.files?.[0];
+    if (createdObjectUrlRef.current) URL.revokeObjectURL(createdObjectUrlRef.current);
+    if (!file) {
+      createdObjectUrlRef.current = null;
+      setPhotoPreview(item.photo_url ?? null);
+      return;
+    }
+    setCompressingPhoto(true);
+    const compressed = await compressImage(file);
+    replaceInputFile(input, compressed);
+    setCompressingPhoto(false);
+    const url = URL.createObjectURL(compressed);
+    createdObjectUrlRef.current = url;
+    setPhotoPreview(url);
+    setRemovePhoto(false);
+  }
+
+  function handleRemovePhoto() {
+    if (photoInputRef.current) photoInputRef.current.value = "";
+    if (createdObjectUrlRef.current) {
+      URL.revokeObjectURL(createdObjectUrlRef.current);
+      createdObjectUrlRef.current = null;
+    }
+    setPhotoPreview(null);
+    setRemovePhoto(true);
+  }
 
   return (
     <form
@@ -87,6 +128,49 @@ export default function EditCatchForm({
             <option key={s} value={s} />
           ))}
         </datalist>
+      </div>
+
+      <div className="flex flex-col gap-1.5">
+        <label htmlFor={`photo-${item.id}`} className="text-sm font-medium">
+          Foto
+        </label>
+        <div className="flex items-center gap-3">
+          {photoPreview && (
+            // eslint-disable-next-line @next/next/no-img-element -- object URL preview or an already-uploaded blob URL, neither worth next/image
+            <img
+              src={photoPreview}
+              alt=""
+              className="h-16 w-16 shrink-0 rounded-lg object-cover"
+            />
+          )}
+          <div className="flex flex-col items-start gap-1">
+            <input
+              ref={photoInputRef}
+              id={`photo-${item.id}`}
+              name="photo"
+              type="file"
+              accept="image/*"
+              capture="environment"
+              onChange={handlePhotoChange}
+              className="text-sm"
+            />
+            {compressingPhoto && (
+              <p className="text-xs text-zinc-500 dark:text-zinc-400">
+                Bearbetar bild…
+              </p>
+            )}
+            {photoPreview && !compressingPhoto && (
+              <button
+                type="button"
+                onClick={handleRemovePhoto}
+                className="text-sm text-zinc-500 underline hover:text-foreground dark:text-zinc-400"
+              >
+                Ta bort bild
+              </button>
+            )}
+          </div>
+        </div>
+        <input type="hidden" name="removePhoto" value={removePhoto ? "on" : ""} />
       </div>
 
       <div className="grid grid-cols-2 gap-3">
@@ -274,7 +358,7 @@ export default function EditCatchForm({
 
       <button
         type="submit"
-        disabled={pending}
+        disabled={pending || compressingPhoto}
         className="self-start rounded-full bg-foreground px-4 py-2 text-sm font-medium text-background disabled:opacity-60"
       >
         {pending ? "Sparar…" : "Spara"}
