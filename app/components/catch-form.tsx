@@ -515,7 +515,6 @@ export default function CatchForm({
                   name="photo"
                   type="file"
                   accept="image/*"
-                  capture="environment"
                   onChange={handlePhotoChange}
                   className="hidden"
                 />

@@ -144,7 +144,6 @@ export default function EditCatchForm({
               name="photo"
               type="file"
               accept="image/*"
-              capture="environment"
               onChange={handlePhotoChange}
               className="hidden"
             />
