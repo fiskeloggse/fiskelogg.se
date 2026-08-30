@@ -25,11 +25,11 @@ export default async function StatistikPage(props: PageProps<"/statistik">) {
 
   const [speciesBreakdown, lakeStats, fishingDays, personalBests, mappedCatches] =
     await Promise.all([
-      getSpeciesBreakdown(user.id, user.team_id),
-      getLakeStats(user.id, user.team_id),
-      getFishingDaysByDate(user.id, user.team_id),
+      getSpeciesBreakdown(user.id),
+      getLakeStats(user.id),
+      getFishingDaysByDate(user.id),
       getPersonalBests(user.id),
-      getCatchesWithPosition(user.id, user.team_id),
+      getCatchesWithPosition(user.id),
     ]);
 
   return (

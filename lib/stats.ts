@@ -2,23 +2,21 @@ import "server-only";
 import sql from "./db";
 import { TIMEZONE } from "./constants";
 
-function scopeCondition(userId: number, teamId: number | null) {
-  const userCondition = teamId
-    ? sql`c.user_id in (select id from users where team_id = ${teamId})`
-    : sql`c.user_id = ${userId}`;
-  return sql`${userCondition} and c.deleted_at is null`;
+// Statistik is always scoped to the individual, never the team — team
+// members' data is only ever shown on the home page's dedicated team boxes.
+function scopeCondition(userId: number) {
+  return sql`c.user_id = ${userId} and c.deleted_at is null`;
 }
 
 export type SpeciesBreakdownRow = { species: string; count: number };
 
 export async function getSpeciesBreakdown(
-  userId: number,
-  teamId: number | null
+  userId: number
 ): Promise<SpeciesBreakdownRow[]> {
   return sql<SpeciesBreakdownRow[]>`
     select species, count(*)::int as count
     from catches c
-    where ${scopeCondition(userId, teamId)}
+    where ${scopeCondition(userId)}
     group by species
     order by count desc, species asc
   `;
@@ -33,10 +31,7 @@ export type LakeStatsRow = {
   fish: number;
 };
 
-export async function getLakeStats(
-  userId: number,
-  teamId: number | null
-): Promise<LakeStatsRow[]> {
+export async function getLakeStats(userId: number): Promise<LakeStatsRow[]> {
   return sql<LakeStatsRow[]>`
     select
       lake,
@@ -44,7 +39,7 @@ export async function getLakeStats(
       count(distinct nullif(location, ''))::int as platser,
       count(*)::int as fish
     from catches c
-    where ${scopeCondition(userId, teamId)}
+    where ${scopeCondition(userId)}
       and lake is not null and lake <> ''
     group by lake
     order by fish desc, lake asc
@@ -66,13 +61,12 @@ export type MappedCatchRow = {
 // belong to a "vatten" pin on the map (lib/waters-map.tsx groups these by
 // `lake` client-side to place one pin per water).
 export async function getCatchesWithPosition(
-  userId: number,
-  teamId: number | null
+  userId: number
 ): Promise<MappedCatchRow[]> {
   return sql<MappedCatchRow[]>`
     select c.id, c.species, c.length_cm, c.weight_kg, c.caught_at, c.latitude, c.longitude, c.lake
     from catches c
-    where ${scopeCondition(userId, teamId)}
+    where ${scopeCondition(userId)}
       and c.latitude is not null and c.longitude is not null
       and c.lake is not null and c.lake <> ''
     order by c.caught_at desc
@@ -82,15 +76,14 @@ export async function getCatchesWithPosition(
 export type FishingDayRow = { date: string; catches: number };
 
 export async function getFishingDaysByDate(
-  userId: number,
-  teamId: number | null
+  userId: number
 ): Promise<FishingDayRow[]> {
   return sql<FishingDayRow[]>`
     select
       (caught_at at time zone ${TIMEZONE})::date::text as date,
       count(*)::int as catches
     from catches c
-    where ${scopeCondition(userId, teamId)}
+    where ${scopeCondition(userId)}
     group by date
     order by date
   `;

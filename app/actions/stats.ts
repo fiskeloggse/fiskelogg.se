@@ -19,15 +19,12 @@ export async function getTopCatchesForSpecies(
   species: string
 ): Promise<TopCatchRow[]> {
   const user = await requireUser();
-  const scopeCondition = user.team_id
-    ? sql`c.user_id in (select id from users where team_id = ${user.team_id})`
-    : sql`c.user_id = ${user.id}`;
 
   return sql<TopCatchRow[]>`
     select c.id, c.user_id, c.length_cm, c.weight_kg, c.caught_at, u.name as angler_name
     from catches c
     join users u on u.id = c.user_id
-    where ${scopeCondition}
+    where c.user_id = ${user.id}
       and c.deleted_at is null
       and c.species = ${species}
       and (c.length_cm is not null or c.weight_kg is not null)
@@ -42,16 +39,13 @@ export type LakeVisitStats = { days: number; fishCount: number };
 // many fish caught in total.
 export async function getLakeVisitStats(lake: string): Promise<LakeVisitStats> {
   const user = await requireUser();
-  const scopeCondition = user.team_id
-    ? sql`c.user_id in (select id from users where team_id = ${user.team_id})`
-    : sql`c.user_id = ${user.id}`;
 
   const [row] = await sql<{ days: number; fish_count: number }[]>`
     select
       count(distinct (c.caught_at at time zone ${TIMEZONE})::date)::int as days,
       count(*)::int as fish_count
     from catches c
-    where ${scopeCondition}
+    where c.user_id = ${user.id}
       and c.deleted_at is null
       and c.lake = ${lake}
   `;
@@ -67,9 +61,6 @@ export async function getTopCatchesByLake(
   lake: string
 ): Promise<TopCatchBySpeciesRow[]> {
   const user = await requireUser();
-  const scopeCondition = user.team_id
-    ? sql`c.user_id in (select id from users where team_id = ${user.team_id})`
-    : sql`c.user_id = ${user.id}`;
 
   return sql<TopCatchBySpeciesRow[]>`
     select id, user_id, species, length_cm, weight_kg, caught_at, angler_name
@@ -82,7 +73,7 @@ export async function getTopCatchesByLake(
         ) as rn
       from catches c
       join users u on u.id = c.user_id
-      where ${scopeCondition}
+      where c.user_id = ${user.id}
         and c.deleted_at is null
         and c.lake = ${lake}
         and (c.length_cm is not null or c.weight_kg is not null)
