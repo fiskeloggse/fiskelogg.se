@@ -83,6 +83,7 @@ export default function BingoCardGrid({
     (sum, [, cms]) => sum + cms.filter((cm) => catchesByCm.has(cm)).length,
     0
   );
+  const remainingCount = totalCount - doneCount;
   const status = dateStatus(card.to_date);
 
   return (
@@ -108,7 +109,10 @@ export default function BingoCardGrid({
             )}
           </h2>
           <p className="text-sm text-zinc-500 dark:text-zinc-400">
-            {doneCount} av {totalCount} rutor klara
+            {remainingCount === 0
+              ? "Alla rutor klara!"
+              : `${remainingCount} ${remainingCount === 1 ? "ruta" : "rutor"} kvar`}{" "}
+            ({doneCount} av {totalCount} klara)
             {card.from_date && card.to_date && (
               <> · {formatDate(card.from_date)}–{formatDate(card.to_date)}</>
             )}
