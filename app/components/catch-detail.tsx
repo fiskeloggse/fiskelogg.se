@@ -72,7 +72,7 @@ export default function CatchDetail({
         ← Tillbaka till Register
       </Link>
 
-      <div className="rounded-xl border border-black/10 bg-white p-6 dark:border-white/15 dark:bg-white/5">
+      <div className="rounded-xl border border-black/10 bg-white p-5 dark:border-white/15 dark:bg-white/5">
         <div className="flex flex-wrap items-center gap-3">
           <h2 className="text-2xl font-semibold">{item.species || "Okänd art"}</h2>
           {isPersonalBest && (
@@ -88,7 +88,7 @@ export default function CatchDetail({
         </p>
 
         {item.photo_url && (
-          <div className="relative mt-4 h-96 w-full overflow-hidden rounded-lg">
+          <div className="relative mt-4 h-56 w-full overflow-hidden rounded-lg">
             {/* A blurred, cover-cropped copy fills the frame as backdrop —
                 the photo is rarely shaped like this box, so cropping it
                 outright can cut off the subject (a raised fish, a face).
@@ -109,7 +109,7 @@ export default function CatchDetail({
           </div>
         )}
 
-        <div className="mt-5 grid grid-cols-2 gap-4 text-sm">
+        <div className="mt-4 grid grid-cols-2 gap-3 text-sm">
           <div>
             <p className="text-zinc-500 dark:text-zinc-400">Längd</p>
             <p className="text-lg font-medium">
@@ -142,19 +142,19 @@ export default function CatchDetail({
               </p>
             )}
           </div>
-          <div className="col-span-2">
+          <div>
             <p className="text-zinc-500 dark:text-zinc-400">Vatten</p>
             <p className="text-lg font-medium">{item.lake || "–"}</p>
           </div>
-          <div className="col-span-2">
+          <div>
             <p className="text-zinc-500 dark:text-zinc-400">Plats</p>
             <p className="text-lg font-medium">{item.location || "–"}</p>
           </div>
-          <div className="col-span-2">
+          <div>
             <p className="text-zinc-500 dark:text-zinc-400">Fiskemetod</p>
             <p className="text-lg font-medium">{item.method || "–"}</p>
           </div>
-          <div className="col-span-2">
+          <div>
             <p className="text-zinc-500 dark:text-zinc-400">Bete</p>
             <p className="text-lg font-medium">{item.bait || "–"}</p>
           </div>
@@ -199,7 +199,7 @@ export default function CatchDetail({
         </div>
 
         {item.latitude != null && item.longitude != null && (
-          <div className="mt-5">
+          <div className="mt-4">
             <p className="mb-1.5 text-sm text-zinc-500 dark:text-zinc-400">
               Position
             </p>
@@ -219,11 +219,11 @@ export default function CatchDetail({
           </div>
         )}
 
-        <div className="mt-6">
+        <div className="mt-5">
           <ShareCardPanel item={item} isPersonalBest={isPersonalBest} />
         </div>
 
-        <div className="mt-6 flex items-center gap-3">
+        <div className="mt-5 flex items-center gap-3">
           <button
             type="button"
             onClick={() => setEditing(true)}
