@@ -118,5 +118,4 @@ export const FISH_SPECIES = [
   "Vitrocka",
   "Vrakfisk",
   "Ål",
-  "Öring",
 ] as const;

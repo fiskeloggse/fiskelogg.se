@@ -146,10 +146,12 @@ function BarChart({
 function SpeciesCollection({
   caught,
   storfisk,
+  hasPb,
   getHref,
 }: {
   caught: Set<string>;
   storfisk: Set<string>;
+  hasPb: Set<string>;
   getHref: (species: string) => string;
 }) {
   return (
@@ -173,6 +175,11 @@ function SpeciesCollection({
             className="rounded-lg border border-foreground/30 bg-foreground/5 px-2.5 py-1.5 text-sm font-medium transition-colors hover:bg-foreground/10"
           >
             {species}
+            {hasPb.has(species) && (
+              <span className="ml-1" title="Personbästa">
+                🏆
+              </span>
+            )}
             {storfisk.has(species) && (
               <span className="ml-1" title="Storfisk">
                 🎣
@@ -254,6 +261,7 @@ export default function StatsDashboard({
     storfisk: storfiskSpecies.has(s.species),
   }));
   const caughtSpecies = new Set(speciesBreakdown.map((s) => s.species));
+  const pbSpecies = new Set(personalBests.map((pb) => pb.species));
 
   return (
     <div className="flex flex-col gap-4">
@@ -317,6 +325,7 @@ export default function StatsDashboard({
           <SpeciesCollection
             caught={caughtSpecies}
             storfisk={storfiskSpecies}
+            hasPb={pbSpecies}
             getHref={speciesHref}
           />
         </div>
