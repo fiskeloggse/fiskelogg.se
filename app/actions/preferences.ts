@@ -23,6 +23,15 @@ export async function updateShowBingo(formData: FormData) {
   revalidatePath("/", "layout");
 }
 
+export async function updateShowSpeciesCollection(formData: FormData) {
+  const user = await requireUser();
+  const showSpeciesCollection = formData.get("show_species_collection") === "on";
+
+  await sql`update users set show_species_collection = ${showSpeciesCollection} where id = ${user.id}`;
+
+  revalidatePath("/challenges");
+}
+
 export async function updateGpsMode(formData: FormData) {
   const user = await requireUser();
   const gpsModeRaw = String(formData.get("gps_mode") ?? "");

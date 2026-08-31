@@ -6,6 +6,7 @@ import { logout } from "@/app/actions/auth";
 import { leaveTeam } from "@/app/actions/team";
 import {
   updateShowBingo,
+  updateShowSpeciesCollection,
   updateGpsMode,
   updateQuickLogFields,
   updateShareCardFields,
@@ -70,6 +71,23 @@ export default async function KontoPage() {
               defaultChecked={user.show_bingo}
             />
             Visa Challenges-fliken
+          </label>
+          <button
+            type="submit"
+            className="self-start rounded-full bg-foreground px-4 py-2 text-sm font-medium text-background"
+          >
+            Spara
+          </button>
+        </form>
+
+        <form action={updateShowSpeciesCollection} className="flex flex-col gap-3">
+          <label className="flex items-center gap-2 text-sm">
+            <input
+              type="checkbox"
+              name="show_species_collection"
+              defaultChecked={user.show_species_collection}
+            />
+            Visa Artjakten (under Challenges)
           </label>
           <button
             type="submit"
