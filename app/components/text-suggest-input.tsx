@@ -11,6 +11,7 @@ export default function TextSuggestInput({
   className,
   placeholder,
   required,
+  showAllWhenEmpty,
 }: {
   id: string;
   name: string;
@@ -20,6 +21,11 @@ export default function TextSuggestInput({
   className: string;
   placeholder?: string;
   required?: boolean;
+  // Shows already-used values (e.g. waters you've logged before) as soon as
+  // the field is focused, before typing a single letter — for a list drawn
+  // from the catalog rather than your own history (species), leave this off
+  // so an empty field doesn't dump the whole catalog on you.
+  showAllWhenEmpty?: boolean;
 }) {
   const [open, setOpen] = useState(false);
 
@@ -29,9 +35,12 @@ export default function TextSuggestInput({
   // otherwise finishing "Abborre" left only "Havsabborre" in the dropdown,
   // which read as if the typed species had vanished.
   const exactMatch = options.some((o) => o.toLowerCase() === query);
-  const matches =
-    query && !exactMatch
-      ? options.filter((o) => o.toLowerCase().includes(query)).slice(0, 6)
+  const matches = query
+    ? exactMatch
+      ? []
+      : options.filter((o) => o.toLowerCase().includes(query)).slice(0, 6)
+    : showAllWhenEmpty
+      ? options.slice(0, 20)
       : [];
 
   return (

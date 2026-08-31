@@ -689,6 +689,7 @@ export default function CatchForm({
                             value={lake}
                             onChange={setLake}
                             options={lakeSuggestions.all}
+                            showAllWhenEmpty
                             className={inputClassName}
                           />
 
@@ -706,6 +707,7 @@ export default function CatchForm({
                             value={location}
                             onChange={setLocation}
                             options={locationOptions}
+                            showAllWhenEmpty
                             className={inputClassName}
                           />
 
