@@ -93,6 +93,23 @@ export type QuickLogFieldKey = (typeof QUICK_LOG_FIELDS)[number]["key"];
 
 export const QUICK_LOG_FIELD_KEYS = QUICK_LOG_FIELDS.map((f) => f.key);
 
+// Which fields are pre-checked by default in the "Dela kort" panel on a
+// catch's detail page. "pb" (personbästa-badge) only ever shows up there
+// when the catch actually is one, regardless of this default.
+export const SHARE_CARD_FIELDS = [
+  { key: "species", label: "Art" },
+  { key: "matt", label: "Mått" },
+  { key: "vatten", label: "Vatten" },
+  { key: "datum", label: "Datum" },
+  { key: "vader", label: "Väder" },
+  { key: "manfas", label: "Månfas" },
+  { key: "pb", label: "Personbästa-badge" },
+] as const;
+
+export type ShareCardFieldKey = (typeof SHARE_CARD_FIELDS)[number]["key"];
+
+export const SHARE_CARD_FIELD_KEYS = SHARE_CARD_FIELDS.map((f) => f.key);
+
 export const REGISTER_COLUMNS = [
   { key: "datum", label: "Datum" },
   { key: "art", label: "Art" },

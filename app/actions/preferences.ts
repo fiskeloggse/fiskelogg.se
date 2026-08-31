@@ -6,9 +6,11 @@ import { requireUser } from "@/lib/dal";
 import {
   QUICK_LOG_FIELD_KEYS,
   REGISTER_COLUMN_KEYS,
+  SHARE_CARD_FIELD_KEYS,
   GPS_MODE_KEYS,
   type QuickLogFieldKey,
   type RegisterColumnKey,
+  type ShareCardFieldKey,
   type GpsModeKey,
 } from "@/lib/constants";
 
@@ -45,6 +47,20 @@ export async function updateQuickLogFields(formData: FormData) {
   await sql`update users set quick_log_fields = ${sql.array(selected)} where id = ${user.id}`;
 
   revalidatePath("/", "layout");
+}
+
+export async function updateShareCardFields(formData: FormData) {
+  const user = await requireUser();
+  const selected = formData
+    .getAll("fields")
+    .map(String)
+    .filter((key): key is ShareCardFieldKey =>
+      (SHARE_CARD_FIELD_KEYS as readonly string[]).includes(key)
+    );
+
+  await sql`update users set share_card_fields = ${sql.array(selected)} where id = ${user.id}`;
+
+  revalidatePath("/register/[id]", "page");
 }
 
 export async function updateVisibleColumns(formData: FormData) {

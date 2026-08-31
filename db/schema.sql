@@ -23,6 +23,7 @@ alter table users add column if not exists show_bingo boolean not null default t
 alter table users add column if not exists stats_widgets text[];
 alter table users add column if not exists quick_log_fields text[];
 alter table users add column if not exists visible_register_columns text[];
+alter table users add column if not exists share_card_fields text[];
 alter table users add column if not exists gps_default_enabled boolean not null default false;
 alter table users add column if not exists gps_mode text;
 

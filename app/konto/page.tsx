@@ -8,8 +8,15 @@ import {
   updateShowBingo,
   updateGpsMode,
   updateQuickLogFields,
+  updateShareCardFields,
 } from "@/app/actions/preferences";
-import { QUICK_LOG_FIELDS, QUICK_LOG_FIELD_KEYS, GPS_MODES } from "@/lib/constants";
+import {
+  QUICK_LOG_FIELDS,
+  QUICK_LOG_FIELD_KEYS,
+  SHARE_CARD_FIELDS,
+  SHARE_CARD_FIELD_KEYS,
+  GPS_MODES,
+} from "@/lib/constants";
 import InviteForm from "@/app/components/invite-form";
 import TeamNameForm from "@/app/components/team-name-form";
 import ThemeToggle from "@/app/components/theme-toggle";
@@ -130,6 +137,42 @@ export default async function KontoPage() {
                       user.quick_log_fields
                         ? user.quick_log_fields.includes(field.key)
                         : QUICK_LOG_FIELD_KEYS.includes(field.key)
+                    }
+                  />
+                  {field.label}
+                </label>
+              ))}
+            </div>
+            <button
+              type="submit"
+              className="self-start rounded-full bg-foreground px-4 py-2 text-sm font-medium text-background"
+            >
+              Spara
+            </button>
+          </form>
+        </div>
+
+        <div className="flex flex-col gap-3 border-t border-black/10 pt-4 dark:border-white/15">
+          <div>
+            <p className="text-sm font-medium">Dela fångst</p>
+            <p className="text-sm text-zinc-500 dark:text-zinc-400">
+              Välj vilka fält som ska vara förbockade när du delar ett kort
+              för en fångst — du kan alltid bocka ur eller i innan du laddar
+              ner.
+            </p>
+          </div>
+          <form action={updateShareCardFields} className="flex flex-col gap-3">
+            <div className="flex flex-wrap gap-3">
+              {SHARE_CARD_FIELDS.map((field) => (
+                <label key={field.key} className="flex items-center gap-2 text-sm">
+                  <input
+                    type="checkbox"
+                    name="fields"
+                    value={field.key}
+                    defaultChecked={
+                      user.share_card_fields
+                        ? user.share_card_fields.includes(field.key)
+                        : SHARE_CARD_FIELD_KEYS.includes(field.key)
                     }
                   />
                   {field.label}

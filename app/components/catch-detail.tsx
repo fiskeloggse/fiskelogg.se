@@ -25,9 +25,11 @@ function formatSv(n: number): string {
 export default function CatchDetail({
   item,
   isPersonalBest,
+  defaultShareFields,
 }: {
   item: Catch;
   isPersonalBest: boolean;
+  defaultShareFields: string[] | null;
 }) {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -220,7 +222,11 @@ export default function CatchDetail({
         )}
 
         <div className="mt-5">
-          <ShareCardPanel item={item} isPersonalBest={isPersonalBest} />
+          <ShareCardPanel
+            item={item}
+            isPersonalBest={isPersonalBest}
+            defaultFields={defaultShareFields}
+          />
         </div>
 
         <div className="mt-5 flex items-center gap-3">

@@ -28,13 +28,18 @@ function buildFields(item: Catch, isPersonalBest: boolean) {
 export default function ShareCardPanel({
   item,
   isPersonalBest,
+  defaultFields,
 }: {
   item: Catch;
   isPersonalBest: boolean;
+  defaultFields: string[] | null;
 }) {
   const fields = buildFields(item, isPersonalBest);
-  const [selected, setSelected] = useState<Record<FieldKey, boolean>>(() =>
-    Object.fromEntries(fields.map((f) => [f.key, true])) as Record<FieldKey, boolean>
+  const [selected, setSelected] = useState<Record<FieldKey, boolean>>(
+    () =>
+      Object.fromEntries(
+        fields.map((f) => [f.key, defaultFields ? defaultFields.includes(f.key) : true])
+      ) as Record<FieldKey, boolean>
   );
 
   const params = new URLSearchParams();
