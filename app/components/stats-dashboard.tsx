@@ -81,7 +81,7 @@ function CombinedStatCard({
         <div>
           <p className="text-2xl font-semibold">{fishCount}</p>
           <p className="text-sm text-zinc-500 dark:text-zinc-400">
-            Antal fiskar
+            Totalt antal fiskar
           </p>
         </div>
       </div>
@@ -157,9 +157,8 @@ export default function StatsDashboard({
   mappedCatches: MappedCatchRow[];
   initialExpanded?: "species" | "personalbests" | null;
 }) {
-  const [view, setView] = useState<"overview" | "fishingdays">("overview");
   const [expanded, setExpanded] = useState<
-    "species" | "lakes" | "personalbests" | null
+    "species" | "lakes" | "personalbests" | "fishingdays" | null
   >(initialExpanded);
 
   const speciesCount = speciesBreakdown.length;
@@ -174,17 +173,6 @@ export default function StatsDashboard({
 
   function lakeHref(lake: string) {
     return `/statistik/vatten/${encodeURIComponent(lake)}`;
-  }
-
-  if (view === "fishingdays") {
-    return (
-      <div className="rounded-xl border border-black/10 bg-white p-5 dark:border-white/15 dark:bg-white/5">
-        <FishingDaysExplorer
-          fishingDays={fishingDays}
-          onBack={() => setView("overview")}
-        />
-      </div>
-    );
   }
 
   if (!hasAnyCatches) {
@@ -230,11 +218,15 @@ export default function StatsDashboard({
         <StatCard
           label="Antal fiskedagar"
           value={fishingDaysCount}
-          onClick={() => setView("fishingdays")}
+          active={expanded === "fishingdays"}
+          onClick={() =>
+            setExpanded(expanded === "fishingdays" ? null : "fishingdays")
+          }
         />
         <StatCard
-          label="Personbästa"
-          value={personalBests.length}
+          label="Storfisk"
+          value={storfiskSpecies.size}
+          caption={`av ${personalBests.length} personbästa`}
           active={expanded === "personalbests"}
           onClick={() =>
             setExpanded(expanded === "personalbests" ? null : "personalbests")
@@ -252,6 +244,15 @@ export default function StatsDashboard({
               <BarChart rows={speciesRows} getHref={speciesHref} />
             )}
           </div>
+        </div>
+      )}
+
+      {expanded === "fishingdays" && (
+        <div className="rounded-xl border border-black/10 bg-white p-5 dark:border-white/15 dark:bg-white/5">
+          <FishingDaysExplorer
+            fishingDays={fishingDays}
+            onBack={() => setExpanded(null)}
+          />
         </div>
       )}
 
