@@ -28,10 +28,12 @@ export function proxy(request: NextRequest) {
 
 export const config = {
   // Excludes static files generally (by extension) rather than listing each
-  // one — public/ assets (images, the Excel template, generated app icons)
-  // must stay reachable by signed-out visitors, e.g. the landing page's
-  // logo or the favicon in a browser tab before anyone has logged in.
+  // one — public/ assets (images, the Excel template, generated app icons,
+  // the web app manifest) must stay reachable by signed-out visitors, e.g.
+  // the landing page's logo, the favicon in a browser tab, or a phone
+  // reading manifest.webmanifest to build an "Add to Home Screen" icon —
+  // all before anyone has logged in.
   matcher: [
-    "/((?!_next/static|_next/image|.*\\.(?:ico|png|jpg|jpeg|svg|webp|gif|xlsx)$).*)",
+    "/((?!_next/static|_next/image|.*\\.(?:ico|png|jpg|jpeg|svg|webp|gif|xlsx|webmanifest)$).*)",
   ],
 };
