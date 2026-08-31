@@ -81,10 +81,12 @@ export default function CatchTabs({
 
   return (
     <>
-      {/* Mobile: fixed bottom tab bar, centered so icons stay clear of the
-          screen's rounded corners near the edges. */}
+      {/* Mobile: fixed bottom tab bar, floating a bit above the screen edge
+          (rather than flush against it) so it doesn't feel cramped against
+          the home-indicator area, centered so icons stay clear of the
+          screen's rounded corners near the sides. */}
       <nav
-        className="fixed inset-x-0 bottom-0 z-40 flex justify-center gap-4 border-t border-black/10 bg-white px-4 pb-[env(safe-area-inset-bottom)] sm:hidden dark:border-white/15 dark:bg-zinc-950"
+        className="fixed inset-x-3 bottom-[calc(0.75rem_+_env(safe-area-inset-bottom))] z-40 flex justify-center gap-4 rounded-2xl border border-black/10 bg-white px-4 shadow-lg sm:hidden dark:border-white/15 dark:bg-zinc-950"
         aria-label="Huvudmeny"
       >
         {tabs.map((tab) => {

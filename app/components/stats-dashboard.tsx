@@ -49,46 +49,6 @@ function StatCard({
   );
 }
 
-function CombinedStatCard({
-  speciesCount,
-  fishCount,
-  active,
-  onClick,
-}: {
-  speciesCount: number;
-  fishCount: number;
-  active: boolean;
-  onClick: () => void;
-}) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      className={
-        "rounded-xl border p-5 text-left transition-colors " +
-        (active
-          ? "border-foreground bg-black/5 dark:bg-white/10"
-          : "border-black/10 bg-white hover:bg-black/5 dark:border-white/15 dark:bg-white/5 dark:hover:bg-white/10")
-      }
-    >
-      <div className="flex items-baseline gap-4">
-        <div>
-          <p className="text-2xl font-semibold">{speciesCount}</p>
-          <p className="text-sm text-zinc-500 dark:text-zinc-400">
-            Antal arter
-          </p>
-        </div>
-        <div>
-          <p className="text-2xl font-semibold">{fishCount}</p>
-          <p className="text-sm text-zinc-500 dark:text-zinc-400">
-            Totalt antal fiskar
-          </p>
-        </div>
-      </div>
-    </button>
-  );
-}
-
 function Empty({ children }: { children: React.ReactNode }) {
   return <p className="text-sm text-zinc-500 dark:text-zinc-400">{children}</p>;
 }
@@ -201,10 +161,16 @@ export default function StatsDashboard({
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
-        <CombinedStatCard
-          speciesCount={speciesCount}
-          fishCount={fishCount}
+      <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5">
+        <StatCard
+          label="Antal fiskar"
+          value={fishCount}
+          active={expanded === "species"}
+          onClick={() => setExpanded(expanded === "species" ? null : "species")}
+        />
+        <StatCard
+          label="Antal arter"
+          value={speciesCount}
           active={expanded === "species"}
           onClick={() => setExpanded(expanded === "species" ? null : "species")}
         />
