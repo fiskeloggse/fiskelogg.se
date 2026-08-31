@@ -17,11 +17,9 @@ export default async function StatistikPage(props: PageProps<"/statistik">) {
   const user = await requireUser();
   const searchParams = await props.searchParams;
   const initialExpanded =
-    searchParams.expand === "species"
+    searchParams.expand === "species" || searchParams.expand === "personalbests"
       ? "species"
-      : searchParams.expand === "personalbests"
-        ? "personalbests"
-        : null;
+      : null;
 
   const [speciesBreakdown, lakeStats, fishingDays, personalBests, mappedCatches] =
     await Promise.all([

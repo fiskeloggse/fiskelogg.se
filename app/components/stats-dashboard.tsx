@@ -115,10 +115,10 @@ export default function StatsDashboard({
   fishingDays: FishingDayRow[];
   personalBests: PersonalBest[];
   mappedCatches: MappedCatchRow[];
-  initialExpanded?: "species" | "personalbests" | null;
+  initialExpanded?: "species" | null;
 }) {
   const [expanded, setExpanded] = useState<
-    "species" | "lakes" | "personalbests" | "fishingdays" | null
+    "species" | "lakes" | "fishingdays" | null
   >(initialExpanded);
 
   const speciesCount = speciesBreakdown.length;
@@ -161,7 +161,7 @@ export default function StatsDashboard({
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5">
+      <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
         <StatCard
           label="Antal fiskar"
           value={fishCount}
@@ -189,14 +189,6 @@ export default function StatsDashboard({
             setExpanded(expanded === "fishingdays" ? null : "fishingdays")
           }
         />
-        <StatCard
-          label="Personbästa"
-          value={personalBests.length}
-          active={expanded === "personalbests"}
-          onClick={() =>
-            setExpanded(expanded === "personalbests" ? null : "personalbests")
-          }
-        />
       </div>
 
       {expanded === "species" && (
@@ -209,6 +201,13 @@ export default function StatsDashboard({
               <BarChart rows={speciesRows} getHref={speciesHref} />
             )}
           </div>
+
+          <div>
+            <h2 className="text-lg font-semibold">Personbästa</h2>
+            <div className="mt-3">
+              <PersonalBests bests={personalBests} getHref={speciesHref} />
+            </div>
+          </div>
         </div>
       )}
 
@@ -218,15 +217,6 @@ export default function StatsDashboard({
             fishingDays={fishingDays}
             onBack={() => setExpanded(null)}
           />
-        </div>
-      )}
-
-      {expanded === "personalbests" && (
-        <div className="rounded-xl border border-black/10 bg-white p-5 dark:border-white/15 dark:bg-white/5">
-          <h2 className="text-lg font-semibold">Personbästa</h2>
-          <div className="mt-3">
-            <PersonalBests bests={personalBests} getHref={speciesHref} />
-          </div>
         </div>
       )}
 
