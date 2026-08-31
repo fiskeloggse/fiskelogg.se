@@ -10,6 +10,7 @@ import type {
 } from "@/lib/stats";
 import type { PersonalBest } from "@/lib/personal-bests";
 import { getStorfiskPercent } from "@/lib/storfisk";
+import { FISH_SPECIES } from "@/lib/species";
 import FishingDaysExplorer from "./fishing-days-explorer";
 import PersonalBests from "./personal-bests";
 import WatersMap from "./waters-map";
@@ -142,6 +143,48 @@ function BarChart({
   );
 }
 
+function SpeciesCollection({
+  caught,
+  storfisk,
+  getHref,
+}: {
+  caught: Set<string>;
+  storfisk: Set<string>;
+  getHref: (species: string) => string;
+}) {
+  return (
+    <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-3 md:grid-cols-4">
+      {FISH_SPECIES.map((species) => {
+        const isCaught = caught.has(species);
+        if (!isCaught) {
+          return (
+            <div
+              key={species}
+              className="rounded-lg border border-dashed border-black/10 px-2.5 py-1.5 text-sm text-zinc-400 dark:border-white/10 dark:text-zinc-600"
+            >
+              {species}
+            </div>
+          );
+        }
+        return (
+          <Link
+            key={species}
+            href={getHref(species)}
+            className="rounded-lg border border-foreground/30 bg-foreground/5 px-2.5 py-1.5 text-sm font-medium transition-colors hover:bg-foreground/10"
+          >
+            {species}
+            {storfisk.has(species) && (
+              <span className="ml-1" title="Storfisk">
+                🎣
+              </span>
+            )}
+          </Link>
+        );
+      })}
+    </div>
+  );
+}
+
 export default function StatsDashboard({
   speciesBreakdown,
   lakeStats,
@@ -159,7 +202,7 @@ export default function StatsDashboard({
 }) {
   const [view, setView] = useState<"overview" | "fishingdays">("overview");
   const [expanded, setExpanded] = useState<
-    "species" | "lakes" | "personalbests" | null
+    "species" | "lakes" | "personalbests" | "collection" | null
   >(initialExpanded);
 
   const speciesCount = speciesBreakdown.length;
@@ -210,10 +253,11 @@ export default function StatsDashboard({
     count: s.count,
     storfisk: storfiskSpecies.has(s.species),
   }));
+  const caughtSpecies = new Set(speciesBreakdown.map((s) => s.species));
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
+      <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5">
         <CombinedStatCard
           speciesCount={speciesCount}
           fishCount={fishCount}
@@ -240,6 +284,15 @@ export default function StatsDashboard({
             setExpanded(expanded === "personalbests" ? null : "personalbests")
           }
         />
+        <StatCard
+          label="Artsamling"
+          value={caughtSpecies.size}
+          caption={`av ${FISH_SPECIES.length}`}
+          active={expanded === "collection"}
+          onClick={() =>
+            setExpanded(expanded === "collection" ? null : "collection")
+          }
+        />
       </div>
 
       {expanded === "species" && (
@@ -252,6 +305,20 @@ export default function StatsDashboard({
               <BarChart rows={speciesRows} getHref={speciesHref} />
             )}
           </div>
+        </div>
+      )}
+
+      {expanded === "collection" && (
+        <div className="rounded-xl border border-black/10 bg-white p-5 dark:border-white/15 dark:bg-white/5">
+          <h2 className="text-lg font-semibold">Artsamling</h2>
+          <p className="text-sm text-zinc-500 dark:text-zinc-400">
+            {caughtSpecies.size} av {FISH_SPECIES.length} arter fångade.
+          </p>
+          <SpeciesCollection
+            caught={caughtSpecies}
+            storfisk={storfiskSpecies}
+            getHref={speciesHref}
+          />
         </div>
       )}
 
