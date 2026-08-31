@@ -70,7 +70,7 @@ export default async function KontoPage() {
               name="show_bingo"
               defaultChecked={user.show_bingo}
             />
-            Visa Challenges-fliken
+            Visa Utmaningar-fliken
           </label>
           <button
             type="submit"
@@ -87,7 +87,7 @@ export default async function KontoPage() {
               name="show_species_collection"
               defaultChecked={user.show_species_collection}
             />
-            Visa Artjakten (under Challenges)
+            Visa Artjakten (under Utmaningar)
           </label>
           <button
             type="submit"

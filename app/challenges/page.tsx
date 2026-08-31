@@ -10,7 +10,7 @@ import BingoCardGrid from "@/app/components/bingo-card-grid";
 import SpeciesCollection from "@/app/components/species-collection";
 
 export const metadata: Metadata = {
-  title: "Challenges – Fisklogg",
+  title: "Utmaningar – Fisklogg",
 };
 
 export default async function ChallengesPage() {

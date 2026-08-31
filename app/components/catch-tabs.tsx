@@ -7,7 +7,7 @@ const ALL_TABS = [
   { href: "/", label: "Logga fisk" },
   { href: "/register", label: "Register" },
   { href: "/statistik", label: "Statistik" },
-  { href: "/challenges", label: "Challenges" },
+  { href: "/challenges", label: "Utmaningar" },
   { href: "/konto", label: "Konto" },
 ] as const;
 
