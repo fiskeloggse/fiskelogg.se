@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
 import { deleteCatches } from "@/app/actions/catches";
 import type { Catch } from "./catch-list";
@@ -297,10 +298,11 @@ export default function CatchTable({
                         <td className="px-1 py-2">
                           <div className="flex items-center gap-2">
                             {item.photo_url && (
-                              // eslint-disable-next-line @next/next/no-img-element -- externally hosted blob URL, not a local/optimizable asset
-                              <img
+                              <Image
                                 src={item.photo_url}
                                 alt=""
+                                width={32}
+                                height={32}
                                 className="h-8 w-8 shrink-0 rounded object-cover"
                               />
                             )}

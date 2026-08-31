@@ -80,6 +80,10 @@ alter table catches alter column weight_kg drop not null;
 
 create index if not exists catches_user_id_idx on catches (user_id);
 create index if not exists catches_deleted_at_idx on catches (deleted_at);
+-- Nearly every query filters on both together (user_id = ... and deleted_at
+-- is null) -- a composite index serves that directly instead of Postgres
+-- bitmap-ANDing the two single-column indexes.
+create index if not exists catches_user_id_deleted_at_idx on catches (user_id, deleted_at);
 create index if not exists users_team_id_idx on users (team_id);
 
 create table if not exists bingo_cards (
