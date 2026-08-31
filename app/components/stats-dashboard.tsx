@@ -190,9 +190,8 @@ export default function StatsDashboard({
           }
         />
         <StatCard
-          label="Storfisk"
-          value={storfiskSpecies.size}
-          caption={`av ${personalBests.length} personbästa`}
+          label="Personbästa"
+          value={personalBests.length}
           active={expanded === "personalbests"}
           onClick={() =>
             setExpanded(expanded === "personalbests" ? null : "personalbests")

@@ -80,7 +80,10 @@ export default async function ChallengesPage() {
 
           <div className="mt-4 flex flex-col gap-3">
             <p className="text-sm text-zinc-500 dark:text-zinc-400">
-              {caughtSpecies.size} av {FISH_SPECIES.length} arter fångade.
+              {caughtSpecies.size} av {FISH_SPECIES.length} arter fångade
+              {storfiskSpecies.size > 0 &&
+                ` · ${storfiskSpecies.size} 🎣 storfisk${storfiskSpecies.size === 1 ? "" : "ar"}`}
+              .
             </p>
             <SpeciesCollection
               caught={caughtSpecies}
