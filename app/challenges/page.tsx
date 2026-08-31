@@ -20,18 +20,9 @@ export default async function ChallengesPage() {
         </summary>
 
         <div className="mt-4 flex flex-col gap-6">
-          <details>
-            <summary className="cursor-pointer text-base font-semibold">
-              Skapa bingobricka
-            </summary>
-            <div className="mt-3">
-              <BingoCardForm hasTeam={user.team_id !== null} />
-            </div>
-          </details>
-
           {cards.length === 0 ? (
             <p className="rounded-xl border border-dashed border-black/15 p-6 text-center text-sm text-zinc-500 dark:border-white/15 dark:text-zinc-400">
-              Inga bingobrickor än. Skapa den första ovan!
+              Inga bingobrickor än. Skapa den första nedan!
             </p>
           ) : (
             <div className="flex flex-col gap-6">
@@ -45,6 +36,15 @@ export default async function ChallengesPage() {
               )}
             </div>
           )}
+
+          <details>
+            <summary className="cursor-pointer text-base font-semibold">
+              Skapa bingobricka
+            </summary>
+            <div className="mt-3">
+              <BingoCardForm hasTeam={user.team_id !== null} />
+            </div>
+          </details>
         </div>
       </details>
     </main>
