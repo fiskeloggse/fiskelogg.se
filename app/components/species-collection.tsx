@@ -2,8 +2,11 @@
 
 import { useEffect, useRef, useState } from "react";
 import type { PersonalBest } from "@/lib/personal-bests";
-import { getStorfiskPercent, getStorfiskStatus } from "@/lib/storfisk";
-import { FISH_SPECIES } from "@/lib/species";
+import {
+  getStorfiskPercent,
+  getStorfiskStatus,
+  STORFISKREGISTRET_SPECIES,
+} from "@/lib/storfisk";
 
 function formatSv(n: number): string {
   return (Math.round(n * 100) / 100).toString().replace(".", ",");
@@ -40,7 +43,7 @@ export default function SpeciesCollection({
   return (
     <>
       <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 md:grid-cols-4">
-        {FISH_SPECIES.map((species) => {
+        {STORFISKREGISTRET_SPECIES.map((species) => {
           const isCaught = countBySpecies.has(species);
           const pb = pbBySpecies.get(species);
           const isStorfisk =
@@ -120,16 +123,6 @@ export default function SpeciesCollection({
             {selectedStatus?.kind === "length" && (
               <p className="text-sm text-zinc-500 dark:text-zinc-400">
                 Mäts i längd hos Sportfiskarna (ingen minimilängd angiven).
-              </p>
-            )}
-            {selectedStatus?.kind === "protected" && (
-              <p className="text-sm text-zinc-500 dark:text-zinc-400">
-                Fredad art – registreras inte hos Sportfiskarna.
-              </p>
-            )}
-            {selectedStatus?.kind === "unlisted" && (
-              <p className="text-sm text-zinc-500 dark:text-zinc-400">
-                Finns inte i Sportfiskarnas Storfiskregister.
               </p>
             )}
             {selectedPercent != null && (

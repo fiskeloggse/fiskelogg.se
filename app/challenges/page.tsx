@@ -3,8 +3,7 @@ import { requireUser } from "@/lib/dal";
 import { getBingoCards, getBingoCatches } from "@/lib/bingo";
 import { getSpeciesBreakdown } from "@/lib/stats";
 import { getPersonalBests } from "@/lib/personal-bests";
-import { getStorfiskPercent } from "@/lib/storfisk";
-import { FISH_SPECIES } from "@/lib/species";
+import { getStorfiskPercent, STORFISKREGISTRET_SPECIES } from "@/lib/storfisk";
 import BingoCardForm from "@/app/components/bingo-card-form";
 import BingoCardGrid from "@/app/components/bingo-card-grid";
 import SpeciesCollection from "@/app/components/species-collection";
@@ -20,7 +19,12 @@ export default async function ChallengesPage() {
     user.show_species_collection ? getSpeciesBreakdown(user.id) : Promise.resolve([]),
     user.show_species_collection ? getPersonalBests(user.id) : Promise.resolve([]),
   ]);
-  const caughtSpecies = new Set(speciesBreakdown.map((s) => s.species));
+  const registerSpeciesSet = new Set<string>(STORFISKREGISTRET_SPECIES);
+  const caughtSpecies = new Set(
+    speciesBreakdown
+      .map((s) => s.species)
+      .filter((species) => registerSpeciesSet.has(species))
+  );
   const storfiskSpecies = new Set(
     personalBests
       .filter(
@@ -75,7 +79,7 @@ export default async function ChallengesPage() {
 
           <div className="mt-4 flex flex-col gap-3">
             <p className="text-sm text-zinc-500 dark:text-zinc-400">
-              {caughtSpecies.size} av {FISH_SPECIES.length} arter fångade
+              {caughtSpecies.size} av {STORFISKREGISTRET_SPECIES.length} arter fångade
               {storfiskSpecies.size > 0 &&
                 ` · ${storfiskSpecies.size} 🎣 storfisk${storfiskSpecies.size === 1 ? "" : "ar"}`}
               .

@@ -1,3 +1,5 @@
+import { FISH_SPECIES } from "./species";
+
 // Minimivikter (kg) för Sportfiskarnas Storfiskregister, per art.
 // Källa: https://www.sportfiskarna.se/fiske/storfiskregistret/regler-och-minimivikter/
 // Arter märkta "fredad" eller som mäts i längd istället för vikt där är
@@ -151,3 +153,12 @@ export function getStorfiskStatus(species: string): StorfiskStatus {
   if (STORFISK_PROTECTED_SPECIES.has(species)) return { kind: "protected" };
   return { kind: "unlisted" };
 }
+
+// Our species catalog (lib/species.ts) is broader than Storfiskregistret —
+// it also covers protected species and ones the register doesn't track at
+// all. Artjakten collects specifically against the register, so it only
+// shows species that actually have a weight or length criterion there.
+export const STORFISKREGISTRET_SPECIES = FISH_SPECIES.filter((species) => {
+  const kind = getStorfiskStatus(species).kind;
+  return kind === "weight" || kind === "length";
+});
