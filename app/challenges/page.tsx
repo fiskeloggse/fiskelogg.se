@@ -21,7 +21,6 @@ export default async function ChallengesPage() {
     user.show_species_collection ? getPersonalBests(user.id) : Promise.resolve([]),
   ]);
   const caughtSpecies = new Set(speciesBreakdown.map((s) => s.species));
-  const pbSpecies = new Set(personalBests.map((pb) => pb.species));
   const storfiskSpecies = new Set(
     personalBests
       .filter(
@@ -31,10 +30,6 @@ export default async function ChallengesPage() {
       )
       .map((pb) => pb.species)
   );
-
-  function speciesHref(species: string) {
-    return `/statistik/${encodeURIComponent(species)}`;
-  }
 
   return (
     <main className="mx-auto flex w-full max-w-4xl flex-1 flex-col gap-8 px-4 py-10 sm:px-6">
@@ -86,10 +81,8 @@ export default async function ChallengesPage() {
               .
             </p>
             <SpeciesCollection
-              caught={caughtSpecies}
-              storfisk={storfiskSpecies}
-              hasPb={pbSpecies}
-              getHref={speciesHref}
+              speciesBreakdown={speciesBreakdown}
+              personalBests={personalBests}
             />
           </div>
         </details>
