@@ -18,6 +18,7 @@ import {
   SHARE_CARD_FIELD_KEYS,
   GPS_MODES,
 } from "@/lib/constants";
+import ChangePasswordForm from "@/app/components/change-password-form";
 import InviteForm from "@/app/components/invite-form";
 import TeamNameForm from "@/app/components/team-name-form";
 import ThemeToggle from "@/app/components/theme-toggle";
@@ -54,6 +55,11 @@ export default async function KontoPage() {
             Logga ut
           </button>
         </form>
+      </div>
+
+      <div className="flex flex-col gap-4 rounded-xl border border-black/10 bg-white p-5 dark:border-white/15 dark:bg-white/5">
+        <h2 className="text-lg font-semibold">Byt lösenord</h2>
+        <ChangePasswordForm />
       </div>
 
       <div className="flex flex-col gap-4 rounded-xl border border-black/10 bg-white p-5 dark:border-white/15 dark:bg-white/5">

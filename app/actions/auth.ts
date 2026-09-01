@@ -3,6 +3,7 @@
 import { redirect } from "next/navigation";
 import * as z from "zod";
 import sql from "@/lib/db";
+import { requireUser } from "@/lib/dal";
 import { hashPassword, verifyPassword } from "@/lib/password";
 import { createSession, deleteSession } from "@/lib/session";
 
@@ -93,4 +94,51 @@ export async function login(
 export async function logout() {
   await deleteSession();
   redirect("/login");
+}
+
+const ChangePasswordSchema = z
+  .object({
+    currentPassword: z
+      .string()
+      .min(1, { error: "Ange ditt nuvarande lösenord." }),
+    newPassword: z
+      .string()
+      .min(8, { error: "Det nya lösenordet måste vara minst 8 tecken." }),
+    confirmPassword: z.string(),
+  })
+  .refine((data) => data.newPassword === data.confirmPassword, {
+    error: "De nya lösenorden matchar inte.",
+    path: ["confirmPassword"],
+  });
+
+export async function updatePassword(
+  _prevState: AuthState,
+  formData: FormData
+): Promise<AuthState> {
+  const user = await requireUser();
+
+  const parsed = ChangePasswordSchema.safeParse({
+    currentPassword: formData.get("currentPassword"),
+    newPassword: formData.get("newPassword"),
+    confirmPassword: formData.get("confirmPassword"),
+  });
+
+  if (!parsed.success) {
+    return { error: parsed.error.issues[0]?.message ?? "Ogiltiga uppgifter." };
+  }
+
+  const { currentPassword, newPassword } = parsed.data;
+
+  const [row] = await sql<{ password_hash: string }[]>`
+    select password_hash from users where id = ${user.id}
+  `;
+
+  if (!row || !verifyPassword(currentPassword, row.password_hash)) {
+    return { error: "Fel nuvarande lösenord." };
+  }
+
+  const passwordHash = hashPassword(newPassword);
+  await sql`update users set password_hash = ${passwordHash} where id = ${user.id}`;
+
+  return { success: true };
 }
