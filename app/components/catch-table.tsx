@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
 import { deleteCatches } from "@/app/actions/catches";
 import type { Catch } from "./catch-list";
@@ -296,16 +295,7 @@ export default function CatchTable({
                       )}
                       {showArt && (
                         <td className="px-1 py-2">
-                          <div className="flex items-center gap-2">
-                            {item.photo_url && (
-                              <Image
-                                src={item.photo_url}
-                                alt=""
-                                width={32}
-                                height={32}
-                                className="h-8 w-8 shrink-0 rounded object-cover"
-                              />
-                            )}
+                          <div className="flex items-start gap-1.5">
                             <span>
                               {item.species || "Okänd art"}
                               {item.angler_name && (
@@ -315,27 +305,53 @@ export default function CatchTable({
                                 </span>
                               )}
                             </span>
+                            {item.photo_url && (
+                              <svg
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                strokeWidth="1.75"
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                className="mt-0.5 h-3.5 w-3.5 shrink-0 text-zinc-400 dark:text-zinc-500"
+                              >
+                                <title>Har foto</title>
+                                <rect x="3" y="7" width="18" height="13" rx="2" />
+                                <path d="M8 7l1.5-2.5h5L16 7" />
+                                <circle cx="12" cy="13.5" r="3" />
+                              </svg>
+                            )}
                           </div>
                         </td>
                       )}
                       {showPlats && (
                         <td className="px-1 py-2 text-zinc-500 dark:text-zinc-400">
                           {item.lake || item.location ? (
-                            <>
-                              {item.lake && (
-                                <div>
-                                  {item.lake}
-                                  {item.latitude != null &&
-                                    item.longitude != null &&
-                                    " 📍"}
-                                </div>
+                            <div className="flex items-start gap-1.5">
+                              {item.latitude != null && item.longitude != null && (
+                                <svg
+                                  viewBox="0 0 24 24"
+                                  fill="none"
+                                  stroke="currentColor"
+                                  strokeWidth="1.75"
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                  className="mt-0.5 h-3.5 w-3.5 shrink-0 text-zinc-400 dark:text-zinc-500"
+                                >
+                                  <title>GPS-position sparad</title>
+                                  <path d="M12 21s-7-6.05-7-11a7 7 0 0 1 14 0c0 4.95-7 11-7 11Z" />
+                                  <circle cx="12" cy="10" r="2.25" />
+                                </svg>
                               )}
-                              {item.location && (
-                                <div className="text-xs text-zinc-400 dark:text-zinc-500">
-                                  {item.location}
-                                </div>
-                              )}
-                            </>
+                              <div>
+                                {item.lake && <div>{item.lake}</div>}
+                                {item.location && (
+                                  <div className="text-xs text-zinc-400 dark:text-zinc-500">
+                                    {item.location}
+                                  </div>
+                                )}
+                              </div>
+                            </div>
                           ) : (
                             "–"
                           )}
