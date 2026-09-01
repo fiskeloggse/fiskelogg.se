@@ -12,7 +12,11 @@ import StorfiskBadge from "./storfisk-badge";
 import type { Catch } from "./catch-list";
 import { windDirLabel } from "@/lib/constants";
 import { getMoonPhase } from "@/lib/moon-phase";
-import { getStorfiskPercent, STORFISKREGISTRET_URL } from "@/lib/storfisk";
+import {
+  getStorfiskPercent,
+  getStorfiskStatus,
+  STORFISKREGISTRET_URL,
+} from "@/lib/storfisk";
 
 function formatDateFull(date: Date) {
   return date.toLocaleString("sv-SE", { dateStyle: "full", timeStyle: "short" });
@@ -45,6 +49,7 @@ export default function CatchDetail({
       ? getStorfiskPercent(item.species, item.weight_kg)
       : null;
   const isStorfisk = storfiskPercent != null && storfiskPercent >= 100;
+  const storfiskStatus = item.species ? getStorfiskStatus(item.species) : null;
 
   async function handleDelete(formData: FormData) {
     await deleteCatch(formData);
@@ -117,6 +122,18 @@ export default function CatchDetail({
             <p className="text-lg font-medium">
               {item.length_cm != null ? `${item.length_cm} cm` : "–"}
             </p>
+            {item.length_cm != null && storfiskStatus?.kind === "length" && (
+              <p className="mt-0.5 text-xs text-zinc-400 dark:text-zinc-500">
+                <a
+                  href={STORFISKREGISTRET_URL}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="underline"
+                >
+                  Sportfiskarna mäter denna art i längd
+                </a>
+              </p>
+            )}
           </div>
           <div>
             <p className="text-zinc-500 dark:text-zinc-400">Vikt</p>

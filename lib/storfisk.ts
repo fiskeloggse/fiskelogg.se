@@ -117,3 +117,37 @@ export function getStorfiskPercent(
   if (!minWeight) return null;
   return (weightKg / minWeight) * 100;
 }
+
+// Species too large/dangerous to weigh reliably, where Sportfiskarna measures
+// length instead — but their rules page ("Längd används") doesn't publish an
+// actual minimum length, so there's no number to compare a catch against.
+export const STORFISK_MEASURED_BY_LENGTH = new Set(["Håkäring", "Hälleflundra"]);
+
+// Protected species that can't be registered in Storfiskregistret at all —
+// no weight or length threshold applies to them.
+export const STORFISK_PROTECTED_SPECIES = new Set([
+  "Håbrand",
+  "Knaggrocka",
+  "Mal",
+  "Sjurygg",
+  "Slätrocka",
+  "Småfläckig Rödhaj",
+  "Staksill",
+]);
+
+export type StorfiskStatus =
+  | { kind: "weight"; minWeightKg: number }
+  | { kind: "length" }
+  | { kind: "protected" }
+  | { kind: "unlisted" };
+
+// What Storfiskregistret criterion (if any) applies to a species — used
+// everywhere a species' minimum weight is shown, so species without one get
+// an accurate reason instead of just looking like missing data.
+export function getStorfiskStatus(species: string): StorfiskStatus {
+  const minWeightKg = STORFISK_MIN_WEIGHT_KG[species];
+  if (minWeightKg != null) return { kind: "weight", minWeightKg };
+  if (STORFISK_MEASURED_BY_LENGTH.has(species)) return { kind: "length" };
+  if (STORFISK_PROTECTED_SPECIES.has(species)) return { kind: "protected" };
+  return { kind: "unlisted" };
+}

@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import type { PersonalBest } from "@/lib/personal-bests";
-import { STORFISK_MIN_WEIGHT_KG, getStorfiskPercent } from "@/lib/storfisk";
+import { getStorfiskPercent, getStorfiskStatus } from "@/lib/storfisk";
 import { FISH_SPECIES } from "@/lib/species";
 
 function formatSv(n: number): string {
@@ -31,7 +31,7 @@ export default function SpeciesCollection({
 
   const selectedIsCaught = selected ? countBySpecies.has(selected) : false;
   const selectedPb = selected ? pbBySpecies.get(selected) : undefined;
-  const selectedMinWeight = selected ? STORFISK_MIN_WEIGHT_KG[selected] : undefined;
+  const selectedStatus = selected ? getStorfiskStatus(selected) : null;
   const selectedPercent =
     selected && selectedPb?.heaviest
       ? getStorfiskPercent(selected, selectedPb.heaviest.weight_kg)
@@ -112,13 +112,24 @@ export default function SpeciesCollection({
                 Mitt PB (längd): {selectedPb.longest.length_cm} cm
               </p>
             )}
-            {selectedMinWeight !== undefined ? (
+            {selectedStatus?.kind === "weight" && (
               <p className="text-sm">
-                Sportfiskarnas minimivikt: {formatSv(selectedMinWeight)} kg
+                Sportfiskarnas minimivikt: {formatSv(selectedStatus.minWeightKg)} kg
               </p>
-            ) : (
+            )}
+            {selectedStatus?.kind === "length" && (
               <p className="text-sm text-zinc-500 dark:text-zinc-400">
-                Ingen minimivikt registrerad (fredad art eller mäts i längd).
+                Mäts i längd hos Sportfiskarna (ingen minimilängd angiven).
+              </p>
+            )}
+            {selectedStatus?.kind === "protected" && (
+              <p className="text-sm text-zinc-500 dark:text-zinc-400">
+                Fredad art – registreras inte hos Sportfiskarna.
+              </p>
+            )}
+            {selectedStatus?.kind === "unlisted" && (
+              <p className="text-sm text-zinc-500 dark:text-zinc-400">
+                Finns inte i Sportfiskarnas Storfiskregister.
               </p>
             )}
             {selectedPercent != null && (
