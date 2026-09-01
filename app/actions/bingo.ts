@@ -5,7 +5,17 @@ import * as z from "zod";
 import sql from "@/lib/db";
 import { requireUser } from "@/lib/dal";
 
-export type BingoState = { error: string } | undefined;
+export type BingoState = { error: string } | { success: true } | undefined;
+
+// Empty means "no restriction" (all registered catches count) -- only
+// validate the format when something was actually typed.
+const optionalDate = z
+  .string()
+  .trim()
+  .refine((v) => v === "" || /^\d{4}-\d{2}-\d{2}$/.test(v), {
+    error: "Ogiltigt datum.",
+  })
+  .transform((v) => (v === "" ? null : v));
 
 const BingoSchema = z
   .object({
@@ -21,12 +31,8 @@ const BingoSchema = z
       .int({ error: "Endast hela cm." })
       .min(0)
       .max(1000),
-    fromDate: z
-      .string()
-      .regex(/^\d{4}-\d{2}-\d{2}$/, { error: "Ange ett startdatum." }),
-    toDate: z
-      .string()
-      .regex(/^\d{4}-\d{2}-\d{2}$/, { error: "Ange ett slutdatum." }),
+    fromDate: optionalDate,
+    toDate: optionalDate,
   })
   .refine((data) => data.maxCm >= data.minCm, {
     error: "Högsta längd måste vara minst lika stor som lägsta.",
@@ -36,7 +42,11 @@ const BingoSchema = z
     error: "Intervallet är för stort (max 200 cm).",
     path: ["maxCm"],
   })
-  .refine((data) => data.toDate >= data.fromDate, {
+  .refine((data) => Boolean(data.fromDate) === Boolean(data.toDate), {
+    error: "Fyll i både startdatum och slutdatum, eller lämna båda tomma.",
+    path: ["toDate"],
+  })
+  .refine((data) => !data.fromDate || !data.toDate || data.toDate >= data.fromDate, {
     error: "Slutdatumet måste vara efter startdatumet.",
     path: ["toDate"],
   });
@@ -74,6 +84,7 @@ export async function createBingoCard(
   `;
 
   revalidatePath("/challenges");
+  return { success: true };
 }
 
 export async function deleteBingoCard(formData: FormData) {

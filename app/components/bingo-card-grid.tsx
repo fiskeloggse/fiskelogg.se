@@ -1,3 +1,5 @@
+"use client";
+
 import { deleteBingoCard } from "@/app/actions/bingo";
 import type { BingoCard, BingoCatch } from "@/lib/bingo";
 import ConfirmDeleteButton from "./confirm-delete-button";
@@ -83,12 +85,11 @@ export default function BingoCardGrid({
     (sum, [, cms]) => sum + cms.filter((cm) => catchesByCm.has(cm)).length,
     0
   );
-  const remainingCount = totalCount - doneCount;
   const status = dateStatus(card.to_date);
 
   return (
-    <div className="flex flex-col gap-3 rounded-xl border border-black/10 bg-white p-3 sm:p-5 dark:border-white/15 dark:bg-white/5">
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+    <details className="rounded-xl border border-black/10 bg-white p-3 sm:p-5 dark:border-white/15 dark:bg-white/5">
+      <summary className="flex cursor-pointer list-none flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h2 className="text-lg font-semibold">
             {card.species} {card.min_cm}–{card.max_cm} cm
@@ -109,21 +110,22 @@ export default function BingoCardGrid({
             )}
           </h2>
           <p className="text-sm text-zinc-500 dark:text-zinc-400">
-            {remainingCount === 0
-              ? "Alla rutor klara!"
-              : `${remainingCount} ${remainingCount === 1 ? "ruta" : "rutor"} kvar`}{" "}
-            ({doneCount} av {totalCount} klara)
+            {doneCount}/{totalCount} fångade
             {card.from_date && card.to_date && (
               <> · {formatDate(card.from_date)}–{formatDate(card.to_date)}</>
             )}
           </p>
         </div>
-        <ConfirmDeleteButton
-          action={deleteBingoCard}
-          id={card.id}
-          label="Ta bort bingobricka"
-        />
-      </div>
+        {/* Stops the click from also toggling the <details> open/closed —
+            deleting shouldn't require expanding the card first. */}
+        <span onClick={(e) => e.preventDefault()}>
+          <ConfirmDeleteButton
+            action={deleteBingoCard}
+            id={card.id}
+            label="Ta bort bingobricka"
+          />
+        </span>
+      </summary>
 
       {/* One column per decade, values running top to bottom within it
           (70–79 in column 1, 80–89 in column 2, ...). Each cell is placed
@@ -136,7 +138,7 @@ export default function BingoCardGrid({
           grid (and so its auto columns) fill the card's full width,
           leaving each column much wider than its 32px cells. */}
       <div
-        className="inline-grid self-start gap-px"
+        className="mt-3 inline-grid self-start gap-px"
         style={{
           gridTemplateColumns: `repeat(${decadeRows.length}, auto)`,
         }}
@@ -152,6 +154,6 @@ export default function BingoCardGrid({
           ))
         )}
       </div>
-    </div>
+    </details>
   );
 }
