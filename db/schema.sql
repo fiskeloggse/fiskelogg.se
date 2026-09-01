@@ -43,6 +43,11 @@ alter table users alter column gps_mode set default 'off';
 alter table users alter column gps_mode set not null;
 alter table users drop column if exists gps_default_enabled;
 
+-- Collapsed the standalone "position" and "weather" choices into "both" --
+-- saving one without the other wasn't a distinction worth keeping. Safe to
+-- re-run: no-op once no rows have the old values anymore.
+update users set gps_mode = 'both' where gps_mode in ('position', 'weather');
+
 create table if not exists catches (
   id serial primary key,
   user_id integer not null references users(id) on delete cascade,

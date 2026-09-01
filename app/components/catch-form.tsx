@@ -242,14 +242,14 @@ export default function CatchForm({
   const [bait, setBait] = useState(defaultBait ?? "");
   const [comment, setComment] = useState("");
   const [caughtAtLocal, setCaughtAtLocal] = useState("");
-  const defaultLogPosition = gpsMode === "position" || gpsMode === "both";
-  const defaultLogWeather = gpsMode === "weather" || gpsMode === "both";
+  const defaultLogPosition = gpsMode === "both";
+  const defaultLogWeather = gpsMode === "both" || gpsMode === "water";
   const defaultAutoFillWater = gpsMode === "water";
   const [useGps, setUseGps] = useState(defaultLogPosition);
   const [logWeather, setLogWeather] = useState(defaultLogWeather);
-  // Looks up the nearest water once, like "Logga väder", but neither
-  // position nor weather is ever submitted for this — it only fills the
-  // Vatten field client-side.
+  // Looks up the nearest water once, like "Logga väder", but the exact
+  // position is never submitted for this — it only fills the Vatten field
+  // client-side (weather can still be logged alongside it).
   const [autoFillWater, setAutoFillWater] = useState(defaultAutoFillWater);
   const [gpsStatus, setGpsStatus] = useState<"idle" | "loading" | "success" | "error">(
     "idle"
