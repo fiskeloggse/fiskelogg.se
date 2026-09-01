@@ -166,6 +166,7 @@ export default async function Home(props: PageProps<"/">) {
         teamCatches={user.team_id ? todaysTopTeamCatches : null}
         teamName={teamName || "Team"}
         currentUserId={user.id}
+        showTotal
       />
 
       <CatchesTable

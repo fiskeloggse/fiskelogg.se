@@ -5,8 +5,12 @@ import type { Catch } from "./catch-list";
 
 const ROWS = 5;
 
+function roundTo2(n: number) {
+  return Math.round(n * 100) / 100;
+}
+
 function formatSv(n: number): string {
-  return (Math.round(n * 100) / 100).toString().replace(".", ",");
+  return roundTo2(n).toString().replace(".", ",");
 }
 
 function formatMeasurement(item: Catch): string {
@@ -54,12 +58,17 @@ function CatchesBox({
   catches,
   currentUserId,
   router,
+  showTotal,
 }: {
   label: string;
   catches: Catch[];
   currentUserId: number;
   router: ReturnType<typeof useRouter>;
+  showTotal?: boolean;
 }) {
+  const totalLength = catches.reduce((sum, c) => sum + (c.length_cm ?? 0), 0);
+  const totalWeight = catches.reduce((sum, c) => sum + (c.weight_kg ?? 0), 0);
+
   return (
     <div className="flex-1 overflow-x-auto rounded-xl border border-black/10 dark:border-white/15">
       <table className="w-full border-collapse text-left text-sm">
@@ -81,6 +90,16 @@ function CatchesBox({
             </tr>
           ))}
         </tbody>
+        {showTotal && catches.length > 0 && (
+          <tfoot>
+            <tr className="border-t border-black/10 text-xs font-medium text-zinc-500 dark:border-white/15 dark:text-zinc-400">
+              <td className="py-1.5 pr-2 pl-2">Totalt</td>
+              <td className="px-2 py-1.5">
+                {roundTo2(totalLength)} cm / {formatSv(totalWeight)} kg
+              </td>
+            </tr>
+          </tfoot>
+        )}
       </table>
     </div>
   );
@@ -93,6 +112,7 @@ export default function CatchesTable({
   teamCatches,
   teamName,
   currentUserId,
+  showTotal,
 }: {
   title: string;
   headerExtra?: React.ReactNode;
@@ -100,6 +120,7 @@ export default function CatchesTable({
   teamCatches: Catch[] | null;
   teamName: string;
   currentUserId: number;
+  showTotal?: boolean;
 }) {
   const router = useRouter();
 
@@ -115,6 +136,7 @@ export default function CatchesTable({
           catches={personalCatches}
           currentUserId={currentUserId}
           router={router}
+          showTotal={showTotal}
         />
         {teamCatches && (
           <CatchesBox
@@ -122,6 +144,7 @@ export default function CatchesTable({
             catches={teamCatches}
             currentUserId={currentUserId}
             router={router}
+            showTotal={showTotal}
           />
         )}
       </div>
