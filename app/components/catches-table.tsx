@@ -66,8 +66,12 @@ function CatchesBox({
   router: ReturnType<typeof useRouter>;
   showTotal?: boolean;
 }) {
-  const totalLength = catches.reduce((sum, c) => sum + (c.length_cm ?? 0), 0);
-  const totalWeight = catches.reduce((sum, c) => sum + (c.weight_kg ?? 0), 0);
+  const lengths = catches.map((c) => c.length_cm).filter((v) => v != null);
+  const weights = catches.map((c) => c.weight_kg).filter((v) => v != null);
+  const totalLength = lengths.reduce((sum, v) => sum + v, 0);
+  const totalWeight = weights.reduce((sum, v) => sum + v, 0);
+  const avgLength = lengths.length > 0 ? totalLength / lengths.length : null;
+  const avgWeight = weights.length > 0 ? totalWeight / weights.length : null;
 
   return (
     <div className="flex-1 overflow-x-auto rounded-xl border border-black/10 dark:border-white/15">
@@ -91,11 +95,18 @@ function CatchesBox({
           ))}
         </tbody>
         {showTotal && catches.length > 0 && (
-          <tfoot>
-            <tr className="border-t border-black/10 text-xs font-medium text-zinc-500 dark:border-white/15 dark:text-zinc-400">
+          <tfoot className="border-t border-black/10 text-xs font-medium text-zinc-500 dark:border-white/15 dark:text-zinc-400">
+            <tr>
               <td className="py-1.5 pr-2 pl-2">Totalt</td>
               <td className="px-2 py-1.5">
                 {roundTo2(totalLength)} cm / {formatSv(totalWeight)} kg
+              </td>
+            </tr>
+            <tr>
+              <td className="py-1.5 pr-2 pl-2">Snitt</td>
+              <td className="px-2 py-1.5">
+                {avgLength != null ? formatSv(avgLength) : "-"} cm /{" "}
+                {avgWeight != null ? formatSv(avgWeight) : "-"} kg
               </td>
             </tr>
           </tfoot>
