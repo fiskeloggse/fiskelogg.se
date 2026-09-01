@@ -244,8 +244,13 @@ export default function CatchForm({
   const [caughtAtLocal, setCaughtAtLocal] = useState("");
   const defaultLogPosition = gpsMode === "position" || gpsMode === "both";
   const defaultLogWeather = gpsMode === "weather" || gpsMode === "both";
+  const defaultAutoFillWater = gpsMode === "water";
   const [useGps, setUseGps] = useState(defaultLogPosition);
   const [logWeather, setLogWeather] = useState(defaultLogWeather);
+  // Looks up the nearest water once, like "Logga väder", but neither
+  // position nor weather is ever submitted for this — it only fills the
+  // Vatten field client-side.
+  const [autoFillWater, setAutoFillWater] = useState(defaultAutoFillWater);
   const [gpsStatus, setGpsStatus] = useState<"idle" | "loading" | "success" | "error">(
     "idle"
   );
@@ -315,7 +320,12 @@ export default function CatchForm({
   }, [pending]);
 
   useEffect(() => {
-    if ((!useGps && !logWeather) || mode !== "now" || gpsCoords || gpsStatus === "loading")
+    if (
+      (!useGps && !logWeather && !autoFillWater) ||
+      mode !== "now" ||
+      gpsCoords ||
+      gpsStatus === "loading"
+    )
       return;
     if (!navigator.geolocation) {
       // eslint-disable-next-line react-hooks/set-state-in-effect
@@ -353,7 +363,7 @@ export default function CatchForm({
       { enableHighAccuracy: true, timeout: 10000 }
     );
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [useGps, logWeather, mode]);
+  }, [useGps, logWeather, autoFillWater, mode]);
 
   useEffect(() => {
     if (wasPending.current && !pending && !errorMessage) {
@@ -565,7 +575,7 @@ export default function CatchForm({
                                 onChange={(e) => {
                                   const checked = e.target.checked;
                                   setUseGps(checked);
-                                  if (!checked && !logWeather) {
+                                  if (!checked && !logWeather && !autoFillWater) {
                                     setGpsCoords(null);
                                     setGpsStatus("idle");
                                     setLakeAutoFilled(false);
@@ -581,7 +591,7 @@ export default function CatchForm({
                                 onChange={(e) => {
                                   const checked = e.target.checked;
                                   setLogWeather(checked);
-                                  if (!checked && !useGps) {
+                                  if (!checked && !useGps && !autoFillWater) {
                                     setGpsCoords(null);
                                     setGpsStatus("idle");
                                     setLakeAutoFilled(false);
@@ -589,6 +599,22 @@ export default function CatchForm({
                                 }}
                               />
                               Logga väder
+                            </label>
+                            <label className="flex items-center gap-2 text-sm">
+                              <input
+                                type="checkbox"
+                                checked={autoFillWater}
+                                onChange={(e) => {
+                                  const checked = e.target.checked;
+                                  setAutoFillWater(checked);
+                                  if (!checked && !useGps && !logWeather) {
+                                    setGpsCoords(null);
+                                    setGpsStatus("idle");
+                                    setLakeAutoFilled(false);
+                                  }
+                                }}
+                              />
+                              Fyll i vatten
                             </label>
                           </div>
                           {gpsStatus === "loading" && (

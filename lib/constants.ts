@@ -138,6 +138,11 @@ export const GPS_MODES = [
     label: "Position och väder",
     hint: "Position sparas och visas på kartan, väder hämtas också.",
   },
+  {
+    value: "water",
+    label: "Fyll i vatten automatiskt",
+    hint: "Använder din position en gång för att fylla i vattnet — varken position eller väder sparas.",
+  },
 ] as const;
 
 export type GpsModeKey = (typeof GPS_MODES)[number]["value"];
