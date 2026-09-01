@@ -19,7 +19,11 @@ export default async function StatistikPage(props: PageProps<"/statistik">) {
   const initialExpanded =
     searchParams.expand === "species" || searchParams.expand === "personalbests"
       ? "species"
-      : null;
+      : searchParams.expand === "lakes"
+        ? "lakes"
+        : searchParams.expand === "fishingdays"
+          ? "fishingdays"
+          : null;
 
   const [speciesBreakdown, lakeStats, fishingDays, personalBests, mappedCatches] =
     await Promise.all([

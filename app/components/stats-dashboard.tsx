@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { usePathname, useRouter } from "next/navigation";
 import Link from "next/link";
 import type {
   FishingDayRow,
@@ -115,11 +116,26 @@ export default function StatsDashboard({
   fishingDays: FishingDayRow[];
   personalBests: PersonalBest[];
   mappedCatches: MappedCatchRow[];
-  initialExpanded?: "species" | null;
+  initialExpanded?: "species" | "lakes" | "fishingdays" | null;
 }) {
+  const router = useRouter();
+  const pathname = usePathname();
   const [expanded, setExpanded] = useState<
     "species" | "lakes" | "fishingdays" | null
   >(initialExpanded);
+
+  // Keeps the open panel in the URL so reloading the page, or navigating
+  // back from a species/lake detail page, lands on the same view instead
+  // of always resetting to the collapsed overview.
+  const isFirstRender = useRef(true);
+  useEffect(() => {
+    if (isFirstRender.current) {
+      isFirstRender.current = false;
+      return;
+    }
+    const query = expanded ? `?expand=${expanded}` : "";
+    router.replace(`${pathname}${query}`, { scroll: false });
+  }, [expanded, pathname, router]);
 
   const speciesCount = speciesBreakdown.length;
   const lakeCount = lakeStats.length;

@@ -67,7 +67,7 @@ export default async function RegisterPage(props: PageProps<"/register">) {
               Exportera
             </a>
             <Link
-              href="/register/papperskorg"
+              href={`/register/papperskorg${params.toString() ? `?${params.toString()}` : ""}`}
               className="text-zinc-500 underline dark:text-zinc-400"
             >
               Papperskorg

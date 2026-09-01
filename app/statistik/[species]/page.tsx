@@ -36,7 +36,7 @@ export default async function SpeciesStatsPage(
   return (
     <main className="mx-auto flex w-full max-w-4xl flex-1 flex-col gap-6 px-4 py-10 sm:px-6">
       <Link
-        href="/statistik"
+        href="/statistik?expand=species"
         className="self-start text-sm text-zinc-500 underline hover:text-foreground dark:text-zinc-400"
       >
         ← Tillbaka till Statistik
