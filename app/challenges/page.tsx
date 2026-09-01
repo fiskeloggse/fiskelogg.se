@@ -78,16 +78,19 @@ export default async function ChallengesPage() {
           </summary>
 
           <div className="mt-4 flex flex-col gap-3">
-            <p className="text-sm text-zinc-500 dark:text-zinc-400">
-              {caughtSpecies.size} av {STORFISKREGISTRET_SPECIES.length} arter fångade
-              {storfiskSpecies.size > 0 &&
-                ` · ${storfiskSpecies.size} 🎣 storfisk${storfiskSpecies.size === 1 ? "" : "ar"}`}
-              .
-            </p>
-            <SpeciesCollection
-              speciesBreakdown={speciesBreakdown}
-              personalBests={personalBests}
-            />
+            <details className="rounded-xl border border-black/10 p-3 dark:border-white/15">
+              <summary className="cursor-pointer text-sm text-zinc-500 dark:text-zinc-400">
+                {caughtSpecies.size}/{STORFISKREGISTRET_SPECIES.length} fångade
+                {storfiskSpecies.size > 0 &&
+                  ` · ${storfiskSpecies.size} 🏅 storfisk${storfiskSpecies.size === 1 ? "" : "ar"}`}
+              </summary>
+              <div className="mt-3">
+                <SpeciesCollection
+                  speciesBreakdown={speciesBreakdown}
+                  personalBests={personalBests}
+                />
+              </div>
+            </details>
           </div>
         </details>
       )}

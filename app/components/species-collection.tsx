@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import Link from "next/link";
 import type { PersonalBest } from "@/lib/personal-bests";
 import {
   getStorfiskPercent,
@@ -70,14 +71,9 @@ export default function SpeciesCollection({
               className="rounded-lg border border-foreground/30 bg-foreground/5 px-2.5 py-1.5 text-left text-sm font-medium transition-colors hover:bg-foreground/10"
             >
               {species}
-              {pb && (
-                <span className="ml-1" title="Personbästa">
-                  🏆
-                </span>
-              )}
               {isStorfisk && (
                 <span className="ml-1" title="Storfisk">
-                  🎣
+                  🏅
                 </span>
               )}
             </button>
@@ -107,12 +103,24 @@ export default function SpeciesCollection({
             )}
             {selectedPb?.heaviest && (
               <p className="text-sm">
-                Mitt PB (vikt): {formatSv(selectedPb.heaviest.weight_kg)} kg
+                Mitt PB (vikt):{" "}
+                <Link
+                  href={`/register/${selectedPb.heaviest.id}`}
+                  className="underline"
+                >
+                  {formatSv(selectedPb.heaviest.weight_kg)} kg
+                </Link>
               </p>
             )}
             {selectedPb?.longest && (
               <p className="text-sm">
-                Mitt PB (längd): {selectedPb.longest.length_cm} cm
+                Mitt PB (längd):{" "}
+                <Link
+                  href={`/register/${selectedPb.longest.id}`}
+                  className="underline"
+                >
+                  {selectedPb.longest.length_cm} cm
+                </Link>
               </p>
             )}
             {selectedStatus?.kind === "weight" && (
