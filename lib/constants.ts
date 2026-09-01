@@ -133,6 +133,11 @@ export const GPS_MODES = [
     hint: "Position sparas och visas på kartan, väder hämtas och sparas också.",
   },
   {
+    value: "weather",
+    label: "Spara väder",
+    hint: "Använder din position en gång för att hämta vädret — positionen sparas aldrig.",
+  },
+  {
     value: "water",
     label: "Fyll i vatten och väder automatiskt",
     hint: "Använder din position en gång för att fylla i vatten och hämta väder — exakt position sparas aldrig.",

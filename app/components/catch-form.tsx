@@ -243,7 +243,8 @@ export default function CatchForm({
   const [comment, setComment] = useState("");
   const [caughtAtLocal, setCaughtAtLocal] = useState("");
   const defaultLogPosition = gpsMode === "both";
-  const defaultLogWeather = gpsMode === "both" || gpsMode === "water";
+  const defaultLogWeather =
+    gpsMode === "both" || gpsMode === "weather" || gpsMode === "water";
   const defaultAutoFillWater = gpsMode === "water";
   const [useGps, setUseGps] = useState(defaultLogPosition);
   const [logWeather, setLogWeather] = useState(defaultLogWeather);
