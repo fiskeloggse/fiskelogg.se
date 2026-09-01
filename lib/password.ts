@@ -19,3 +19,13 @@ export function verifyPassword(password: string, stored: string): boolean {
   if (storedBuffer.length !== suppliedBuffer.length) return false;
   return crypto.timingSafeEqual(storedBuffer, suppliedBuffer);
 }
+
+// The raw token goes in the emailed link; only its hash is ever stored, so
+// a database read alone can't produce a usable reset link.
+export function generateResetToken(): string {
+  return crypto.randomBytes(32).toString("hex");
+}
+
+export function hashResetToken(token: string): string {
+  return crypto.createHash("sha256").update(token).digest("hex");
+}

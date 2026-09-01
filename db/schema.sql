@@ -28,6 +28,12 @@ alter table users add column if not exists share_card_fields text[];
 alter table users add column if not exists gps_default_enabled boolean not null default false;
 alter table users add column if not exists gps_mode text;
 
+-- "Glömt lösenord" -- holds a hash of the current reset link's token (never
+-- the raw token itself) plus its expiry. Requesting a new reset overwrites
+-- both, invalidating any earlier link; a successful reset clears them.
+alter table users add column if not exists password_reset_token_hash text;
+alter table users add column if not exists password_reset_expires_at timestamptz;
+
 -- Replaces the old gps_default_enabled boolean with a 4-way choice — "off"
 -- keeps its meaning, "true" becomes "position" (the only thing GPS did
 -- before). Safe to re-run: only touches rows that haven't been migrated yet.

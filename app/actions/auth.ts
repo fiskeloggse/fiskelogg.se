@@ -4,7 +4,13 @@ import { redirect } from "next/navigation";
 import * as z from "zod";
 import sql from "@/lib/db";
 import { requireUser } from "@/lib/dal";
-import { hashPassword, verifyPassword } from "@/lib/password";
+import { sendPasswordResetEmail } from "@/lib/email";
+import {
+  generateResetToken,
+  hashPassword,
+  hashResetToken,
+  verifyPassword,
+} from "@/lib/password";
 import { createSession, deleteSession } from "@/lib/session";
 
 export type AuthState = { error: string } | { success: true } | undefined;
@@ -139,6 +145,103 @@ export async function updatePassword(
 
   const passwordHash = hashPassword(newPassword);
   await sql`update users set password_hash = ${passwordHash} where id = ${user.id}`;
+
+  return { success: true };
+}
+
+const RequestResetSchema = z.object({
+  email: z.email({ error: "Ange en giltig e-postadress." }).trim(),
+});
+
+export async function requestPasswordReset(
+  _prevState: AuthState,
+  formData: FormData
+): Promise<AuthState> {
+  const parsed = RequestResetSchema.safeParse({
+    email: formData.get("email"),
+  });
+
+  if (!parsed.success) {
+    return { error: parsed.error.issues[0]?.message ?? "Ogiltiga uppgifter." };
+  }
+
+  const { email } = parsed.data;
+
+  const [user] = await sql<{ id: number }[]>`
+    select id from users where email = ${email}
+  `;
+
+  if (user) {
+    const token = generateResetToken();
+    const tokenHash = hashResetToken(token);
+    const expiresAt = new Date(Date.now() + 60 * 60 * 1000);
+
+    await sql`
+      update users
+      set password_reset_token_hash = ${tokenHash}, password_reset_expires_at = ${expiresAt}
+      where id = ${user.id}
+    `;
+
+    try {
+      await sendPasswordResetEmail(email, token);
+    } catch (err) {
+      console.error("Kunde inte skicka återställningsmejl:", err);
+    }
+  }
+
+  // Same response whether or not the address has an account, so this form
+  // can't be used to check which emails are registered.
+  return { success: true };
+}
+
+const ResetPasswordSchema = z
+  .object({
+    token: z.string().min(1, { error: "Länken saknar en giltig kod." }),
+    newPassword: z
+      .string()
+      .min(8, { error: "Lösenordet måste vara minst 8 tecken." }),
+    confirmPassword: z.string(),
+  })
+  .refine((data) => data.newPassword === data.confirmPassword, {
+    error: "Lösenorden matchar inte.",
+    path: ["confirmPassword"],
+  });
+
+export async function resetPassword(
+  _prevState: AuthState,
+  formData: FormData
+): Promise<AuthState> {
+  const parsed = ResetPasswordSchema.safeParse({
+    token: formData.get("token"),
+    newPassword: formData.get("newPassword"),
+    confirmPassword: formData.get("confirmPassword"),
+  });
+
+  if (!parsed.success) {
+    return { error: parsed.error.issues[0]?.message ?? "Ogiltiga uppgifter." };
+  }
+
+  const { token, newPassword } = parsed.data;
+  const tokenHash = hashResetToken(token);
+
+  const [user] = await sql<{ id: number }[]>`
+    select id from users
+    where password_reset_token_hash = ${tokenHash}
+      and password_reset_expires_at > now()
+  `;
+
+  if (!user) {
+    return { error: "Länken är ogiltig eller har gått ut. Begär en ny." };
+  }
+
+  const passwordHash = hashPassword(newPassword);
+  await sql`
+    update users
+    set password_hash = ${passwordHash},
+      password_reset_token_hash = null,
+      password_reset_expires_at = null
+    where id = ${user.id}
+  `;
 
   return { success: true };
 }

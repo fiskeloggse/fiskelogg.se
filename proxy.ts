@@ -6,7 +6,13 @@ import { SESSION_COOKIE, verifySessionToken } from "@/lib/session-token";
 // visitors and the dashboard to signed-in users, so it must never redirect
 // either way. Only "/login" and "/signup" redirect an already-signed-in
 // visitor back to "/".
-const publicPaths = new Set(["/", "/login", "/signup"]);
+const publicPaths = new Set([
+  "/",
+  "/login",
+  "/signup",
+  "/glomt-losenord",
+  "/aterstall-losenord",
+]);
 const authOnlyPaths = new Set(["/login", "/signup"]);
 
 export function proxy(request: NextRequest) {
