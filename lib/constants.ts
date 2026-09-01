@@ -81,6 +81,7 @@ export const MONTHS = [
 // Fiskemetod respectively), since those rows are always shown or hidden
 // together.
 export const QUICK_LOG_FIELDS = [
+  { key: "photo", label: "Foto" },
   { key: "weightKg", label: "Längd & Vikt" },
   { key: "lake", label: "Vatten & Plats" },
   { key: "bait", label: "Fiskemetod & Bete" },

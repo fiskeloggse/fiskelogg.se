@@ -199,6 +199,7 @@ export default function CatchForm({
   // Längd/Vikt, Vatten/Plats, and Fiskemetod/Bete are each toggled together
   // as one row in Snabbloggning, so the pair shares its representative
   // field's key (see the comment on QUICK_LOG_FIELDS).
+  const showPhoto = quickFields.includes("photo");
   const showLength = quickFields.includes("weightKg");
   const showWeight = quickFields.includes("weightKg");
   const showLake = quickFields.includes("lake");
@@ -207,6 +208,7 @@ export default function CatchForm({
   const showComment = quickFields.includes("comment");
   const showGps = quickFields.includes("gps");
   const hasHiddenFields =
+    !showPhoto ||
     !showWeight ||
     !showLake ||
     !showBait ||
@@ -497,7 +499,7 @@ export default function CatchForm({
             <Chips options={suggestions.recent} selected={species} onSelect={setSpecies} />
           </div>
 
-          <div className="flex flex-col gap-2">
+          <div className={showPhoto || showMore ? "flex flex-col gap-2" : "hidden"}>
             <span className="text-sm font-medium">Foto</span>
             <div className="flex items-center gap-3">
               {photoPreview && (
