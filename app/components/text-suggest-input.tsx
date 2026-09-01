@@ -30,14 +30,17 @@ export default function TextSuggestInput({
   const [open, setOpen] = useState(false);
 
   const query = value.trim().toLowerCase();
-  // Once the typed value exactly matches an option, hide the list entirely
-  // instead of showing whatever else happens to contain the same text —
-  // otherwise finishing "Abborre" left only "Havsabborre" in the dropdown,
-  // which read as if the typed species had vanished.
+  // Once the typed value exactly matches an option, narrow the list to just
+  // that option instead of every other option that happens to contain the
+  // same text — otherwise finishing "Abborre" left only "Havsabborre" in the
+  // dropdown, which read as if the typed species had vanished. Hiding the
+  // list entirely on an exact match had the opposite problem: finishing a
+  // species with no shorter substring match (e.g. "Löja") made it look like
+  // that species wasn't recognized at all.
   const exactMatch = options.some((o) => o.toLowerCase() === query);
   const matches = query
     ? exactMatch
-      ? []
+      ? options.filter((o) => o.toLowerCase() === query)
       : options.filter((o) => o.toLowerCase().includes(query)).slice(0, 6)
     : showAllWhenEmpty
       ? options.slice(0, 20)
