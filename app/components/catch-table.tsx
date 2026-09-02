@@ -37,6 +37,7 @@ export default function CatchTable({
   lakeOptions,
   baitOptions,
   visibleColumns,
+  totals,
 }: {
   catches: Catch[];
   currentUserId: number;
@@ -44,6 +45,10 @@ export default function CatchTable({
   lakeOptions: string[];
   baitOptions: string[];
   visibleColumns: string[] | null;
+  // When the table only renders one page of a larger filtered set, the
+  // "Totalt" row should still reflect every matching catch, not just the
+  // ones on screen.
+  totals?: { count: number; totalLength: number; totalWeight: number };
 }) {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -90,8 +95,11 @@ export default function CatchTable({
       Boolean
     ).length + (selectMode ? 1 : 0);
 
-  const totalLength = catches.reduce((sum, c) => sum + (c.length_cm ?? 0), 0);
-  const totalWeight = catches.reduce((sum, c) => sum + (c.weight_kg ?? 0), 0);
+  const totalCount = totals?.count ?? catches.length;
+  const totalLength =
+    totals?.totalLength ?? catches.reduce((sum, c) => sum + (c.length_cm ?? 0), 0);
+  const totalWeight =
+    totals?.totalWeight ?? catches.reduce((sum, c) => sum + (c.weight_kg ?? 0), 0);
 
   const ownCatches = catches.filter((c) => c.user_id === currentUserId);
   const allSelected =
@@ -431,8 +439,7 @@ export default function CatchTable({
               <tr className="border-t border-black/10 font-medium dark:border-white/15">
                 {selectMode && <td className="px-1 py-2" />}
                 <td className="px-1 py-2" colSpan={labelSpan}>
-                  Totalt · {catches.length}{" "}
-                  {catches.length === 1 ? "fångst" : "fångster"}
+                  Totalt · {totalCount} {totalCount === 1 ? "fångst" : "fångster"}
                 </td>
                 {showMatt && (
                   <td className="px-1 py-2 text-right whitespace-nowrap">

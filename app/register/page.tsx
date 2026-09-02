@@ -109,6 +109,11 @@ export default async function RegisterPage(props: PageProps<"/register">) {
         lakeOptions={lakeOptions}
         baitOptions={baitOptions}
         visibleColumns={user.visible_register_columns}
+        totals={{
+          count: catches.length,
+          totalLength: catches.reduce((sum, c) => sum + (c.length_cm ?? 0), 0),
+          totalWeight: catches.reduce((sum, c) => sum + (c.weight_kg ?? 0), 0),
+        }}
       />
 
       {catches.length > 0 && (
