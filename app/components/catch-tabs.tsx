@@ -4,7 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 const ALL_TABS = [
-  { href: "/", label: "Logga fisk" },
+  { href: "/", label: "Logga" },
   { href: "/register", label: "Register" },
   { href: "/statistik", label: "Statistik" },
   { href: "/challenges", label: "Utmaningar" },

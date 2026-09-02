@@ -124,6 +124,7 @@ export default function CatchForm({
   defaultMethod,
   quickLogFields,
   gpsMode,
+  openFiskepassSpecies,
 }: {
   suggestions: SpeciesSuggestions;
   baitSuggestions: BaitSuggestions;
@@ -138,6 +139,7 @@ export default function CatchForm({
   defaultMethod: string | null;
   quickLogFields: string[] | null;
   gpsMode: GpsModeKey;
+  openFiskepassSpecies?: string[] | null;
 }) {
   const [state, formAction, pending] = useActionState(addCatch, undefined);
   const wasPending = useRef(false);
@@ -508,6 +510,13 @@ export default function CatchForm({
             />
 
             <Chips options={suggestions.recent} selected={species} onSelect={setSpecies} />
+            {openFiskepassSpecies && openFiskepassSpecies.length > 0 && (
+              <Chips
+                options={openFiskepassSpecies}
+                selected={species}
+                onSelect={setSpecies}
+              />
+            )}
           </div>
 
           <div className={showPhoto || showMore ? "flex flex-col gap-2" : "hidden"}>

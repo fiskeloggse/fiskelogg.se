@@ -121,3 +121,27 @@ update bingo_cards set species = initcap(species) where species <> initcap(speci
 
 create index if not exists bingo_cards_team_id_idx on bingo_cards (team_id);
 create index if not exists bingo_cards_created_by_idx on bingo_cards (created_by);
+
+alter table users add column if not exists show_fiskepass boolean not null default false;
+
+-- A fishing session. Catches are never linked to a pass by id -- a catch
+-- belongs to whichever pass's [start_time, stop_time] window contains its
+-- caught_at, computed at query time (see lib/fiskepass.ts). This means
+-- editing a pass's times after the fact (e.g. forgot to start/stop it)
+-- automatically fixes which catches count, with no backfill needed.
+create table if not exists fiskepass (
+  id serial primary key,
+  user_id integer not null references users(id) on delete cascade,
+  target_species text[],
+  start_time timestamptz not null,
+  -- Null while the pass is still open/ongoing.
+  stop_time timestamptz,
+  created_at timestamptz not null default now()
+);
+
+create index if not exists fiskepass_user_id_idx on fiskepass (user_id);
+
+-- Enforces "only one open pass at a time" at the database level, not just
+-- in application code -- a partial unique index over just the open rows.
+create unique index if not exists fiskepass_one_open_per_user
+  on fiskepass (user_id) where stop_time is null;

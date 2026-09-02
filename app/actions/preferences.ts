@@ -32,6 +32,15 @@ export async function updateShowSpeciesCollection(formData: FormData) {
   revalidatePath("/challenges");
 }
 
+export async function updateShowFiskepass(formData: FormData) {
+  const user = await requireUser();
+  const showFiskepass = formData.get("show_fiskepass") === "on";
+
+  await sql`update users set show_fiskepass = ${showFiskepass} where id = ${user.id}`;
+
+  revalidatePath("/", "layout");
+}
+
 export async function updateGpsMode(formData: FormData) {
   const user = await requireUser();
   const gpsModeRaw = String(formData.get("gps_mode") ?? "");

@@ -7,6 +7,7 @@ import { leaveTeam } from "@/app/actions/team";
 import {
   updateShowBingo,
   updateShowSpeciesCollection,
+  updateShowFiskepass,
   updateGpsMode,
   updateQuickLogFields,
   updateShareCardFields,
@@ -94,6 +95,23 @@ export default async function KontoPage() {
               defaultChecked={user.show_species_collection}
             />
             Visa Artjakten (under Utmaningar)
+          </label>
+          <button
+            type="submit"
+            className="self-start rounded-full bg-foreground px-4 py-2 text-sm font-medium text-background"
+          >
+            Spara
+          </button>
+        </form>
+
+        <form action={updateShowFiskepass} className="flex flex-col gap-3">
+          <label className="flex items-center gap-2 text-sm">
+            <input
+              type="checkbox"
+              name="show_fiskepass"
+              defaultChecked={user.show_fiskepass}
+            />
+            Visa Fiskepass
           </label>
           <button
             type="submit"

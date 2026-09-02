@@ -12,9 +12,11 @@ import {
   getTodaysLastMethod,
 } from "@/lib/catches";
 import { TIMEZONE } from "@/lib/constants";
+import { getOpenFiskepass } from "@/lib/fiskepass";
 import CatchForm from "@/app/components/catch-form";
 import type { Catch } from "@/app/components/catch-list";
 import CatchSpeciesFilter from "@/app/components/catch-species-filter";
+import FiskepassBar from "@/app/components/fiskepass-bar";
 import LandingPage from "@/app/components/landing-page";
 import CatchesTable from "@/app/components/catches-table";
 
@@ -121,6 +123,7 @@ export default async function Home(props: PageProps<"/">) {
     todaysTopTeamCatches,
     personalCatches,
     teamCatches,
+    openFiskepass,
   ] = await Promise.all([
     getSpeciesSuggestions(user.id),
     getBaitSuggestions(user.id),
@@ -137,12 +140,15 @@ export default async function Home(props: PageProps<"/">) {
     todaysTopTeamCatchesQuery,
     personalCatchesQuery,
     teamCatchesQuery,
+    user.show_fiskepass ? getOpenFiskepass(user.id) : Promise.resolve(null),
   ]);
 
   const todaysSpecies = todaysSpeciesRows.map((row) => row.species);
 
   return (
     <main className="mx-auto flex w-full max-w-4xl flex-1 flex-col gap-6 px-4 py-8 sm:px-6">
+      {user.show_fiskepass && <FiskepassBar openPass={openFiskepass} />}
+
       <CatchForm
         suggestions={speciesSuggestions}
         baitSuggestions={baitSuggestions}
@@ -157,6 +163,7 @@ export default async function Home(props: PageProps<"/">) {
         defaultMethod={defaultMethod}
         quickLogFields={user.quick_log_fields}
         gpsMode={user.gps_mode}
+        openFiskepassSpecies={openFiskepass?.target_species ?? null}
       />
 
       <CatchesTable
