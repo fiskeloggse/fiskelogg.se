@@ -125,6 +125,7 @@ export default function CatchForm({
   quickLogFields,
   gpsMode,
   openFiskepassSpecies,
+  fiskepassButton,
 }: {
   suggestions: SpeciesSuggestions;
   baitSuggestions: BaitSuggestions;
@@ -140,6 +141,7 @@ export default function CatchForm({
   quickLogFields: string[] | null;
   gpsMode: GpsModeKey;
   openFiskepassSpecies?: string[] | null;
+  fiskepassButton?: React.ReactNode;
 }) {
   const [state, formAction, pending] = useActionState(addCatch, undefined);
   const wasPending = useRef(false);
@@ -463,6 +465,7 @@ export default function CatchForm({
         >
           + Logga tidigare fisk
         </button>
+        {fiskepassButton}
       </div>
 
       <dialog

@@ -16,7 +16,7 @@ import { getOpenFiskepass } from "@/lib/fiskepass";
 import CatchForm from "@/app/components/catch-form";
 import type { Catch } from "@/app/components/catch-list";
 import CatchSpeciesFilter from "@/app/components/catch-species-filter";
-import FiskepassBar from "@/app/components/fiskepass-bar";
+import FiskepassButton, { FiskepassStatus } from "@/app/components/fiskepass-bar";
 import LandingPage from "@/app/components/landing-page";
 import CatchesTable from "@/app/components/catches-table";
 
@@ -147,7 +147,7 @@ export default async function Home(props: PageProps<"/">) {
 
   return (
     <main className="mx-auto flex w-full max-w-4xl flex-1 flex-col gap-6 px-4 py-8 sm:px-6">
-      {user.show_fiskepass && <FiskepassBar openPass={openFiskepass} />}
+      {user.show_fiskepass && <FiskepassStatus openPass={openFiskepass} />}
 
       <CatchForm
         suggestions={speciesSuggestions}
@@ -164,6 +164,9 @@ export default async function Home(props: PageProps<"/">) {
         quickLogFields={user.quick_log_fields}
         gpsMode={user.gps_mode}
         openFiskepassSpecies={openFiskepass?.target_species ?? null}
+        fiskepassButton={
+          user.show_fiskepass ? <FiskepassButton openPass={openFiskepass} /> : null
+        }
       />
 
       <CatchesTable
