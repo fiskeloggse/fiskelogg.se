@@ -7,7 +7,7 @@ import {
   getSpeciesBreakdown,
 } from "@/lib/stats";
 import { getPersonalBests } from "@/lib/personal-bests";
-import { getFiskepassHistory, getFiskepassStats } from "@/lib/fiskepass";
+import { getFiskepassStats } from "@/lib/fiskepass";
 import StatsDashboard from "@/app/components/stats-dashboard";
 import FiskepassStats from "@/app/components/fiskepass-stats";
 
@@ -27,23 +27,15 @@ export default async function StatistikPage(props: PageProps<"/statistik">) {
           ? "fishingdays"
           : null;
 
-  const [
-    speciesBreakdown,
-    lakeStats,
-    fishingDays,
-    personalBests,
-    mappedCatches,
-    fiskepassStats,
-    fiskepassHistory,
-  ] = await Promise.all([
-    getSpeciesBreakdown(user.id),
-    getLakeStats(user.id),
-    getFishingDaysByDate(user.id),
-    getPersonalBests(user.id),
-    getCatchesWithPosition(user.id),
-    user.show_fiskepass ? getFiskepassStats(user.id) : Promise.resolve(null),
-    user.show_fiskepass ? getFiskepassHistory(user.id) : Promise.resolve([]),
-  ]);
+  const [speciesBreakdown, lakeStats, fishingDays, personalBests, mappedCatches, fiskepassStats] =
+    await Promise.all([
+      getSpeciesBreakdown(user.id),
+      getLakeStats(user.id),
+      getFishingDaysByDate(user.id),
+      getPersonalBests(user.id),
+      getCatchesWithPosition(user.id),
+      user.show_fiskepass ? getFiskepassStats(user.id) : Promise.resolve(null),
+    ]);
 
   return (
     <main className="mx-auto flex w-full max-w-4xl flex-1 flex-col gap-8 px-4 py-10 sm:px-6">
@@ -55,9 +47,7 @@ export default async function StatistikPage(props: PageProps<"/statistik">) {
         mappedCatches={mappedCatches}
         initialExpanded={initialExpanded}
       />
-      {user.show_fiskepass && fiskepassStats && (
-        <FiskepassStats stats={fiskepassStats} history={fiskepassHistory} />
-      )}
+      {user.show_fiskepass && fiskepassStats && <FiskepassStats stats={fiskepassStats} />}
     </main>
   );
 }
