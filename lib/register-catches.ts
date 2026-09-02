@@ -121,6 +121,26 @@ export function parseRegisterFilters(params: URLSearchParams): RegisterFilters {
   };
 }
 
+export const PAGE_SIZE_OPTIONS = [10, 20, 50] as const;
+export const DEFAULT_PAGE_SIZE = 20;
+
+export type Pagination = { page: number; pageSize: number | null };
+
+export function parsePagination(params: URLSearchParams): Pagination {
+  const pageRaw = Number(params.get("page"));
+  const page = Number.isInteger(pageRaw) && pageRaw > 0 ? pageRaw : 1;
+
+  const pageSizeRaw = params.get("pageSize");
+  const pageSize =
+    pageSizeRaw === "all"
+      ? null
+      : (PAGE_SIZE_OPTIONS as readonly number[]).includes(Number(pageSizeRaw))
+        ? Number(pageSizeRaw)
+        : DEFAULT_PAGE_SIZE;
+
+  return { page, pageSize };
+}
+
 export function hasActiveFilters(filters: RegisterFilters): boolean {
   return Boolean(
     filters.q ||
