@@ -1,5 +1,6 @@
 import "server-only";
 import sql from "./db";
+import type { Catch } from "@/app/components/catch-list";
 
 export type Fiskepass = {
   id: number;
@@ -75,4 +76,70 @@ export async function getFiskepassStats(userId: number): Promise<FiskepassStats>
     antalBompass: row?.antal_bompass ?? 0,
     totalHours: (row?.total_seconds ?? 0) / 3600,
   };
+}
+
+const CATCH_LIMIT = 5;
+
+// While a pass is open, the home page swaps its usual "today" boxes for
+// these -- scoped to the pass's own time window (which may span more or
+// less than the current calendar day) rather than the clock.
+export async function getFiskepassRecentCatches(
+  userId: number,
+  startTime: Date,
+  speciesFilter: string
+): Promise<Catch[]> {
+  const speciesCondition = speciesFilter ? sql`and species = ${speciesFilter}` : sql``;
+
+  return sql<Catch[]>`
+    select id, user_id, species, length_cm, weight_kg, lake, location, bait, comment, caught_at
+    from catches
+    where user_id = ${userId}
+      and deleted_at is null
+      and caught_at >= ${startTime}
+      ${speciesCondition}
+    order by caught_at desc
+    limit ${CATCH_LIMIT}
+  `;
+}
+
+// Top 5 by length, restricted to an explicit species filter if given,
+// otherwise to the pass's own target species (if any were set) -- "top 5 of
+// the species you're after" is more useful mid-pass than "top 5 of
+// anything".
+export async function getFiskepassTopCatches(
+  userId: number,
+  startTime: Date,
+  speciesFilter: string,
+  targetSpecies: string[] | null
+): Promise<Catch[]> {
+  const speciesCondition = speciesFilter
+    ? sql`and species = ${speciesFilter}`
+    : targetSpecies && targetSpecies.length > 0
+      ? sql`and species = any(${sql.array(targetSpecies)})`
+      : sql``;
+
+  return sql<Catch[]>`
+    select id, user_id, species, length_cm, weight_kg, lake, location, bait, comment, caught_at
+    from catches
+    where user_id = ${userId}
+      and deleted_at is null
+      and length_cm is not null
+      and caught_at >= ${startTime}
+      ${speciesCondition}
+    order by length_cm desc
+    limit ${CATCH_LIMIT}
+  `;
+}
+
+export async function getFiskepassSpeciesList(
+  userId: number,
+  startTime: Date
+): Promise<string[]> {
+  const rows = await sql<{ species: string }[]>`
+    select distinct species
+    from catches
+    where user_id = ${userId} and deleted_at is null and caught_at >= ${startTime}
+    order by species
+  `;
+  return rows.map((r) => r.species);
 }
