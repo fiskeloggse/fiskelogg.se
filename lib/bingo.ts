@@ -71,26 +71,46 @@ export async function getBingoCatches(
   return byCm;
 }
 
-// Bingo cards visible to a catch's logger that this new catch could complete
-// a cell on — used to notify right after logging.
+// Bingo cards visible to a catch's logger that this new catch newly
+// completes a cell on -- excludes cards where that same cm cell was
+// already checked off by an earlier catch, so a second 90cm catch doesn't
+// re-announce a bingo match the first 90cm catch already claimed. Used to
+// notify right after logging.
 export async function findMatchingBingoCards(
   userId: number,
   teamId: number | null,
   species: string,
   lengthCm: number,
-  caughtAt: Date
+  caughtAt: Date,
+  excludeCatchId: number
 ): Promise<{ id: number; species: string; min_cm: number; max_cm: number }[]> {
   return sql<{ id: number; species: string; min_cm: number; max_cm: number }[]>`
-    select id, species, min_cm, max_cm
-    from bingo_cards
-    where species = ${species}
-      and min_cm <= ${lengthCm}
-      and max_cm >= ${lengthCm}
-      and (from_date is null or (${caughtAt}::timestamptz at time zone ${TIMEZONE})::date >= from_date)
-      and (to_date is null or (${caughtAt}::timestamptz at time zone ${TIMEZONE})::date <= to_date)
+    select bc.id, bc.species, bc.min_cm, bc.max_cm
+    from bingo_cards bc
+    where bc.species = ${species}
+      and bc.min_cm <= ${lengthCm}
+      and bc.max_cm >= ${lengthCm}
+      and (bc.from_date is null or (${caughtAt}::timestamptz at time zone ${TIMEZONE})::date >= bc.from_date)
+      and (bc.to_date is null or (${caughtAt}::timestamptz at time zone ${TIMEZONE})::date <= bc.to_date)
       and (
-        (team_id is not null and team_id = ${teamId})
-        or (team_id is null and created_by = ${userId})
+        (bc.team_id is not null and bc.team_id = ${teamId})
+        or (bc.team_id is null and bc.created_by = ${userId})
+      )
+      and not exists (
+        select 1
+        from catches c2
+        join users u2 on u2.id = c2.user_id
+        where c2.deleted_at is null
+          and c2.id <> ${excludeCatchId}
+          and c2.species = ${species}
+          and c2.length_cm is not null
+          and round(c2.length_cm) = round(${lengthCm}::numeric)
+          and (
+            (bc.team_id is not null and u2.team_id = bc.team_id)
+            or (bc.team_id is null and c2.user_id = bc.created_by)
+          )
+          and (bc.from_date is null or (c2.caught_at at time zone ${TIMEZONE})::date >= bc.from_date)
+          and (bc.to_date is null or (c2.caught_at at time zone ${TIMEZONE})::date <= bc.to_date)
       )
   `;
 }

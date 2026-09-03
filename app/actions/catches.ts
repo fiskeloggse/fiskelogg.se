@@ -217,7 +217,8 @@ export async function addCatch(
           user.team_id,
           inserted.species,
           lengthCm,
-          caughtAt ?? new Date()
+          caughtAt ?? new Date(),
+          inserted.id
         )
       : Promise.resolve([]),
     getPreviousBest(anglerId, inserted.species, inserted.id),
