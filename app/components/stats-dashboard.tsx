@@ -50,6 +50,49 @@ function StatCard({
   );
 }
 
+// Combines two related counts (arter, fiskar) into one card instead of two
+// separate ones -- both already expand the same "species" panel, so they
+// were really one stat split across two boxes.
+function DualStatCard({
+  primaryLabel,
+  primaryValue,
+  secondaryLabel,
+  secondaryValue,
+  active,
+  onClick,
+}: {
+  primaryLabel: string;
+  primaryValue: number;
+  secondaryLabel: string;
+  secondaryValue: number;
+  active?: boolean;
+  onClick: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={
+        "rounded-xl border p-5 text-left transition-colors " +
+        (active
+          ? "border-foreground bg-black/5 dark:bg-white/10"
+          : "border-black/10 bg-white hover:bg-black/5 dark:border-white/15 dark:bg-white/5 dark:hover:bg-white/10")
+      }
+    >
+      <div className="flex items-baseline gap-5">
+        <div>
+          <p className="text-2xl font-semibold">{primaryValue}</p>
+          <p className="text-sm text-zinc-500 dark:text-zinc-400">{primaryLabel}</p>
+        </div>
+        <div className="border-l border-black/10 pl-5 dark:border-white/15">
+          <p className="text-2xl font-semibold">{secondaryValue}</p>
+          <p className="text-sm text-zinc-500 dark:text-zinc-400">{secondaryLabel}</p>
+        </div>
+      </div>
+    </button>
+  );
+}
+
 function Empty({ children }: { children: React.ReactNode }) {
   return <p className="text-sm text-zinc-500 dark:text-zinc-400">{children}</p>;
 }
@@ -177,16 +220,12 @@ export default function StatsDashboard({
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
-        <StatCard
-          label="Antal fiskar"
-          value={fishCount}
-          active={expanded === "species"}
-          onClick={() => setExpanded(expanded === "species" ? null : "species")}
-        />
-        <StatCard
-          label="Antal arter"
-          value={speciesCount}
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+        <DualStatCard
+          primaryLabel="Arter"
+          primaryValue={speciesCount}
+          secondaryLabel="Fiskar"
+          secondaryValue={fishCount}
           active={expanded === "species"}
           onClick={() => setExpanded(expanded === "species" ? null : "species")}
         />
