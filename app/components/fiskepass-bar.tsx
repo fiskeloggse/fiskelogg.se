@@ -22,6 +22,10 @@ function formatElapsed(startTime: Date, now: Date): string {
   return `${hours} h ${minutes} min`;
 }
 
+function formatClockTime(date: Date): string {
+  return date.toLocaleTimeString("sv-SE", { hour: "2-digit", minute: "2-digit" });
+}
+
 function StartFiskepassButton() {
   const [state, formAction, pending] = useActionState(startFiskepass, undefined);
   const [open, setOpen] = useState(false);
@@ -56,7 +60,7 @@ function StartFiskepassButton() {
         onClick={() => setOpen(true)}
         className="rounded-full border border-black/10 px-4 py-2 text-sm font-medium transition-colors hover:bg-black/5 dark:border-white/15 dark:hover:bg-white/10"
       >
-        🎣 Starta fiskepass
+        Starta fiskepass
       </button>
 
       <dialog
@@ -189,7 +193,8 @@ export function FiskepassStatus({ openPass }: { openPass: OpenFiskepass | null }
 
   return (
     <p className="text-center text-sm text-zinc-500 dark:text-zinc-400">
-      🎣 Fiskepass pågår · {formatElapsed(openPass.start_time, now)}
+      🎣 Fiskepass sedan {formatClockTime(openPass.start_time)} ·{" "}
+      {formatElapsed(openPass.start_time, now)} pågått
       {openPass.target_species && openPass.target_species.length > 0
         ? ` · ${openPass.target_species.join(", ")}`
         : ""}
