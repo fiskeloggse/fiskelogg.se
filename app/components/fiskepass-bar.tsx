@@ -3,6 +3,7 @@
 import { useActionState, useEffect, useRef, useState } from "react";
 import { startFiskepass, stopFiskepass } from "@/app/actions/fiskepass";
 import { FISH_SPECIES } from "@/lib/species";
+import ConfirmDialog from "./confirm-dialog";
 import TextSuggestInput from "./text-suggest-input";
 
 const inputClassName =
@@ -45,8 +46,8 @@ function StartFiskepassButton() {
     if (state && "success" in state) setOpen(false);
   }, [state]);
 
-  function addSpecies() {
-    const trimmed = speciesInput.trim();
+  function addSpecies(species: string) {
+    const trimmed = species.trim();
     if (trimmed && !targetSpecies.includes(trimmed)) {
       setTargetSpecies((prev) => [...prev, trimmed]);
     }
@@ -97,6 +98,7 @@ function StartFiskepassButton() {
                   name="speciesSearch"
                   value={speciesInput}
                   onChange={setSpeciesInput}
+                  onSelect={addSpecies}
                   options={FISH_SPECIES}
                   placeholder="Sök art"
                   className={inputClassName}
@@ -104,7 +106,7 @@ function StartFiskepassButton() {
               </div>
               <button
                 type="button"
-                onClick={addSpecies}
+                onClick={() => addSpecies(speciesInput)}
                 disabled={!speciesInput.trim()}
                 className="shrink-0 rounded-lg border border-black/10 px-3 py-2 text-sm font-medium transition-colors hover:bg-black/5 disabled:opacity-40 dark:border-white/15 dark:hover:bg-white/10"
               >
@@ -155,17 +157,44 @@ function StartFiskepassButton() {
   );
 }
 
-function StopFiskepassButton({ id }: { id: number }) {
+function StopFiskepassButton({ id, startTime }: { id: number; startTime: Date }) {
+  const [open, setOpen] = useState(false);
+  const [now, setNow] = useState(() => new Date());
+  const formRef = useRef<HTMLFormElement>(null);
+
+  useEffect(() => {
+    const timer = setInterval(() => setNow(new Date()), 30000);
+    return () => clearInterval(timer);
+  }, []);
+
+  const elapsed = formatElapsed(startTime, now);
+
   return (
-    <form action={stopFiskepass}>
-      <input type="hidden" name="id" value={id} />
+    <>
       <button
-        type="submit"
+        type="button"
+        onClick={() => setOpen(true)}
         className="rounded-full border border-black/10 px-4 py-2 text-sm font-medium transition-colors hover:bg-black/5 dark:border-white/15 dark:hover:bg-white/10"
       >
-        🎣 Avsluta pass
+        Avsluta pass <span className="text-zinc-500 dark:text-zinc-400">· {elapsed}</span>
       </button>
-    </form>
+
+      <form ref={formRef} action={stopFiskepass} className="hidden">
+        <input type="hidden" name="id" value={id} />
+      </form>
+
+      <ConfirmDialog
+        open={open}
+        title="Avsluta fiskepasset?"
+        description={`Passet har pågått i ${elapsed}.`}
+        confirmLabel="Avsluta pass"
+        onCancel={() => setOpen(false)}
+        onConfirm={() => {
+          setOpen(false);
+          formRef.current?.requestSubmit();
+        }}
+      />
+    </>
   );
 }
 
@@ -173,28 +202,24 @@ function StopFiskepassButton({ id }: { id: number }) {
 // fisk" (passed into CatchForm as a slot) so starting or stopping a session
 // reads as one of the app's logging actions, not a separate feature.
 export default function FiskepassButton({ openPass }: { openPass: OpenFiskepass | null }) {
-  if (openPass) return <StopFiskepassButton id={openPass.id} />;
+  if (openPass) return <StopFiskepassButton id={openPass.id} startTime={openPass.start_time} />;
   return <StartFiskepassButton />;
 }
 
-// Small status line shown above the log form while a pass is open --
-// elapsed time and target species, for context the button itself doesn't
-// have room for.
+// Status line shown above the log form while a pass is open. A blinking
+// "recording" dot carries the "still going" signal at a glance -- elapsed
+// time lives on the stop button instead, since that's a live-updating
+// number that matters most right where you'd end the pass.
 export function FiskepassStatus({ openPass }: { openPass: OpenFiskepass | null }) {
-  const [now, setNow] = useState(() => new Date());
-
-  useEffect(() => {
-    if (!openPass) return;
-    const timer = setInterval(() => setNow(new Date()), 30000);
-    return () => clearInterval(timer);
-  }, [openPass]);
-
   if (!openPass) return null;
 
   return (
-    <p className="text-center text-sm text-zinc-500 dark:text-zinc-400">
-      🎣 Fiskepass sedan {formatClockTime(openPass.start_time)} ·{" "}
-      {formatElapsed(openPass.start_time, now)} pågått
+    <p className="flex items-center justify-center gap-2 text-center text-sm text-zinc-500 dark:text-zinc-400">
+      <span className="relative flex h-2.5 w-2.5 shrink-0">
+        <span className="absolute inline-flex h-full w-full motion-safe:animate-ping rounded-full bg-red-500 opacity-75" />
+        <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-red-600" />
+      </span>
+      Fiskepass pågår sedan {formatClockTime(openPass.start_time)}
       {openPass.target_species && openPass.target_species.length > 0
         ? ` · ${openPass.target_species.join(", ")}`
         : ""}

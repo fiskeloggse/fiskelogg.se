@@ -512,7 +512,15 @@ export default function CatchForm({
               className={inputClassName}
             />
 
-            <Chips options={suggestions.recent} selected={species} onSelect={setSpecies} />
+            <Chips
+              options={
+                openFiskepassSpecies && openFiskepassSpecies.length > 0
+                  ? suggestions.recent.filter((s) => !openFiskepassSpecies.includes(s))
+                  : suggestions.recent
+              }
+              selected={species}
+              onSelect={setSpecies}
+            />
             {openFiskepassSpecies && openFiskepassSpecies.length > 0 && (
               <Chips
                 options={openFiskepassSpecies}

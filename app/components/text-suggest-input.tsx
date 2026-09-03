@@ -7,6 +7,7 @@ export default function TextSuggestInput({
   name,
   value,
   onChange,
+  onSelect,
   options,
   className,
   placeholder,
@@ -17,6 +18,10 @@ export default function TextSuggestInput({
   name: string;
   value: string;
   onChange: (value: string) => void;
+  // Fires when a suggestion is explicitly clicked, instead of just filling
+  // the field via onChange -- lets a caller treat a click as a confirmed
+  // pick (e.g. add it to a list right away) rather than more text to edit.
+  onSelect?: (value: string) => void;
   options: readonly string[];
   className: string;
   placeholder?: string;
@@ -72,7 +77,11 @@ export default function TextSuggestInput({
                 type="button"
                 onMouseDown={(e) => e.preventDefault()}
                 onClick={() => {
-                  onChange(match);
+                  if (onSelect) {
+                    onSelect(match);
+                  } else {
+                    onChange(match);
+                  }
                   setOpen(false);
                 }}
                 className="block w-full px-3 py-2 text-left text-sm hover:bg-black/5 dark:hover:bg-white/10"
