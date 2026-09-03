@@ -41,10 +41,8 @@ export default async function ChallengesPage() {
 
   return (
     <main className="mx-auto flex w-full max-w-4xl flex-1 flex-col gap-8 px-4 py-10 sm:px-6">
-      <details open className="rounded-xl border border-black/10 bg-white p-5 dark:border-white/15 dark:bg-white/5">
-        <summary className="cursor-pointer text-lg font-semibold">
-          Bingo
-        </summary>
+      <div className="rounded-xl border border-black/10 bg-white p-5 dark:border-white/15 dark:bg-white/5">
+        <h2 className="text-lg font-semibold">Bingo</h2>
 
         <div className="mt-4 flex flex-col gap-6">
           {cards.length === 0 ? (
@@ -73,31 +71,25 @@ export default async function ChallengesPage() {
             </div>
           </details>
         </div>
-      </details>
+      </div>
 
       {user.show_species_collection && (
-        <details open className="rounded-xl border border-black/10 bg-white p-5 dark:border-white/15 dark:bg-white/5">
-          <summary className="cursor-pointer text-lg font-semibold">
-            Artjakten
-          </summary>
+        <div className="rounded-xl border border-black/10 bg-white p-5 dark:border-white/15 dark:bg-white/5">
+          <h2 className="text-lg font-semibold">Artjakten</h2>
 
           <div className="mt-4 flex flex-col gap-3">
-            <details className="rounded-xl border border-black/10 p-3 dark:border-white/15">
-              <summary className="cursor-pointer text-sm text-zinc-500 dark:text-zinc-400">
-                {caughtSpecies.size}/{trackedSpecies.length} fångade
-                {storfiskSpecies.size > 0 &&
-                  ` · ${storfiskSpecies.size} 🏅 storfisk${storfiskSpecies.size === 1 ? "" : "ar"}`}
-              </summary>
-              <div className="mt-3">
-                <SpeciesCollection
-                  speciesBreakdown={speciesBreakdown}
-                  personalBests={personalBests}
-                  hiddenSpecies={user.hidden_species ?? []}
-                />
-              </div>
-            </details>
+            <p className="text-sm text-zinc-500 dark:text-zinc-400">
+              {caughtSpecies.size}/{trackedSpecies.length} fångade
+              {storfiskSpecies.size > 0 &&
+                ` · ${storfiskSpecies.size} 🏅 storfisk${storfiskSpecies.size === 1 ? "" : "ar"}`}
+            </p>
+            <SpeciesCollection
+              speciesBreakdown={speciesBreakdown}
+              personalBests={personalBests}
+              hiddenSpecies={user.hidden_species ?? []}
+            />
           </div>
-        </details>
+        </div>
       )}
     </main>
   );

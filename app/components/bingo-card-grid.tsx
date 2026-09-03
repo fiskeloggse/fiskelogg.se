@@ -43,7 +43,7 @@ function groupByDecade(min: number, max: number): [number, number[]][] {
 function BingoCell({ cm, matches }: { cm: number; matches: BingoCatch[] | undefined }) {
   if (!matches) {
     return (
-      <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-sm bg-black/10 text-xs text-zinc-500 sm:h-12 sm:w-12 sm:text-sm dark:bg-white/10 dark:text-zinc-400">
+      <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-sm bg-black/10 text-xs text-zinc-500 sm:h-9 sm:w-9 dark:bg-white/10 dark:text-zinc-400">
         {cm}
       </div>
     );
@@ -51,7 +51,7 @@ function BingoCell({ cm, matches }: { cm: number; matches: BingoCatch[] | undefi
 
   return (
     <details className="group relative">
-      <summary className="flex h-8 w-8 shrink-0 cursor-pointer list-none items-center justify-center rounded-sm bg-green-600 text-xs font-medium text-white transition-colors hover:bg-green-700 sm:h-12 sm:w-12 sm:text-sm">
+      <summary className="flex h-8 w-8 shrink-0 cursor-pointer list-none items-center justify-center rounded-sm bg-green-600 text-xs font-medium text-white transition-colors hover:bg-green-700 sm:h-9 sm:w-9">
         {cm}
       </summary>
       <div className="absolute z-10 mt-1 w-56 rounded-lg border border-black/10 bg-white p-3 text-sm shadow-lg dark:border-white/15 dark:bg-zinc-900">
