@@ -2,6 +2,27 @@ import "server-only";
 import sql from "./db";
 import type { Catch } from "@/app/components/catch-list";
 
+// Full catch rows (weather included) for one historical pass, opened from
+// Register → Fiskepass -- joins on the same time-window rule as
+// catchCountSubquery instead of a stored foreign key.
+export async function getFiskepassCatches(
+  userId: number,
+  passId: number
+): Promise<Catch[]> {
+  return sql<Catch[]>`
+    select c.id, c.user_id, c.species, c.length_cm, c.weight_kg, c.lake, c.location,
+      c.method, c.bait, c.comment, c.caught_at,
+      c.weather_temp_c, c.weather_description, c.weather_wind_kmh, c.weather_wind_dir_deg,
+      c.weather_pressure_hpa, c.weather_cloud_pct, c.photo_url
+    from catches c
+    join fiskepass fp on fp.user_id = c.user_id
+      and c.caught_at >= fp.start_time
+      and (fp.stop_time is null or c.caught_at <= fp.stop_time)
+    where fp.id = ${passId} and fp.user_id = ${userId} and c.deleted_at is null
+    order by c.caught_at asc
+  `;
+}
+
 export type Fiskepass = {
   id: number;
   user_id: number;

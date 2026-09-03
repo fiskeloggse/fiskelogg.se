@@ -1,12 +1,78 @@
 "use client";
 
 import { useActionState, useEffect, useState } from "react";
-import { updateFiskepass, deleteFiskepass } from "@/app/actions/fiskepass";
+import { useRouter } from "next/navigation";
+import { updateFiskepass, deleteFiskepass, fetchFiskepassCatches } from "@/app/actions/fiskepass";
 import type { FiskepassWithCatchCount } from "@/lib/fiskepass";
+import type { Catch } from "./catch-list";
+import { WEATHER_DESCRIPTION_ICONS } from "@/lib/constants";
 import ConfirmDeleteButton from "./confirm-delete-button";
 
 const inputClassName =
   "rounded-lg border border-black/10 bg-white px-3 py-2 text-sm dark:border-white/15 dark:bg-transparent";
+
+function roundTo2(n: number) {
+  return Math.round(n * 100) / 100;
+}
+
+function formatSv(n: number): string {
+  return roundTo2(n).toString().replace(".", ",");
+}
+
+function PassCatchList({ catches }: { catches: Catch[] }) {
+  const router = useRouter();
+
+  if (catches.length === 0) {
+    return (
+      <p className="px-4 py-3 text-sm text-zinc-500 dark:text-zinc-400">
+        Inga fångster i detta pass.
+      </p>
+    );
+  }
+
+  return (
+    <div className="overflow-x-auto">
+      <table className="w-full border-collapse text-left text-sm">
+        <thead>
+          <tr className="border-b border-black/10 text-xs text-zinc-500 dark:border-white/15 dark:text-zinc-400">
+            <th className="px-4 py-1.5 font-medium">Art</th>
+            <th className="px-2 py-1.5 font-medium">Längd / vikt</th>
+            <th className="px-2 py-1.5 font-medium">Väder</th>
+          </tr>
+        </thead>
+        <tbody className="divide-y divide-black/10 dark:divide-white/10">
+          {catches.map((item) => (
+            <tr
+              key={item.id}
+              onClick={() => router.push(`/register/${item.id}`)}
+              className="cursor-pointer hover:bg-black/5 dark:hover:bg-white/5"
+            >
+              <td className="px-4 py-1.5">{item.species || "Okänd art"}</td>
+              <td className="px-2 py-1.5 whitespace-nowrap">
+                {item.length_cm != null ? `${item.length_cm} cm` : "–"}
+                {item.weight_kg != null ? ` / ${formatSv(item.weight_kg)} kg` : ""}
+              </td>
+              <td className="px-2 py-1.5 whitespace-nowrap text-zinc-500 dark:text-zinc-400">
+                {item.weather_description ? (
+                  <>
+                    <span title={item.weather_description}>
+                      {WEATHER_DESCRIPTION_ICONS[item.weather_description] ??
+                        item.weather_description}
+                    </span>
+                    {item.weather_temp_c != null &&
+                      ` ${Math.round(item.weather_temp_c)}°`}
+                  </>
+                ) : (
+                  "–"
+                )}
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+}
 
 function toDatetimeLocalValue(date: Date) {
   const local = new Date(date);
@@ -25,6 +91,16 @@ function FiskepassRow({ pass }: { pass: FiskepassWithCatchCount }) {
   const [stopLocal, setStopLocal] = useState(
     pass.stop_time ? toDatetimeLocalValue(pass.stop_time) : ""
   );
+  const [catches, setCatches] = useState<Catch[] | null>(null);
+  const [loading, setLoading] = useState(false);
+
+  async function handleToggle(e: React.SyntheticEvent<HTMLDetailsElement>) {
+    if (!e.currentTarget.open || catches !== null || loading) return;
+    setLoading(true);
+    const data = await fetchFiskepassCatches(pass.id);
+    setCatches(data);
+    setLoading(false);
+  }
 
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
@@ -96,30 +172,52 @@ function FiskepassRow({ pass }: { pass: FiskepassWithCatchCount }) {
   }
 
   return (
-    <li className="flex items-center justify-between gap-3 rounded-xl border border-black/10 px-4 py-3 text-sm dark:border-white/15">
-      <div>
-        <p className="font-medium">
-          {formatDateTime(pass.start_time)}
-          {pass.stop_time ? ` – ${formatDateTime(pass.stop_time)}` : " – pågår"}
-        </p>
-        <p className="text-zinc-500 dark:text-zinc-400">
-          {pass.target_species && pass.target_species.length > 0
-            ? pass.target_species.join(", ") + " · "
-            : ""}
-          {pass.catch_count} {pass.catch_count === 1 ? "fångst" : "fångster"}
-          {pass.catch_count === 0 && pass.stop_time && " · Bompass"}
-        </p>
-      </div>
-      <div className="flex shrink-0 items-center gap-3">
-        <button
-          type="button"
-          onClick={() => setEditing(true)}
-          className="text-sm text-zinc-500 underline hover:text-foreground dark:text-zinc-400"
-        >
-          Redigera
-        </button>
-        <ConfirmDeleteButton action={deleteFiskepass} id={pass.id} compact />
-      </div>
+    <li>
+      <details
+        className="rounded-xl border border-black/10 dark:border-white/15"
+        onToggle={handleToggle}
+      >
+        <summary className="flex cursor-pointer list-none items-center justify-between gap-3 px-4 py-3 text-sm">
+          <div>
+            <p className="font-medium">
+              {formatDateTime(pass.start_time)}
+              {pass.stop_time ? ` – ${formatDateTime(pass.stop_time)}` : " – pågår"}
+            </p>
+            <p className="text-zinc-500 dark:text-zinc-400">
+              {pass.target_species && pass.target_species.length > 0
+                ? pass.target_species.join(", ") + " · "
+                : ""}
+              {pass.catch_count} {pass.catch_count === 1 ? "fångst" : "fångster"}
+              {pass.catch_count === 0 && pass.stop_time && " · Bompass"}
+            </p>
+          </div>
+          {/* Stops the click from also toggling the <details> open/closed --
+              editing or deleting shouldn't require expanding the row first. */}
+          <span
+            onClick={(e) => e.preventDefault()}
+            className="flex shrink-0 items-center gap-3"
+          >
+            <button
+              type="button"
+              onClick={() => setEditing(true)}
+              className="text-sm text-zinc-500 underline hover:text-foreground dark:text-zinc-400"
+            >
+              Redigera
+            </button>
+            <ConfirmDeleteButton action={deleteFiskepass} id={pass.id} compact />
+          </span>
+        </summary>
+
+        <div className="border-t border-black/10 dark:border-white/15">
+          {loading ? (
+            <p className="px-4 py-3 text-sm text-zinc-500 dark:text-zinc-400">
+              Laddar…
+            </p>
+          ) : (
+            catches && <PassCatchList catches={catches} />
+          )}
+        </div>
+      </details>
     </li>
   );
 }

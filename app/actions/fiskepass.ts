@@ -4,8 +4,17 @@ import { revalidatePath } from "next/cache";
 import * as z from "zod";
 import sql from "@/lib/db";
 import { requireUser } from "@/lib/dal";
+import { getFiskepassCatches } from "@/lib/fiskepass";
+import type { Catch } from "@/app/components/catch-list";
 
 export type FiskepassState = { error: string } | { success: true } | undefined;
+
+// Called directly from the client when a pass row is expanded -- fetched
+// lazily per row instead of upfront for the whole history list.
+export async function fetchFiskepassCatches(passId: number): Promise<Catch[]> {
+  const user = await requireUser();
+  return getFiskepassCatches(user.id, passId);
+}
 
 export async function startFiskepass(
   _prevState: FiskepassState,
