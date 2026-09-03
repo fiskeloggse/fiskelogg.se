@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { requireUser } from "@/lib/dal";
 import { getBingoCards, getBingoCatches } from "@/lib/bingo";
-import { getSpeciesBreakdown } from "@/lib/stats";
+import { getSpeciesBreakdown, getWeighedCatches } from "@/lib/stats";
 import { getPersonalBests } from "@/lib/personal-bests";
 import { getStorfiskPercent, STORFISKREGISTRET_SPECIES } from "@/lib/storfisk";
 import BingoCardForm from "@/app/components/bingo-card-form";
@@ -14,10 +14,11 @@ export const metadata: Metadata = {
 
 export default async function ChallengesPage() {
   const user = await requireUser();
-  const [cards, speciesBreakdown, personalBests] = await Promise.all([
+  const [cards, speciesBreakdown, personalBests, weighedCatches] = await Promise.all([
     getBingoCards(user.id, user.team_id),
     user.show_species_collection ? getSpeciesBreakdown(user.id) : Promise.resolve([]),
     user.show_species_collection ? getPersonalBests(user.id) : Promise.resolve([]),
+    user.show_species_collection ? getWeighedCatches(user.id) : Promise.resolve([]),
   ]);
   const hiddenSpeciesSet = new Set(user.hidden_species ?? []);
   const trackedSpecies = STORFISKREGISTRET_SPECIES.filter(
@@ -29,15 +30,17 @@ export default async function ChallengesPage() {
       .map((s) => s.species)
       .filter((species) => registerSpeciesSet.has(species))
   );
-  const storfiskSpecies = new Set(
-    personalBests
-      .filter(
-        (pb) =>
-          pb.heaviest &&
-          (getStorfiskPercent(pb.species, pb.heaviest.weight_kg) ?? 0) >= 100
-      )
-      .map((pb) => pb.species)
-  );
+  // Counts every individual catch that clears the species' minimum weight,
+  // not just the personal best -- 2 storfisk-Abborre + 2 storfisk-Gädda
+  // should read as 4 storfiskar across 2 arter, not just "2 storfiskar".
+  const storfiskSpecies = new Set<string>();
+  let storfiskCount = 0;
+  for (const c of weighedCatches) {
+    if ((getStorfiskPercent(c.species, c.weight_kg) ?? 0) >= 100) {
+      storfiskSpecies.add(c.species);
+      storfiskCount++;
+    }
+  }
 
   return (
     <main className="mx-auto flex w-full max-w-4xl flex-1 flex-col gap-8 px-4 py-10 sm:px-6">
@@ -80,8 +83,8 @@ export default async function ChallengesPage() {
           <div className="mt-4 flex flex-col gap-3">
             <p className="text-sm text-zinc-500 dark:text-zinc-400">
               {caughtSpecies.size}/{trackedSpecies.length} fångade
-              {storfiskSpecies.size > 0 &&
-                ` · ${storfiskSpecies.size} 🏅 storfisk${storfiskSpecies.size === 1 ? "" : "ar"}`}
+              {storfiskCount > 0 &&
+                ` · ${storfiskCount} 🏅 storfisk${storfiskCount === 1 ? "" : "ar"} (${storfiskSpecies.size} art${storfiskSpecies.size === 1 ? "" : "er"})`}
             </p>
             <SpeciesCollection
               speciesBreakdown={speciesBreakdown}

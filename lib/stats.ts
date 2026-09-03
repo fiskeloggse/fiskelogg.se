@@ -22,6 +22,20 @@ export async function getSpeciesBreakdown(
   `;
 }
 
+export type WeighedCatchRow = { species: string; weight_kg: number };
+
+// Every individual weighed catch, not just the personal best per species --
+// used to count actual storfisk-qualifying fish (e.g. 2 Abborre + 2 Gädda
+// = 4 storfiskar across 2 arter), which a personal-bests-only view would
+// undercount down to 1 per species.
+export async function getWeighedCatches(userId: number): Promise<WeighedCatchRow[]> {
+  return sql<WeighedCatchRow[]>`
+    select species, weight_kg
+    from catches c
+    where ${scopeCondition(userId)} and c.weight_kg is not null
+  `;
+}
+
 // Per-water stats for the "Antal vatten" drill-down: how many distinct
 // days fished there, how many distinct platser logged, and total fish.
 export type LakeStatsRow = {
