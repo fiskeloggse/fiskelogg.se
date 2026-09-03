@@ -81,6 +81,30 @@ export async function updateShareCardFields(formData: FormData) {
   revalidatePath("/register/[id]", "page");
 }
 
+// Toggled straight from a species chip in Artjakten, one species at a time
+// -- an array op guarded by `@>` instead of a client-sent full list, so two
+// quick toggles in a row can't race and clobber each other.
+export async function toggleHiddenSpecies(formData: FormData) {
+  const user = await requireUser();
+  const species = String(formData.get("species") ?? "").trim();
+  const hide = formData.get("hide") === "on";
+  if (!species) return;
+
+  await sql`
+    update users
+    set hidden_species = case
+      when ${hide} and not (coalesce(hidden_species, '{}'::text[]) @> array[${species}]::text[])
+        then array_append(coalesce(hidden_species, '{}'::text[]), ${species})
+      when not ${hide}
+        then array_remove(coalesce(hidden_species, '{}'::text[]), ${species})
+      else hidden_species
+    end
+    where id = ${user.id}
+  `;
+
+  revalidatePath("/challenges");
+}
+
 export async function updateVisibleColumns(formData: FormData) {
   const user = await requireUser();
   const selected = formData

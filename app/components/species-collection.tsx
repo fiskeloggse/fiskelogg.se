@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
+import { toggleHiddenSpecies } from "@/app/actions/preferences";
 import type { PersonalBest } from "@/lib/personal-bests";
 import {
   getStorfiskPercent,
@@ -16,11 +17,15 @@ function formatSv(n: number): string {
 export default function SpeciesCollection({
   speciesBreakdown,
   personalBests,
+  hiddenSpecies,
 }: {
   speciesBreakdown: { species: string; count: number }[];
   personalBests: PersonalBest[];
+  hiddenSpecies: string[];
 }) {
   const [selected, setSelected] = useState<string | null>(null);
+  const [hidden, setHidden] = useState(() => new Set(hiddenSpecies));
+  const [editMode, setEditMode] = useState(false);
   const dialogRef = useRef<HTMLDialogElement>(null);
 
   useEffect(() => {
@@ -41,15 +46,76 @@ export default function SpeciesCollection({
       ? getStorfiskPercent(selected, selectedPb.heaviest.weight_kg)
       : null;
 
+  // Optimistic toggle -- updates the grid immediately, then fires the save
+  // in the background rather than waiting on a round trip for every click.
+  function toggleHidden(species: string, hide: boolean) {
+    setHidden((prev) => {
+      const next = new Set(prev);
+      if (hide) next.add(species);
+      else next.delete(species);
+      return next;
+    });
+    const formData = new FormData();
+    formData.set("species", species);
+    formData.set("hide", hide ? "on" : "off");
+    void toggleHiddenSpecies(formData);
+  }
+
+  const displayedSpecies = editMode
+    ? STORFISKREGISTRET_SPECIES
+    : STORFISKREGISTRET_SPECIES.filter((species) => !hidden.has(species));
+
   return (
     <>
+      <div className="mb-3 flex items-center justify-between gap-3">
+        <p className="text-xs text-zinc-500 dark:text-zinc-400">
+          {hidden.size > 0
+            ? `${hidden.size} art${hidden.size === 1 ? "" : "er"} dold${hidden.size === 1 ? "" : "a"}`
+            : editMode
+              ? "Bocka ur arter du inte vill se i Artjakten"
+              : ""}
+        </p>
+        <button
+          type="button"
+          onClick={() => setEditMode((e) => !e)}
+          className="shrink-0 text-sm text-zinc-500 underline underline-offset-2 hover:text-foreground dark:text-zinc-400"
+        >
+          {editMode ? "Klar" : "Redigera"}
+        </button>
+      </div>
+
       <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 md:grid-cols-4">
-        {STORFISKREGISTRET_SPECIES.map((species) => {
+        {displayedSpecies.map((species) => {
           const isCaught = countBySpecies.has(species);
           const pb = pbBySpecies.get(species);
           const isStorfisk =
             pb?.heaviest != null &&
             (getStorfiskPercent(species, pb.heaviest.weight_kg) ?? 0) >= 100;
+          const isHidden = hidden.has(species);
+
+          if (editMode) {
+            return (
+              <label
+                key={species}
+                className={
+                  "flex cursor-pointer items-center gap-1.5 rounded-lg border px-2.5 py-1.5 text-sm transition-colors " +
+                  (isHidden
+                    ? "border-dashed border-black/10 text-zinc-400 dark:border-white/10 dark:text-zinc-600"
+                    : isCaught
+                      ? "border-foreground/30 bg-foreground/5 font-medium"
+                      : "border-dashed border-black/10 text-zinc-500 dark:border-white/10 dark:text-zinc-400")
+                }
+              >
+                <input
+                  type="checkbox"
+                  checked={!isHidden}
+                  onChange={(e) => toggleHidden(species, !e.target.checked)}
+                  className="shrink-0"
+                />
+                <span className={isHidden ? "line-through" : ""}>{species}</span>
+              </label>
+            );
+          }
 
           if (!isCaught) {
             return (

@@ -27,6 +27,10 @@ alter table users add column if not exists visible_register_columns text[];
 alter table users add column if not exists share_card_fields text[];
 alter table users add column if not exists gps_default_enabled boolean not null default false;
 alter table users add column if not exists gps_mode text;
+-- Species opted out of Artjakten (e.g. sea species a freshwater-only angler
+-- will never chase) -- hidden from the grid and excluded from its "X av Y"
+-- denominator, without touching the underlying catch data.
+alter table users add column if not exists hidden_species text[];
 
 -- "Glömt lösenord" -- holds a hash of the current reset link's token (never
 -- the raw token itself) plus its expiry. Requesting a new reset overwrites

@@ -17,6 +17,7 @@ export type User = {
   visible_register_columns: string[] | null;
   share_card_fields: string[] | null;
   gps_mode: GpsModeKey;
+  hidden_species: string[] | null;
 };
 
 export const getCurrentUser = cache(async (): Promise<User | null> => {
@@ -24,7 +25,7 @@ export const getCurrentUser = cache(async (): Promise<User | null> => {
   if (!session) return null;
 
   const [user] = await sql<User[]>`
-    select id, email, name, team_id, show_bingo, show_species_collection, show_fiskepass, quick_log_fields, visible_register_columns, share_card_fields, gps_mode
+    select id, email, name, team_id, show_bingo, show_species_collection, show_fiskepass, quick_log_fields, visible_register_columns, share_card_fields, gps_mode, hidden_species
     from users where id = ${session.userId}
   `;
 

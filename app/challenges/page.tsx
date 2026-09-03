@@ -19,7 +19,11 @@ export default async function ChallengesPage() {
     user.show_species_collection ? getSpeciesBreakdown(user.id) : Promise.resolve([]),
     user.show_species_collection ? getPersonalBests(user.id) : Promise.resolve([]),
   ]);
-  const registerSpeciesSet = new Set<string>(STORFISKREGISTRET_SPECIES);
+  const hiddenSpeciesSet = new Set(user.hidden_species ?? []);
+  const trackedSpecies = STORFISKREGISTRET_SPECIES.filter(
+    (species) => !hiddenSpeciesSet.has(species)
+  );
+  const registerSpeciesSet = new Set<string>(trackedSpecies);
   const caughtSpecies = new Set(
     speciesBreakdown
       .map((s) => s.species)
@@ -80,7 +84,7 @@ export default async function ChallengesPage() {
           <div className="mt-4 flex flex-col gap-3">
             <details className="rounded-xl border border-black/10 p-3 dark:border-white/15">
               <summary className="cursor-pointer text-sm text-zinc-500 dark:text-zinc-400">
-                {caughtSpecies.size}/{STORFISKREGISTRET_SPECIES.length} fångade
+                {caughtSpecies.size}/{trackedSpecies.length} fångade
                 {storfiskSpecies.size > 0 &&
                   ` · ${storfiskSpecies.size} 🏅 storfisk${storfiskSpecies.size === 1 ? "" : "ar"}`}
               </summary>
@@ -88,6 +92,7 @@ export default async function ChallengesPage() {
                 <SpeciesCollection
                   speciesBreakdown={speciesBreakdown}
                   personalBests={personalBests}
+                  hiddenSpecies={user.hidden_species ?? []}
                 />
               </div>
             </details>
