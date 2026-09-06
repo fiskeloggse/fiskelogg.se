@@ -61,7 +61,7 @@ export default async function Home(props: PageProps<"/">) {
     getTodaysLastLake(user.id, user.team_id),
     getTodaysLastBait(user.id, user.team_id),
     getTodaysLastMethod(user.id, user.team_id),
-    user.show_fiskepass ? getOpenFiskepass(user.id) : Promise.resolve(null),
+    user.show_fiskepass ? getOpenFiskepass(user.id, user.team_id) : Promise.resolve(null),
   ]);
 
   // While a pass is open, the two catch boxes below switch from "today" to

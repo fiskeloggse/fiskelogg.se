@@ -41,6 +41,15 @@ export async function startFiskepass(
   }
   const teamId = mode === "team" ? user.team_id : null;
 
+  if (teamId) {
+    const [existingTeamPass] = await sql`
+      select id from fiskepass where team_id = ${teamId} and stop_time is null
+    `;
+    if (existingTeamPass) {
+      return { error: "Ditt team har redan ett pågående fiskepass." };
+    }
+  }
+
   try {
     await sql`
       insert into fiskepass (user_id, team_id, target_species, start_time)
@@ -52,10 +61,15 @@ export async function startFiskepass(
       )
     `;
   } catch (err) {
-    // 23505 = unique_violation -- the double-submit race the pre-check
-    // above can't fully rule out (fiskepass_one_open_per_user).
+    // 23505 = unique_violation -- the double-submit race the pre-checks
+    // above can't fully rule out (fiskepass_one_open_per_user /
+    // fiskepass_one_open_per_team).
     if (err && typeof err === "object" && "code" in err && err.code === "23505") {
-      return { error: "Du har redan ett pågående fiskepass." };
+      return {
+        error: teamId
+          ? "Ditt team har redan ett pågående fiskepass."
+          : "Du har redan ett pågående fiskepass.",
+      };
     }
     throw err;
   }
@@ -70,9 +84,16 @@ export async function stopFiskepass(formData: FormData): Promise<void> {
   const id = Number(formData.get("id"));
   if (!id) return;
 
+  // Any team member can end a team pass, not just whoever started it --
+  // it reads as shared for everyone on the team, so ending it should be too.
   await sql`
     update fiskepass set stop_time = now()
-    where id = ${id} and user_id = ${user.id} and stop_time is null
+    where id = ${id}
+      and stop_time is null
+      and (
+        user_id = ${user.id}
+        or (team_id is not null and team_id = ${user.team_id})
+      )
   `;
 
   revalidatePath("/");

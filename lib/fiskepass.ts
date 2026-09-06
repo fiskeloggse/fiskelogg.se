@@ -64,13 +64,22 @@ export async function getFiskepassCatches(
   `;
 }
 
+// Your own open pass, or -- so a team pass reads the same to every member,
+// not just whoever tapped "Starta" -- a teammate's still-open team pass.
 export async function getOpenFiskepass(
-  userId: number
+  userId: number,
+  teamId: number | null
 ): Promise<Fiskepass | null> {
   const [pass] = await sql<Fiskepass[]>`
     select id, user_id, team_id, target_species, start_time, stop_time, created_at
     from fiskepass
-    where user_id = ${userId} and stop_time is null
+    where stop_time is null
+      and (
+        user_id = ${userId}
+        or (team_id is not null and team_id = ${teamId})
+      )
+    order by start_time desc
+    limit 1
   `;
   return pass ?? null;
 }

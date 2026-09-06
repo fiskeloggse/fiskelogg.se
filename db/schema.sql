@@ -153,3 +153,8 @@ create index if not exists fiskepass_user_id_idx on fiskepass (user_id);
 -- in application code -- a partial unique index over just the open rows.
 create unique index if not exists fiskepass_one_open_per_user
   on fiskepass (user_id) where stop_time is null;
+
+-- Same guarantee for team passes -- two members can't each open a
+-- competing team pass while one is already running for the team.
+create unique index if not exists fiskepass_one_open_per_team
+  on fiskepass (team_id) where stop_time is null and team_id is not null;
