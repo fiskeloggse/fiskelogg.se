@@ -5,8 +5,11 @@ import { useRouter } from "next/navigation";
 import { updateFiskepass, deleteFiskepass, fetchFiskepassCatches } from "@/app/actions/fiskepass";
 import type { FiskepassWithCatchCount } from "@/lib/fiskepass";
 import type { Catch } from "./catch-list";
+import type { MappedCatchRow } from "@/lib/stats";
 import { WEATHER_DESCRIPTION_ICONS } from "@/lib/constants";
+import { getMoonPhase } from "@/lib/moon-phase";
 import ConfirmDeleteButton from "./confirm-delete-button";
+import WatersMap from "./waters-map";
 
 const inputClassName =
   "rounded-lg border border-black/10 bg-white px-3 py-2 text-sm dark:border-white/15 dark:bg-transparent";
@@ -17,6 +20,30 @@ function roundTo2(n: number) {
 
 function formatSv(n: number): string {
   return roundTo2(n).toString().replace(".", ",");
+}
+
+function formatDate(date: Date) {
+  return date.toLocaleDateString("sv-SE", { day: "numeric", month: "short" });
+}
+
+// Same shape WatersMap groups by lake -- only catches with both a position
+// and a named water can be placed on it.
+function toMappedCatches(catches: Catch[]): MappedCatchRow[] {
+  return catches
+    .filter(
+      (c): c is Catch & { latitude: number; longitude: number; lake: string } =>
+        c.latitude != null && c.longitude != null && !!c.lake
+    )
+    .map((c) => ({
+      id: c.id,
+      species: c.species,
+      length_cm: c.length_cm,
+      weight_kg: c.weight_kg,
+      caught_at: c.caught_at,
+      latitude: c.latitude,
+      longitude: c.longitude,
+      lake: c.lake,
+    }));
 }
 
 function PassCatchList({ catches, isTeam }: { catches: Catch[]; isTeam: boolean }) {
@@ -30,54 +57,114 @@ function PassCatchList({ catches, isTeam }: { catches: Catch[]; isTeam: boolean 
     );
   }
 
+  const mappedCatches = toMappedCatches(catches);
+
   return (
-    <div className="overflow-x-auto">
-      <table className="w-full border-collapse text-left text-sm">
-        <thead>
-          <tr className="border-b border-black/10 text-xs text-zinc-500 dark:border-white/15 dark:text-zinc-400">
-            <th className="px-4 py-1.5 font-medium">Art</th>
-            <th className="px-2 py-1.5 font-medium">Längd / vikt</th>
-            <th className="px-2 py-1.5 font-medium">Väder</th>
-          </tr>
-        </thead>
-        <tbody className="divide-y divide-black/10 dark:divide-white/10">
-          {catches.map((item) => (
-            <tr
-              key={item.id}
-              onClick={() => router.push(`/register/${item.id}`)}
-              className="cursor-pointer hover:bg-black/5 dark:hover:bg-white/5"
-            >
-              <td className="px-4 py-1.5">
-                {item.species || "Okänd art"}
-                {isTeam && item.angler_name && (
-                  <span className="text-zinc-400 dark:text-zinc-500">
-                    {" "}
-                    · {item.angler_name}
-                  </span>
-                )}
-              </td>
-              <td className="px-2 py-1.5 whitespace-nowrap">
-                {item.length_cm != null ? `${item.length_cm} cm` : "–"}
-                {item.weight_kg != null ? ` / ${formatSv(item.weight_kg)} kg` : ""}
-              </td>
-              <td className="px-2 py-1.5 whitespace-nowrap text-zinc-500 dark:text-zinc-400">
-                {item.weather_description ? (
-                  <>
-                    <span title={item.weather_description}>
-                      {WEATHER_DESCRIPTION_ICONS[item.weather_description] ??
-                        item.weather_description}
-                    </span>
-                    {item.weather_temp_c != null &&
-                      ` ${Math.round(item.weather_temp_c)}°`}
-                  </>
-                ) : (
-                  "–"
-                )}
-              </td>
+    <div className="flex flex-col gap-3 p-3">
+      {mappedCatches.length > 0 && <WatersMap catches={mappedCatches} />}
+
+      <div className="overflow-x-auto">
+        <table className="w-full border-collapse text-left text-sm">
+          <thead>
+            <tr className="border-b border-black/10 text-xs text-zinc-500 dark:border-white/15 dark:text-zinc-400">
+              <th className="px-2 py-1.5 font-medium">Datum</th>
+              <th className="px-2 py-1.5 font-medium">Art</th>
+              <th className="px-2 py-1.5 font-medium">Plats</th>
+              <th className="w-px px-2 py-1.5 text-right font-medium whitespace-nowrap">
+                Mått
+              </th>
+              <th className="px-2 py-1.5 font-medium">Metod/Bete</th>
+              <th className="px-2 py-1.5 font-medium">Väder</th>
+              <th className="px-2 py-1.5 font-medium">Månfas</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody className="divide-y divide-black/10 dark:divide-white/10">
+            {catches.map((item) => {
+              const moonPhase = getMoonPhase(item.caught_at);
+              return (
+                <tr
+                  key={item.id}
+                  onClick={() => router.push(`/register/${item.id}`)}
+                  className="cursor-pointer hover:bg-black/5 dark:hover:bg-white/5"
+                >
+                  <td className="px-2 py-1.5 whitespace-nowrap">{formatDate(item.caught_at)}</td>
+                  <td className="px-2 py-1.5">
+                    {item.species || "Okänd art"}
+                    {isTeam && item.angler_name && (
+                      <span className="text-zinc-400 dark:text-zinc-500">
+                        {" "}
+                        · {item.angler_name}
+                      </span>
+                    )}
+                  </td>
+                  <td className="px-2 py-1.5 text-zinc-500 dark:text-zinc-400">
+                    {item.lake || item.location ? (
+                      <div className="flex items-start gap-1.5">
+                        {item.latitude != null && item.longitude != null && (
+                          <svg
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="1.75"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            className="mt-0.5 h-3.5 w-3.5 shrink-0 text-zinc-400 dark:text-zinc-500"
+                          >
+                            <title>GPS-position sparad</title>
+                            <path d="M12 21s-7-6.05-7-11a7 7 0 0 1 14 0c0 4.95-7 11-7 11Z" />
+                            <circle cx="12" cy="10" r="2.25" />
+                          </svg>
+                        )}
+                        <span>{item.lake || item.location}</span>
+                      </div>
+                    ) : (
+                      "–"
+                    )}
+                  </td>
+                  <td className="px-2 py-1.5 text-right whitespace-nowrap">
+                    {item.length_cm != null ? `${item.length_cm} cm` : "–"}
+                    <br />
+                    <span className="text-xs text-zinc-400 dark:text-zinc-500">
+                      {item.weight_kg != null ? `${formatSv(item.weight_kg)} kg` : "–"}
+                    </span>
+                  </td>
+                  <td className="px-2 py-1.5 text-zinc-500 dark:text-zinc-400">
+                    {item.method || item.bait ? (
+                      <>
+                        {item.method && <div>{item.method}</div>}
+                        {item.bait && (
+                          <div className="text-xs text-zinc-400 dark:text-zinc-500">
+                            {item.bait}
+                          </div>
+                        )}
+                      </>
+                    ) : (
+                      "–"
+                    )}
+                  </td>
+                  <td className="px-2 py-1.5 whitespace-nowrap text-zinc-500 dark:text-zinc-400">
+                    {item.weather_description ? (
+                      <>
+                        <span title={item.weather_description}>
+                          {WEATHER_DESCRIPTION_ICONS[item.weather_description] ??
+                            item.weather_description}
+                        </span>
+                        {item.weather_temp_c != null &&
+                          ` ${Math.round(item.weather_temp_c)}°`}
+                      </>
+                    ) : (
+                      "–"
+                    )}
+                  </td>
+                  <td className="px-2 py-1.5 text-center text-lg" title={moonPhase.label}>
+                    {moonPhase.icon}
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 }

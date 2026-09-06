@@ -49,6 +49,7 @@ export async function getFiskepassCatches(
   return sql<Catch[]>`
     select c.id, c.user_id, c.species, c.length_cm, c.weight_kg, c.lake, c.location,
       c.method, c.bait, c.comment, c.caught_at, u.name as angler_name,
+      c.latitude, c.longitude,
       c.weather_temp_c, c.weather_description, c.weather_wind_kmh, c.weather_wind_dir_deg,
       c.weather_pressure_hpa, c.weather_cloud_pct, c.photo_url
     from catches c
