@@ -271,6 +271,7 @@ function FiskepassRow({ pass }: { pass: FiskepassWithCatchCount }) {
   return (
     <li>
       <details
+        name="fiskepass-row"
         className="rounded-xl border border-black/10 dark:border-white/15"
         onToggle={handleToggle}
       >
