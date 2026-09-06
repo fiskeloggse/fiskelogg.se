@@ -36,6 +36,7 @@ export default function CatchTable({
   speciesOptions,
   lakeOptions,
   baitOptions,
+  yearOptions,
   visibleColumns,
   totals,
 }: {
@@ -44,6 +45,7 @@ export default function CatchTable({
   speciesOptions: string[];
   lakeOptions: string[];
   baitOptions: string[];
+  yearOptions: number[];
   visibleColumns: string[] | null;
   // When the table only renders one page of a larger filtered set, the
   // "Totalt" row should still reflect every matching catch, not just the
@@ -199,7 +201,7 @@ export default function CatchTable({
                 {selectMode && <th className="w-8 px-1 py-2" />}
                 {showDatum && (
                   <th className="px-1 py-2 font-medium">
-                    <DateColumnFilter />
+                    <DateColumnFilter years={yearOptions} />
                   </th>
                 )}
                 {showArt && (

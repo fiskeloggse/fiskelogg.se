@@ -18,7 +18,7 @@ import type { Catch } from "@/app/components/catch-list";
 export { LENGTH_MIN, LENGTH_MAX, WEIGHT_MIN, WEIGHT_MAX };
 
 // Sorterar alltid på hela tidsstämpeln (inklusive år) — till skillnad från
-// datum från/till och fångstmånad, som medvetet bortser från år.
+// fångstmånad, som medvetet bortser från år.
 export const SORT_OPTIONS = [
   { value: "date-desc", label: "Datum, nyast först", column: "caught_at desc" },
   { value: "date-asc", label: "Datum, äldst först", column: "caught_at asc" },
@@ -163,11 +163,6 @@ export function hasActiveFilters(filters: RegisterFilters): boolean {
   );
 }
 
-function toMonthDay(dateStr: string): string | null {
-  const match = /^\d{4}-(\d{2})-(\d{2})$/.exec(dateStr);
-  return match ? `${match[1]}-${match[2]}` : null;
-}
-
 export async function getFilteredCatches(
   userId: number,
   filters: RegisterFilters
@@ -222,20 +217,17 @@ export async function getFilteredCatches(
       ? sql`and extract(month from caught_at at time zone ${TIMEZONE})::int = any(${sql.array(filters.months)}::int[])`
       : sql``;
 
-  // "Datum från/till" ignores the year — it filters by day-of-year (season),
-  // so e.g. 15 nov–15 feb matches every winter regardless of which year.
-  const fromMonthDay = toMonthDay(filters.from);
-  const toMonthDay_ = toMonthDay(filters.to);
+  // A normal absolute date range (year included) -- quick-picks like "I år"
+  // or "Förra månaden" set from/to to real dates, so the year has to count
+  // here. "Fångstmånad" below is the separate, deliberately year-agnostic
+  // filter for "every March regardless of year".
   let dateCondition = sql``;
-  if (fromMonthDay && toMonthDay_) {
-    dateCondition =
-      fromMonthDay <= toMonthDay_
-        ? sql`and to_char(caught_at at time zone ${TIMEZONE}, 'MM-DD') between ${fromMonthDay} and ${toMonthDay_}`
-        : sql`and (to_char(caught_at at time zone ${TIMEZONE}, 'MM-DD') >= ${fromMonthDay} or to_char(caught_at at time zone ${TIMEZONE}, 'MM-DD') <= ${toMonthDay_})`;
-  } else if (fromMonthDay) {
-    dateCondition = sql`and to_char(caught_at at time zone ${TIMEZONE}, 'MM-DD') >= ${fromMonthDay}`;
-  } else if (toMonthDay_) {
-    dateCondition = sql`and to_char(caught_at at time zone ${TIMEZONE}, 'MM-DD') <= ${toMonthDay_}`;
+  if (filters.from && filters.to) {
+    dateCondition = sql`and (caught_at at time zone ${TIMEZONE})::date between ${filters.from}::date and ${filters.to}::date`;
+  } else if (filters.from) {
+    dateCondition = sql`and (caught_at at time zone ${TIMEZONE})::date >= ${filters.from}::date`;
+  } else if (filters.to) {
+    dateCondition = sql`and (caught_at at time zone ${TIMEZONE})::date <= ${filters.to}::date`;
   }
 
   const sortColumn =
@@ -276,6 +268,16 @@ export async function getDistinctLakes(userId: number): Promise<string[]> {
     order by lake
   `;
   return rows.map((r) => r.lake);
+}
+
+export async function getDistinctYears(userId: number): Promise<number[]> {
+  const rows = await sql<{ year: number }[]>`
+    select distinct extract(year from caught_at at time zone ${TIMEZONE})::int as year
+    from catches
+    where user_id = ${userId} and deleted_at is null
+    order by year desc
+  `;
+  return rows.map((r) => r.year);
 }
 
 export async function getDistinctBaits(userId: number): Promise<string[]> {

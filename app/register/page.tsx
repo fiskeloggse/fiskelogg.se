@@ -6,6 +6,7 @@ import {
   PAGE_SIZE_OPTIONS,
   getDistinctBaits,
   getDistinctLakes,
+  getDistinctYears,
   getFilteredCatches,
   hasActiveFilters,
   parsePagination,
@@ -44,10 +45,11 @@ export default async function RegisterPage(props: PageProps<"/register">) {
   const hasFilters = hasActiveFilters(filters);
   const { page: requestedPage, pageSize } = parsePagination(params);
 
-  const [speciesSuggestions, lakeOptions, baitOptions, catches] = await Promise.all([
+  const [speciesSuggestions, lakeOptions, baitOptions, yearOptions, catches] = await Promise.all([
     getSpeciesSuggestions(user.id),
     getDistinctLakes(user.id),
     getDistinctBaits(user.id),
+    getDistinctYears(user.id),
     getFilteredCatches(user.id, filters),
   ]);
 
@@ -108,6 +110,7 @@ export default async function RegisterPage(props: PageProps<"/register">) {
         speciesOptions={speciesSuggestions.all}
         lakeOptions={lakeOptions}
         baitOptions={baitOptions}
+        yearOptions={yearOptions}
         visibleColumns={user.visible_register_columns}
         totals={{
           count: catches.length,

@@ -410,7 +410,58 @@ export function WeatherColumnFilter() {
   );
 }
 
-export function DateColumnFilter() {
+function toISODate(d: Date): string {
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
+  return `${y}-${m}-${day}`;
+}
+
+// Monday-start week, matching the Swedish convention the rest of the app
+// (e.g. fiskedagar) already assumes.
+function startOfWeek(d: Date): Date {
+  const result = new Date(d);
+  const day = result.getDay();
+  const diff = (day === 0 ? -6 : 1) - day;
+  result.setDate(result.getDate() + diff);
+  return result;
+}
+
+type DatePreset = "today" | "thisWeek" | "thisMonth" | "lastWeek" | "lastMonth" | "thisYear";
+
+const DATE_PRESETS: { value: DatePreset; label: string }[] = [
+  { value: "today", label: "Idag" },
+  { value: "thisWeek", label: "Denna vecka" },
+  { value: "thisMonth", label: "Denna månad" },
+  { value: "lastWeek", label: "Förra veckan" },
+  { value: "lastMonth", label: "Förra månaden" },
+  { value: "thisYear", label: "I år" },
+];
+
+function presetRange(preset: DatePreset): { from: string; to: string } {
+  const now = new Date();
+  if (preset === "today") {
+    const iso = toISODate(now);
+    return { from: iso, to: iso };
+  }
+  if (preset === "thisWeek" || preset === "lastWeek") {
+    const start = startOfWeek(now);
+    if (preset === "lastWeek") start.setDate(start.getDate() - 7);
+    const end = new Date(start);
+    end.setDate(start.getDate() + 6);
+    return { from: toISODate(start), to: toISODate(end) };
+  }
+  if (preset === "thisMonth" || preset === "lastMonth") {
+    const monthOffset = preset === "lastMonth" ? -1 : 0;
+    const start = new Date(now.getFullYear(), now.getMonth() + monthOffset, 1);
+    const end = new Date(now.getFullYear(), now.getMonth() + monthOffset + 1, 0);
+    return { from: toISODate(start), to: toISODate(end) };
+  }
+  // thisYear
+  return { from: `${now.getFullYear()}-01-01`, to: `${now.getFullYear()}-12-31` };
+}
+
+export function DateColumnFilter({ years }: { years: number[] }) {
   const searchParams = useSearchParams();
   const apply = useApply();
   const currentFrom = searchParams.get("from") ?? "";
@@ -423,10 +474,79 @@ export function DateColumnFilter() {
   const currentSort = searchParams.get("sort") ?? "date-desc";
   const isDateAsc = currentSort === "date-asc";
 
+  // Keeps the custom-range fields in sync when a preset button or the year
+  // <select> changes from/to via the URL -- this component never unmounts
+  // between popover opens, so its own state wouldn't otherwise pick that up.
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setFrom(currentFrom);
+    setTo(currentTo);
+  }, [currentFrom, currentTo]);
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setMonths(currentMonths);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentMonths.join(",")]);
+
+  // The year <select>'s value: whichever year's full Jan1–Dec31 bounds
+  // exactly match the current from/to, or "" if it's some other range.
+  const selectedYear =
+    years.find((y) => currentFrom === `${y}-01-01` && currentTo === `${y}-12-31`) ?? "";
+
+  function applyRange(range: { from: string; to: string }, close: () => void) {
+    apply((params) => {
+      params.set("from", range.from);
+      params.set("to", range.to);
+    });
+    close();
+  }
+
   return (
     <HeaderPopover label="Datum" active={active}>
       {(close) => (
         <div className="flex flex-col gap-2 text-sm">
+          <div className="grid grid-cols-3 gap-1">
+            {DATE_PRESETS.map((p) => (
+              <button
+                key={p.value}
+                type="button"
+                onClick={() => applyRange(presetRange(p.value), close)}
+                className="rounded-lg border border-black/10 px-1.5 py-1 text-xs transition-colors hover:bg-black/5 dark:border-white/15 dark:hover:bg-white/10"
+              >
+                {p.label}
+              </button>
+            ))}
+          </div>
+
+          {years.length > 0 && (
+            <select
+              value={selectedYear}
+              onChange={(e) => {
+                const y = e.target.value;
+                apply((params) => {
+                  if (!y) {
+                    params.delete("from");
+                    params.delete("to");
+                  } else {
+                    params.set("from", `${y}-01-01`);
+                    params.set("to", `${y}-12-31`);
+                  }
+                });
+              }}
+              className={inputClassName}
+            >
+              <option value="">Välj år…</option>
+              {years.map((y) => (
+                <option key={y} value={y}>
+                  {y}
+                </option>
+              ))}
+            </select>
+          )}
+
+          <p className="mt-1 text-xs font-medium text-zinc-500 dark:text-zinc-400">
+            Eget intervall
+          </p>
           <label className="flex flex-col gap-1">
             Från
             <input
@@ -445,8 +565,8 @@ export function DateColumnFilter() {
               className={inputClassName}
             />
           </label>
-          <p className="text-xs text-zinc-500 dark:text-zinc-400">
-            Filtrerar på årstid (dag/månad), året spelar ingen roll.
+          <p className="mt-1 text-xs font-medium text-zinc-500 dark:text-zinc-400">
+            Fångstmånad (oavsett år)
           </p>
           <div className="flex flex-wrap gap-1">
             {MONTHS.map((m) => {
