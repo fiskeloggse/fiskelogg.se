@@ -429,13 +429,16 @@ function startOfWeek(d: Date): Date {
 
 type DatePreset = "today" | "thisWeek" | "thisMonth" | "lastWeek" | "lastMonth" | "thisYear";
 
+// Rendered into a 3-column grid in this order, so each column stacks a
+// pair vertically -- "Denna X" directly above "Förra X" -- instead of
+// filling row by row and scattering the pairs diagonally.
 const DATE_PRESETS: { value: DatePreset; label: string }[] = [
   { value: "today", label: "Idag" },
   { value: "thisWeek", label: "Denna vecka" },
   { value: "thisMonth", label: "Denna månad" },
+  { value: "thisYear", label: "I år" },
   { value: "lastWeek", label: "Förra veckan" },
   { value: "lastMonth", label: "Förra månaden" },
-  { value: "thisYear", label: "I år" },
 ];
 
 function presetRange(preset: DatePreset): { from: string; to: string } {
