@@ -10,6 +10,8 @@ import CatchesMap from "./catches-map";
 import ShareCardPanel from "./share-card-panel";
 import StorfiskBadge from "./storfisk-badge";
 import type { Catch } from "./catch-list";
+import type { LakeSuggestions } from "@/lib/lake-suggestions";
+import type { LocationSuggestions } from "@/lib/location-suggestions";
 import { windDirLabel } from "@/lib/constants";
 import { getMoonPhase } from "@/lib/moon-phase";
 import {
@@ -30,10 +32,14 @@ export default function CatchDetail({
   item,
   isPersonalBest,
   defaultShareFields,
+  lakeSuggestions,
+  locationSuggestions,
 }: {
   item: Catch;
   isPersonalBest: boolean;
   defaultShareFields: string[] | null;
+  lakeSuggestions: LakeSuggestions;
+  locationSuggestions: LocationSuggestions;
 }) {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -65,7 +71,12 @@ export default function CatchDetail({
         >
           ← Tillbaka till Register
         </Link>
-        <EditCatchForm item={item} onClose={() => setEditing(false)} />
+        <EditCatchForm
+          item={item}
+          onClose={() => setEditing(false)}
+          lakeSuggestions={lakeSuggestions}
+          locationSuggestions={locationSuggestions}
+        />
       </div>
     );
   }
@@ -80,14 +91,23 @@ export default function CatchDetail({
       </Link>
 
       <div className="rounded-xl border border-black/10 bg-white p-5 dark:border-white/15 dark:bg-white/5">
-        <div className="flex flex-wrap items-center gap-3">
-          <h2 className="text-2xl font-semibold">{item.species || "Okänd art"}</h2>
-          {isPersonalBest && (
-            <span className="inline-flex items-center gap-1.5 rounded-full bg-yellow-400 px-3 py-1 text-xs font-bold text-zinc-900">
-              🏆 Personbästa
-            </span>
-          )}
-          {isStorfisk && <StorfiskBadge size="md" />}
+        <div className="flex flex-wrap items-start justify-between gap-3">
+          <div className="flex flex-wrap items-center gap-3">
+            <h2 className="text-2xl font-semibold">{item.species || "Okänd art"}</h2>
+            {isPersonalBest && (
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-yellow-400 px-3 py-1 text-xs font-bold text-zinc-900">
+                🏆 Personbästa
+              </span>
+            )}
+            {isStorfisk && <StorfiskBadge size="md" />}
+          </div>
+          <button
+            type="button"
+            onClick={() => setEditing(true)}
+            className="shrink-0 rounded-full border border-black/10 px-4 py-2 text-sm font-medium transition-colors hover:bg-black/5 dark:border-white/15 dark:hover:bg-white/10"
+          >
+            Redigera
+          </button>
         </div>
         <p className="text-sm text-zinc-500 dark:text-zinc-400">
           {formatDateFull(item.caught_at)}
@@ -247,13 +267,6 @@ export default function CatchDetail({
         </div>
 
         <div className="mt-5 flex items-center gap-3">
-          <button
-            type="button"
-            onClick={() => setEditing(true)}
-            className="rounded-full border border-black/10 px-4 py-2 text-sm font-medium transition-colors hover:bg-black/5 dark:border-white/15 dark:hover:bg-white/10"
-          >
-            Redigera
-          </button>
           <ConfirmDeleteButton
             action={handleDelete}
             id={item.id}

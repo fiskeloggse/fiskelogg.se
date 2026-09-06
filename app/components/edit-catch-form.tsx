@@ -6,6 +6,8 @@ import { lookupWaterName } from "@/app/actions/geocode";
 import { compressImage, replaceInputFile } from "@/lib/compress-image";
 import { FISH_SPECIES } from "@/lib/species";
 import type { Catch } from "./catch-list";
+import type { LakeSuggestions } from "@/lib/lake-suggestions";
+import type { LocationSuggestions } from "@/lib/location-suggestions";
 import MapPositionPicker from "./map-position-picker";
 import TextSuggestInput from "./text-suggest-input";
 
@@ -25,9 +27,13 @@ function toDatetimeLocalMax() {
 export default function EditCatchForm({
   item,
   onClose,
+  lakeSuggestions,
+  locationSuggestions,
 }: {
   item: Catch;
   onClose: () => void;
+  lakeSuggestions: LakeSuggestions;
+  locationSuggestions: LocationSuggestions;
 }) {
   const [state, formAction, pending] = useActionState<EditCatchState, FormData>(
     updateCatch,
@@ -45,8 +51,40 @@ export default function EditCatchForm({
   const [latitude, setLatitude] = useState(item.latitude ?? null);
   const [longitude, setLongitude] = useState(item.longitude ?? null);
   const hasPosition = latitude != null && longitude != null;
-  const lakeInputRef = useRef<HTMLInputElement>(null);
+  const [lake, setLake] = useState(item.lake ?? "");
+  const [location, setLocation] = useState(item.location ?? "");
   const [waterAutoFilled, setWaterAutoFilled] = useState(false);
+  const [autoWaterPending, setAutoWaterPending] = useState(false);
+  const [autoWaterError, setAutoWaterError] = useState(false);
+  const locationOptions = lake.trim()
+    ? (locationSuggestions.byLake[lake.trim()] ?? [])
+    : Object.values(locationSuggestions.byLake).flat();
+
+  // Kept in sync so the async water lookup below can check the live value
+  // instead of a stale closure, without making setLake itself impure.
+  const lakeRef = useRef(lake);
+  useEffect(() => {
+    lakeRef.current = lake;
+  }, [lake]);
+
+  // Looks up the nearest named water for the catch's own saved position and
+  // overwrites Vatten outright -- unlike the fill-only-if-empty auto-fill
+  // below (meant for a brand new position), this is for fixing a lake name
+  // you already typed but got wrong.
+  async function handleAutoWater() {
+    if (latitude == null || longitude == null) return;
+    setAutoWaterPending(true);
+    setAutoWaterError(false);
+    setWaterAutoFilled(false);
+    const name = await lookupWaterName(latitude, longitude);
+    setAutoWaterPending(false);
+    if (name) {
+      setLake(name);
+      setWaterAutoFilled(true);
+    } else {
+      setAutoWaterError(true);
+    }
+  }
   const photoInputRef = useRef<HTMLInputElement>(null);
   const createdObjectUrlRef = useRef<string | null>(null);
   const [photoPreview, setPhotoPreview] = useState<string | null>(item.photo_url ?? null);
@@ -209,27 +247,56 @@ export default function EditCatchForm({
 
       <div className="grid grid-cols-2 gap-3">
         <div className="flex flex-col gap-1.5">
-          <label htmlFor={`lake-${item.id}`} className="text-sm font-medium">
-            Vatten
-          </label>
-          <input
-            ref={lakeInputRef}
+          <div className="flex items-center justify-between gap-2">
+            <label htmlFor={`lake-${item.id}`} className="text-sm font-medium">
+              Vatten
+            </label>
+            {hasPosition && (
+              <button
+                type="button"
+                onClick={handleAutoWater}
+                disabled={autoWaterPending}
+                className="text-xs text-zinc-500 underline hover:text-foreground disabled:opacity-60 dark:text-zinc-400"
+              >
+                {autoWaterPending ? "Slår upp…" : "Auto vatten"}
+              </button>
+            )}
+          </div>
+          <TextSuggestInput
             id={`lake-${item.id}`}
             name="lake"
-            type="text"
-            defaultValue={item.lake ?? ""}
+            value={lake}
+            onChange={(v) => {
+              setLake(v);
+              setWaterAutoFilled(false);
+              setAutoWaterError(false);
+            }}
+            options={lakeSuggestions.all}
+            showAllWhenEmpty
             className={inputClassName}
           />
+          {waterAutoFilled && (
+            <p className="text-xs text-zinc-500 dark:text-zinc-400">
+              ✓ Vatten ifyllt automatiskt.
+            </p>
+          )}
+          {autoWaterError && (
+            <p className="text-xs text-zinc-500 dark:text-zinc-400">
+              Hittade inget namngivet vatten nära positionen.
+            </p>
+          )}
         </div>
         <div className="flex flex-col gap-1.5">
           <label htmlFor={`location-${item.id}`} className="text-sm font-medium">
             Plats
           </label>
-          <input
+          <TextSuggestInput
             id={`location-${item.id}`}
             name="location"
-            type="text"
-            defaultValue={item.location ?? ""}
+            value={location}
+            onChange={setLocation}
+            options={locationOptions}
+            showAllWhenEmpty
             className={inputClassName}
           />
         </div>
@@ -306,22 +373,16 @@ export default function EditCatchForm({
             onChange={(lat, lng) => {
               setLatitude(lat);
               setLongitude(lng);
-              const lakeInput = lakeInputRef.current;
-              if (lakeInput && lakeInput.value.trim() === "") {
+              if (lakeRef.current.trim() === "") {
                 lookupWaterName(lat, lng).then((name) => {
-                  if (name && lakeInput.value.trim() === "") {
-                    lakeInput.value = name;
+                  if (name && lakeRef.current.trim() === "") {
+                    setLake(name);
                     setWaterAutoFilled(true);
                   }
                 });
               }
             }}
           />
-        )}
-        {waterAutoFilled && (
-          <p className="text-xs text-zinc-500 dark:text-zinc-400">
-            ✓ Vatten ifyllt automatiskt.
-          </p>
         )}
         {hasPosition && (
           <>

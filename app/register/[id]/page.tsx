@@ -3,6 +3,8 @@ import { notFound } from "next/navigation";
 import { requireUser } from "@/lib/dal";
 import { getCatchById } from "@/lib/register-catches";
 import { getPreviousBest } from "@/lib/personal-bests";
+import { getLakeSuggestions } from "@/lib/lake-suggestions";
+import { getLocationSuggestions } from "@/lib/location-suggestions";
 import CatchDetail from "@/app/components/catch-detail";
 
 export const metadata: Metadata = {
@@ -18,9 +20,13 @@ export default async function CatchDetailPage(props: PageProps<"/register/[id]">
   const item = await getCatchById(user.id, catchId);
   if (!item) notFound();
 
-  const previousBest = item.species
-    ? await getPreviousBest(item.user_id, item.species, item.id)
-    : { maxLength: null, maxWeight: null };
+  const [previousBest, lakeSuggestions, locationSuggestions] = await Promise.all([
+    item.species
+      ? getPreviousBest(item.user_id, item.species, item.id)
+      : Promise.resolve({ maxLength: null, maxWeight: null }),
+    getLakeSuggestions(user.id),
+    getLocationSuggestions(user.id),
+  ]);
   const isPersonalBest =
     (item.length_cm != null &&
       (previousBest.maxLength === null || item.length_cm > previousBest.maxLength)) ||
@@ -33,6 +39,8 @@ export default async function CatchDetailPage(props: PageProps<"/register/[id]">
         item={item}
         isPersonalBest={isPersonalBest}
         defaultShareFields={user.share_card_fields}
+        lakeSuggestions={lakeSuggestions}
+        locationSuggestions={locationSuggestions}
       />
     </main>
   );
