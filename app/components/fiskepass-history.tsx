@@ -61,7 +61,9 @@ function PassCatchList({ catches, isTeam }: { catches: Catch[]; isTeam: boolean 
 
   return (
     <div className="flex flex-col gap-3 p-3">
-      {mappedCatches.length > 0 && <WatersMap catches={mappedCatches} />}
+      {mappedCatches.length > 0 && (
+        <WatersMap catches={mappedCatches} alwaysExpanded />
+      )}
 
       <div className="overflow-x-auto">
         <table className="w-full border-collapse text-left text-sm">

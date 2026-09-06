@@ -52,7 +52,17 @@ function groupByLake(catches: MappedCatchRow[]): LakeGroup[] {
   }));
 }
 
-export default function WatersMap({ catches }: { catches: MappedCatchRow[] }) {
+export default function WatersMap({
+  catches,
+  alwaysExpanded = false,
+}: {
+  catches: MappedCatchRow[];
+  // Skips the "one pin per water, click to expand" grouping and shows every
+  // catch as its own pin right away -- for a small, already-scoped list
+  // (e.g. one fiskepass) where that extra click is just friction, not a way
+  // to avoid clutter.
+  alwaysExpanded?: boolean;
+}) {
   const containerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<import("leaflet").Map | null>(null);
   const leafletRef = useRef<typeof import("leaflet") | null>(null);
@@ -75,7 +85,8 @@ export default function WatersMap({ catches }: { catches: MappedCatchRow[] }) {
 
     import("leaflet").then((leafletModule) =>
       import("leaflet.markercluster").then(() => {
-        if (cancelled || !containerRef.current || lakeGroups.length === 0) return;
+        const hasData = alwaysExpanded ? catches.length > 0 : lakeGroups.length > 0;
+        if (cancelled || !containerRef.current || !hasData) return;
         const L = leafletModule.default;
         leafletRef.current = L;
 
@@ -99,7 +110,16 @@ export default function WatersMap({ catches }: { catches: MappedCatchRow[] }) {
         }).addTo(map);
         appliedTileTypeRef.current = tileType;
 
-        if (lakeGroups.length === 1) {
+        if (alwaysExpanded) {
+          if (catches.length === 1) {
+            map.setView([catches[0].latitude, catches[0].longitude], 13);
+          } else {
+            const bounds = L.latLngBounds(
+              catches.map((c) => [c.latitude, c.longitude] as [number, number])
+            );
+            map.fitBounds(bounds, { padding: [24, 24] });
+          }
+        } else if (lakeGroups.length === 1) {
           map.setView([lakeGroups[0].lat, lakeGroups[0].lng], 11);
         } else {
           const bounds = L.latLngBounds(
@@ -153,31 +173,40 @@ export default function WatersMap({ catches }: { catches: MappedCatchRow[] }) {
     }
 
     const layer = L.layerGroup();
-    for (const group of lakeGroups) {
-      if (group.lake === expandedLake) {
-        const clusterGroup = L.markerClusterGroup();
-        for (const item of group.catches) {
-          L.marker([item.latitude, item.longitude])
-            .bindPopup(popupHtml(item))
-            .addTo(clusterGroup);
+    if (alwaysExpanded) {
+      // No clustering here on purpose -- catches from one pass are usually
+      // close together, and a cluster bubble would just reintroduce the
+      // same "click to see them all" step this mode exists to skip.
+      for (const item of catches) {
+        L.marker([item.latitude, item.longitude]).bindPopup(popupHtml(item)).addTo(layer);
+      }
+    } else {
+      for (const group of lakeGroups) {
+        if (group.lake === expandedLake) {
+          const clusterGroup = L.markerClusterGroup();
+          for (const item of group.catches) {
+            L.marker([item.latitude, item.longitude])
+              .bindPopup(popupHtml(item))
+              .addTo(clusterGroup);
+          }
+          clusterGroup.addTo(layer);
+        } else {
+          const marker = L.marker([group.lat, group.lng]);
+          marker.bindTooltip(`${group.lake} (${group.catches.length})`, {
+            permanent: true,
+            direction: "top",
+            offset: [0, -30],
+            className: "!rounded-full !border-none !bg-foreground !px-2 !py-0.5 !text-background !text-xs !font-medium",
+          });
+          marker.on("click", () => setExpandedLake(group.lake));
+          marker.addTo(layer);
         }
-        clusterGroup.addTo(layer);
-      } else {
-        const marker = L.marker([group.lat, group.lng]);
-        marker.bindTooltip(`${group.lake} (${group.catches.length})`, {
-          permanent: true,
-          direction: "top",
-          offset: [0, -30],
-          className: "!rounded-full !border-none !bg-foreground !px-2 !py-0.5 !text-background !text-xs !font-medium",
-        });
-        marker.on("click", () => setExpandedLake(group.lake));
-        marker.addTo(layer);
       }
     }
     layer.addTo(map);
     layerRef.current = layer;
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [mapReady, expandedLake]);
+  }, [mapReady, expandedLake, alwaysExpanded]);
 
   useEffect(() => {
     const container = containerRef.current;
@@ -207,7 +236,7 @@ export default function WatersMap({ catches }: { catches: MappedCatchRow[] }) {
       }
     >
       <div ref={containerRef} className="h-full w-full" />
-      {expandedLake && (
+      {!alwaysExpanded && expandedLake && (
         <button
           type="button"
           onClick={() => setExpandedLake(null)}
