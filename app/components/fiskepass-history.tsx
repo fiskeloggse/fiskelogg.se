@@ -19,7 +19,7 @@ function formatSv(n: number): string {
   return roundTo2(n).toString().replace(".", ",");
 }
 
-function PassCatchList({ catches }: { catches: Catch[] }) {
+function PassCatchList({ catches, isTeam }: { catches: Catch[]; isTeam: boolean }) {
   const router = useRouter();
 
   if (catches.length === 0) {
@@ -47,7 +47,15 @@ function PassCatchList({ catches }: { catches: Catch[] }) {
               onClick={() => router.push(`/register/${item.id}`)}
               className="cursor-pointer hover:bg-black/5 dark:hover:bg-white/5"
             >
-              <td className="px-4 py-1.5">{item.species || "Okänd art"}</td>
+              <td className="px-4 py-1.5">
+                {item.species || "Okänd art"}
+                {isTeam && item.angler_name && (
+                  <span className="text-zinc-400 dark:text-zinc-500">
+                    {" "}
+                    · {item.angler_name}
+                  </span>
+                )}
+              </td>
               <td className="px-2 py-1.5 whitespace-nowrap">
                 {item.length_cm != null ? `${item.length_cm} cm` : "–"}
                 {item.weight_kg != null ? ` / ${formatSv(item.weight_kg)} kg` : ""}
@@ -182,6 +190,9 @@ function FiskepassRow({ pass }: { pass: FiskepassWithCatchCount }) {
             <p className="font-medium">
               {formatDateTime(pass.start_time)}
               {pass.stop_time ? ` – ${formatDateTime(pass.stop_time)}` : " – pågår"}
+              <span className="ml-2 rounded-full bg-black/10 px-2 py-0.5 text-xs font-normal text-zinc-500 dark:bg-white/10 dark:text-zinc-400">
+                {pass.team_id ? "Team" : "Ensam"}
+              </span>
             </p>
             <p className="text-zinc-500 dark:text-zinc-400">
               {pass.target_species && pass.target_species.length > 0
@@ -214,7 +225,7 @@ function FiskepassRow({ pass }: { pass: FiskepassWithCatchCount }) {
               Laddar…
             </p>
           ) : (
-            catches && <PassCatchList catches={catches} />
+            catches && <PassCatchList catches={catches} isTeam={pass.team_id != null} />
           )}
         </div>
       </details>

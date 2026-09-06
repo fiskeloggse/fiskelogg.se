@@ -35,11 +35,18 @@ export async function startFiskepass(
     .map((s) => s.trim())
     .filter((s) => s !== "");
 
+  const mode = formData.get("mode") === "team" ? "team" : "solo";
+  if (mode === "team" && !user.team_id) {
+    return { error: "Du måste vara med i ett team för ett team-pass." };
+  }
+  const teamId = mode === "team" ? user.team_id : null;
+
   try {
     await sql`
-      insert into fiskepass (user_id, target_species, start_time)
+      insert into fiskepass (user_id, team_id, target_species, start_time)
       values (
         ${user.id},
+        ${teamId},
         ${targetSpecies.length > 0 ? sql.array(targetSpecies) : null},
         now()
       )

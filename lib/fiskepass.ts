@@ -2,30 +2,10 @@ import "server-only";
 import sql from "./db";
 import type { Catch } from "@/app/components/catch-list";
 
-// Full catch rows (weather included) for one historical pass, opened from
-// Register → Fiskepass -- joins on the same time-window rule as
-// catchCountSubquery instead of a stored foreign key.
-export async function getFiskepassCatches(
-  userId: number,
-  passId: number
-): Promise<Catch[]> {
-  return sql<Catch[]>`
-    select c.id, c.user_id, c.species, c.length_cm, c.weight_kg, c.lake, c.location,
-      c.method, c.bait, c.comment, c.caught_at,
-      c.weather_temp_c, c.weather_description, c.weather_wind_kmh, c.weather_wind_dir_deg,
-      c.weather_pressure_hpa, c.weather_cloud_pct, c.photo_url
-    from catches c
-    join fiskepass fp on fp.user_id = c.user_id
-      and c.caught_at >= fp.start_time
-      and (fp.stop_time is null or c.caught_at <= fp.stop_time)
-    where fp.id = ${passId} and fp.user_id = ${userId} and c.deleted_at is null
-    order by c.caught_at asc
-  `;
-}
-
 export type Fiskepass = {
   id: number;
   user_id: number;
+  team_id: number | null;
   target_species: string[] | null;
   start_time: Date;
   stop_time: Date | null;
@@ -42,22 +22,53 @@ export type FiskepassStats = {
 
 // A catch "belongs" to a pass purely by falling inside its time window --
 // no foreign key on catches, so editing a pass's start/stop time
-// automatically changes which catches it covers.
+// automatically changes which catches it covers. A team pass counts any
+// team member's catches in that window; a solo pass counts only the
+// person who started it.
 function catchCountSubquery() {
   return sql`(
     select count(*)::int from catches c
-    where c.user_id = fp.user_id
-      and c.deleted_at is null
+    join users u on u.id = c.user_id
+    where c.deleted_at is null
       and c.caught_at >= fp.start_time
       and (fp.stop_time is null or c.caught_at <= fp.stop_time)
+      and (
+        (fp.team_id is not null and u.team_id = fp.team_id)
+        or (fp.team_id is null and c.user_id = fp.user_id)
+      )
   )`;
+}
+
+// Full catch rows (weather included) for one historical pass, opened from
+// Register → Fiskepass -- joins on the same time-window + team/solo scope
+// rule as catchCountSubquery instead of a stored foreign key.
+export async function getFiskepassCatches(
+  userId: number,
+  passId: number
+): Promise<Catch[]> {
+  return sql<Catch[]>`
+    select c.id, c.user_id, c.species, c.length_cm, c.weight_kg, c.lake, c.location,
+      c.method, c.bait, c.comment, c.caught_at, u.name as angler_name,
+      c.weather_temp_c, c.weather_description, c.weather_wind_kmh, c.weather_wind_dir_deg,
+      c.weather_pressure_hpa, c.weather_cloud_pct, c.photo_url
+    from catches c
+    join users u on u.id = c.user_id
+    join fiskepass fp on c.caught_at >= fp.start_time
+      and (fp.stop_time is null or c.caught_at <= fp.stop_time)
+      and (
+        (fp.team_id is not null and u.team_id = fp.team_id)
+        or (fp.team_id is null and c.user_id = fp.user_id)
+      )
+    where fp.id = ${passId} and fp.user_id = ${userId} and c.deleted_at is null
+    order by c.caught_at asc
+  `;
 }
 
 export async function getOpenFiskepass(
   userId: number
 ): Promise<Fiskepass | null> {
   const [pass] = await sql<Fiskepass[]>`
-    select id, user_id, target_species, start_time, stop_time, created_at
+    select id, user_id, team_id, target_species, start_time, stop_time, created_at
     from fiskepass
     where user_id = ${userId} and stop_time is null
   `;
@@ -68,7 +79,7 @@ export async function getFiskepassHistory(
   userId: number
 ): Promise<FiskepassWithCatchCount[]> {
   return sql<FiskepassWithCatchCount[]>`
-    select fp.id, fp.user_id, fp.target_species, fp.start_time, fp.stop_time, fp.created_at,
+    select fp.id, fp.user_id, fp.team_id, fp.target_species, fp.start_time, fp.stop_time, fp.created_at,
       ${catchCountSubquery()} as catch_count
     from fiskepass fp
     where fp.user_id = ${userId}
@@ -101,24 +112,31 @@ export async function getFiskepassStats(userId: number): Promise<FiskepassStats>
 
 const CATCH_LIMIT = 5;
 
+// Team pass -> any team member's catches; solo pass -> just the owner's.
+function fiskepassScopeCondition(userId: number, teamId: number | null) {
+  return teamId ? sql`u.team_id = ${teamId}` : sql`c.user_id = ${userId}`;
+}
+
 // While a pass is open, the home page swaps its usual "today" boxes for
 // these -- scoped to the pass's own time window (which may span more or
 // less than the current calendar day) rather than the clock.
 export async function getFiskepassRecentCatches(
   userId: number,
+  teamId: number | null,
   startTime: Date,
   speciesFilter: string
 ): Promise<Catch[]> {
-  const speciesCondition = speciesFilter ? sql`and species = ${speciesFilter}` : sql``;
+  const speciesCondition = speciesFilter ? sql`and c.species = ${speciesFilter}` : sql``;
 
   return sql<Catch[]>`
-    select id, user_id, species, length_cm, weight_kg, lake, location, bait, comment, caught_at
-    from catches
-    where user_id = ${userId}
-      and deleted_at is null
-      and caught_at >= ${startTime}
+    select c.id, c.user_id, c.species, c.length_cm, c.weight_kg, c.lake, c.location, c.bait, c.comment, c.caught_at
+    from catches c
+    join users u on u.id = c.user_id
+    where ${fiskepassScopeCondition(userId, teamId)}
+      and c.deleted_at is null
+      and c.caught_at >= ${startTime}
       ${speciesCondition}
-    order by caught_at desc
+    order by c.caught_at desc
     limit ${CATCH_LIMIT}
   `;
 }
@@ -129,38 +147,44 @@ export async function getFiskepassRecentCatches(
 // anything".
 export async function getFiskepassTopCatches(
   userId: number,
+  teamId: number | null,
   startTime: Date,
   speciesFilter: string,
   targetSpecies: string[] | null
 ): Promise<Catch[]> {
   const speciesCondition = speciesFilter
-    ? sql`and species = ${speciesFilter}`
+    ? sql`and c.species = ${speciesFilter}`
     : targetSpecies && targetSpecies.length > 0
-      ? sql`and species = any(${sql.array(targetSpecies)})`
+      ? sql`and c.species = any(${sql.array(targetSpecies)})`
       : sql``;
 
   return sql<Catch[]>`
-    select id, user_id, species, length_cm, weight_kg, lake, location, bait, comment, caught_at
-    from catches
-    where user_id = ${userId}
-      and deleted_at is null
-      and length_cm is not null
-      and caught_at >= ${startTime}
+    select c.id, c.user_id, c.species, c.length_cm, c.weight_kg, c.lake, c.location, c.bait, c.comment, c.caught_at
+    from catches c
+    join users u on u.id = c.user_id
+    where ${fiskepassScopeCondition(userId, teamId)}
+      and c.deleted_at is null
+      and c.length_cm is not null
+      and c.caught_at >= ${startTime}
       ${speciesCondition}
-    order by length_cm desc
+    order by c.length_cm desc
     limit ${CATCH_LIMIT}
   `;
 }
 
 export async function getFiskepassSpeciesList(
   userId: number,
+  teamId: number | null,
   startTime: Date
 ): Promise<string[]> {
   const rows = await sql<{ species: string }[]>`
-    select distinct species
-    from catches
-    where user_id = ${userId} and deleted_at is null and caught_at >= ${startTime}
-    order by species
+    select distinct c.species
+    from catches c
+    join users u on u.id = c.user_id
+    where ${fiskepassScopeCondition(userId, teamId)}
+      and c.deleted_at is null
+      and c.caught_at >= ${startTime}
+    order by c.species
   `;
   return rows.map((r) => r.species);
 }

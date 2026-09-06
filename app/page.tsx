@@ -83,12 +83,18 @@ export default async function Home(props: PageProps<"/">) {
     [topCatches, recentCatches, sharedSpeciesOptions] = await Promise.all([
       getFiskepassTopCatches(
         user.id,
+        openFiskepass.team_id,
         openFiskepass.start_time,
         speciesFilter,
         openFiskepass.target_species
       ),
-      getFiskepassRecentCatches(user.id, openFiskepass.start_time, speciesFilter),
-      getFiskepassSpeciesList(user.id, openFiskepass.start_time),
+      getFiskepassRecentCatches(
+        user.id,
+        openFiskepass.team_id,
+        openFiskepass.start_time,
+        speciesFilter
+      ),
+      getFiskepassSpeciesList(user.id, openFiskepass.team_id, openFiskepass.start_time),
     ]);
     topSpeciesOptions = sharedSpeciesOptions;
     recentSpeciesOptions = sharedSpeciesOptions;
@@ -209,7 +215,9 @@ export default async function Home(props: PageProps<"/">) {
         gpsMode={user.gps_mode}
         openFiskepassSpecies={openFiskepass?.target_species ?? null}
         fiskepassButton={
-          user.show_fiskepass ? <FiskepassButton openPass={openFiskepass} /> : null
+          user.show_fiskepass ? (
+            <FiskepassButton openPass={openFiskepass} hasTeam={user.team_id !== null} />
+          ) : null
         }
       />
 

@@ -143,6 +143,10 @@ create table if not exists fiskepass (
   created_at timestamptz not null default now()
 );
 
+-- A team pass counts every team member's catches during its window instead
+-- of just the starter's own -- same "Ensam"/"Team" choice bingo_cards has.
+alter table fiskepass add column if not exists team_id integer references teams(id) on delete set null;
+
 create index if not exists fiskepass_user_id_idx on fiskepass (user_id);
 
 -- Enforces "only one open pass at a time" at the database level, not just

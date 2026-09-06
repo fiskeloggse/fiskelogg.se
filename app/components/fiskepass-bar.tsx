@@ -11,6 +11,7 @@ const inputClassName =
 
 type OpenFiskepass = {
   id: number;
+  team_id: number | null;
   target_species: string[] | null;
   start_time: Date;
 };
@@ -27,12 +28,13 @@ function formatClockTime(date: Date): string {
   return date.toLocaleTimeString("sv-SE", { hour: "2-digit", minute: "2-digit" });
 }
 
-function StartFiskepassButton() {
+function StartFiskepassButton({ hasTeam }: { hasTeam: boolean }) {
   const [state, formAction, pending] = useActionState(startFiskepass, undefined);
   const [open, setOpen] = useState(false);
   const dialogRef = useRef<HTMLDialogElement>(null);
   const [speciesInput, setSpeciesInput] = useState("");
   const [targetSpecies, setTargetSpecies] = useState<string[]>([]);
+  const [mode, setMode] = useState<"solo" | "team">("solo");
 
   useEffect(() => {
     const dialog = dialogRef.current;
@@ -42,8 +44,11 @@ function StartFiskepassButton() {
   }, [open]);
 
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    if (state && "success" in state) setOpen(false);
+    if (state && "success" in state) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setOpen(false);
+      setMode("solo");
+    }
   }, [state]);
 
   function addSpecies(species: string) {
@@ -86,6 +91,33 @@ function StartFiskepassButton() {
               Avbryt
             </button>
           </div>
+
+          <fieldset className="flex flex-col gap-1.5">
+            <legend className="text-sm font-medium">Pass för</legend>
+            <div className="flex gap-4 text-sm">
+              <label className="flex items-center gap-1.5">
+                <input
+                  type="radio"
+                  name="mode"
+                  value="solo"
+                  checked={mode === "solo"}
+                  onChange={() => setMode("solo")}
+                />
+                Ensam
+              </label>
+              <label className="flex items-center gap-1.5">
+                <input
+                  type="radio"
+                  name="mode"
+                  value="team"
+                  checked={mode === "team"}
+                  onChange={() => setMode("team")}
+                  disabled={!hasTeam}
+                />
+                Team{!hasTeam && " (kräver team)"}
+              </label>
+            </div>
+          </fieldset>
 
           <div className="flex flex-col gap-2">
             <label htmlFor="fiskepass-species" className="text-sm font-medium">
@@ -201,9 +233,15 @@ function StopFiskepassButton({ id, startTime }: { id: number; startTime: Date })
 // The button lives in the same row as "+ Logga fisk" / "+ Logga tidigare
 // fisk" (passed into CatchForm as a slot) so starting or stopping a session
 // reads as one of the app's logging actions, not a separate feature.
-export default function FiskepassButton({ openPass }: { openPass: OpenFiskepass | null }) {
+export default function FiskepassButton({
+  openPass,
+  hasTeam,
+}: {
+  openPass: OpenFiskepass | null;
+  hasTeam: boolean;
+}) {
   if (openPass) return <StopFiskepassButton id={openPass.id} startTime={openPass.start_time} />;
-  return <StartFiskepassButton />;
+  return <StartFiskepassButton hasTeam={hasTeam} />;
 }
 
 // Status line shown above the log form while a pass is open. A blinking
@@ -219,7 +257,8 @@ export function FiskepassStatus({ openPass }: { openPass: OpenFiskepass | null }
         <span className="absolute inline-flex h-full w-full motion-safe:animate-ping rounded-full bg-red-500 opacity-75" />
         <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-red-600" />
       </span>
-      Fiskepass pågår sedan {formatClockTime(openPass.start_time)}
+      Fiskepass{openPass.team_id ? " (team)" : ""} pågår sedan{" "}
+      {formatClockTime(openPass.start_time)}
       {openPass.target_species && openPass.target_species.length > 0
         ? ` · ${openPass.target_species.join(", ")}`
         : ""}
