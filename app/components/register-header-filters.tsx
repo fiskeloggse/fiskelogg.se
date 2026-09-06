@@ -55,24 +55,35 @@ export function HeaderPopover({
       }
       setOpen(false);
     }
-    function handleScroll(e: Event) {
-      // Scrolling the option list inside the popover itself dispatches a
-      // "scroll" event too (capture phase sees it on the way down) — only
-      // close for scrolling outside the popover (the page/table behind it).
-      if (panelRef.current?.contains(e.target as Node)) return;
-      setOpen(false);
+    // Scrolling (the page, or the table's own horizontal scroll) used to
+    // close the popover outright -- since it's positioned with fixed
+    // coordinates snapshotted from the trigger at open time, that was
+    // covering for the fact that those coordinates would otherwise go
+    // stale as the trigger moves. Following the trigger instead means
+    // scrolling no longer closes it. Re-reading the same, unmoved trigger
+    // (e.g. from scrolling a popover's own internal option list) just
+    // recomputes identical coordinates, so this is a no-op in that case.
+    function reposition() {
+      const trigger = triggerRef.current;
+      if (!trigger) return;
+      const rect = trigger.getBoundingClientRect();
+      const left = Math.min(
+        Math.max(8, rect.left),
+        window.innerWidth - POPOVER_WIDTH - 8
+      );
+      setCoords({ top: rect.bottom + 4, left });
     }
     document.addEventListener("mousedown", handlePointerDown);
     // Opening focuses the trigger, which can itself trigger the browser's
-    // native "scroll focused element into view" — attach the scroll-closer
-    // a tick later so that settles first instead of closing what we just opened.
+    // native "scroll focused element into view" — attach the repositioner
+    // a tick later so that settles first instead of fighting what we just opened.
     const timer = window.setTimeout(() => {
-      window.addEventListener("scroll", handleScroll, true);
+      window.addEventListener("scroll", reposition, true);
     }, 150);
     return () => {
       document.removeEventListener("mousedown", handlePointerDown);
       window.clearTimeout(timer);
-      window.removeEventListener("scroll", handleScroll, true);
+      window.removeEventListener("scroll", reposition, true);
     };
   }, [open]);
 
