@@ -325,13 +325,15 @@ function FiskepassRow({ pass }: { pass: FiskepassWithCatchCount }) {
 
 export default function FiskepassHistory({
   history,
+  hasSearch = false,
 }: {
   history: FiskepassWithCatchCount[];
+  hasSearch?: boolean;
 }) {
   if (history.length === 0) {
     return (
       <p className="rounded-xl border border-dashed border-black/15 p-6 text-center text-sm text-zinc-500 dark:border-white/15 dark:text-zinc-400">
-        Inga fiskepass loggade än.
+        {hasSearch ? "Inga fiskepass matchar sökningen." : "Inga fiskepass loggade än."}
       </p>
     );
   }

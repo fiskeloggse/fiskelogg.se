@@ -85,14 +85,46 @@ export async function getOpenFiskepass(
   return pass ?? null;
 }
 
+// Matches the same two things a pass's own detail view would show: its
+// målart, and the species/vatten of whatever was actually caught in it --
+// mirrors getFilteredCatches' "art eller vatten" search on the Fångster tab.
+function fiskepassSearchCondition(q: string) {
+  if (!q) return sql``;
+  // % and _ are LIKE wildcards — escape them so a literal search term
+  // doesn't accidentally match more than typed.
+  const pattern = `%${q.replace(/[%_\\]/g, "\\$&")}%`;
+  return sql`
+    and (
+      exists (
+        select 1 from unnest(coalesce(fp.target_species, '{}'::text[])) t
+        where t ilike ${pattern}
+      )
+      or exists (
+        select 1 from catches c
+        join users u on u.id = c.user_id
+        where c.deleted_at is null
+          and c.caught_at >= fp.start_time
+          and (fp.stop_time is null or c.caught_at <= fp.stop_time)
+          and (
+            (fp.team_id is not null and u.team_id = fp.team_id)
+            or (fp.team_id is null and c.user_id = fp.user_id)
+          )
+          and (c.species ilike ${pattern} or c.lake ilike ${pattern})
+      )
+    )
+  `;
+}
+
 export async function getFiskepassHistory(
-  userId: number
+  userId: number,
+  q: string = ""
 ): Promise<FiskepassWithCatchCount[]> {
   return sql<FiskepassWithCatchCount[]>`
     select fp.id, fp.user_id, fp.team_id, fp.target_species, fp.start_time, fp.stop_time, fp.created_at,
       ${catchCountSubquery()} as catch_count
     from fiskepass fp
     where fp.user_id = ${userId}
+      ${fiskepassSearchCondition(q.trim())}
     order by fp.start_time desc
   `;
 }

@@ -4,7 +4,11 @@ import { useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { useApply } from "./register-header-filters";
 
-export default function RegisterSearch() {
+export default function RegisterSearch({
+  placeholder = "Sök art eller vatten…",
+}: {
+  placeholder?: string;
+}) {
   const searchParams = useSearchParams();
   const apply = useApply();
   const currentQ = searchParams.get("q") ?? "";
@@ -38,7 +42,7 @@ export default function RegisterSearch() {
       type="search"
       value={value}
       onChange={(e) => setValue(e.target.value)}
-      placeholder="Sök art eller vatten…"
+      placeholder={placeholder}
       className="w-full rounded-lg border border-black/10 bg-white px-3 py-2 text-sm dark:border-white/15 dark:bg-transparent"
     />
   );
