@@ -8,7 +8,13 @@ import { FISH_SPECIES } from "@/lib/species";
 const inputClassName =
   "rounded-lg border border-black/10 bg-white px-3 py-2 text-sm dark:border-white/15 dark:bg-transparent";
 
-export default function BingoCardForm({ hasTeam }: { hasTeam: boolean }) {
+export default function BingoCardForm({
+  hasTeam,
+  onClose,
+}: {
+  hasTeam: boolean;
+  onClose?: () => void;
+}) {
   const [state, formAction, pending] = useActionState(createBingoCard, undefined);
   const [showSuccess, setShowSuccess] = useState(false);
 
@@ -34,17 +40,36 @@ export default function BingoCardForm({ hasTeam }: { hasTeam: boolean }) {
       setFromDate("");
       setToDate("");
       setShowSuccess(true);
-      const timer = setTimeout(() => setShowSuccess(false), 5000);
-      return () => clearTimeout(timer);
+      const hideTimer = setTimeout(() => setShowSuccess(false), 5000);
+      // Brief enough to register as feedback, short enough that a modal
+      // (opened from the top-right "Skapa bingobricka" button) doesn't sit
+      // there blocking the rest of the page -- the new card now visible in
+      // the list behind it is the rest of the confirmation.
+      const closeTimer = onClose ? setTimeout(onClose, 900) : undefined;
+      return () => {
+        clearTimeout(hideTimer);
+        if (closeTimer) clearTimeout(closeTimer);
+      };
     }
-  }, [state]);
+  }, [state, onClose]);
 
   return (
     <form
       action={formAction}
       className="flex flex-col gap-4 rounded-xl border border-black/10 bg-white p-5 dark:border-white/15 dark:bg-white/5"
     >
-      <h2 className="text-lg font-semibold">Ny bingobricka</h2>
+      <div className="flex items-center justify-between">
+        <h2 className="text-lg font-semibold">Ny bingobricka</h2>
+        {onClose && (
+          <button
+            type="button"
+            onClick={onClose}
+            className="text-sm text-zinc-500 hover:text-foreground dark:text-zinc-400"
+          >
+            Avbryt
+          </button>
+        )}
+      </div>
 
       <fieldset className="flex flex-col gap-1.5">
         <legend className="text-sm font-medium">Bricka för</legend>

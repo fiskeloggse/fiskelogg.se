@@ -4,8 +4,8 @@ import { getBingoCards, getBingoCatches } from "@/lib/bingo";
 import { getSpeciesBreakdown, getWeighedCatches } from "@/lib/stats";
 import { getPersonalBests } from "@/lib/personal-bests";
 import { getStorfiskPercent, STORFISKREGISTRET_SPECIES } from "@/lib/storfisk";
-import BingoCardForm from "@/app/components/bingo-card-form";
 import BingoCardGrid from "@/app/components/bingo-card-grid";
+import CreateBingoCardButton from "@/app/components/create-bingo-card-button";
 import SpeciesCollection from "@/app/components/species-collection";
 
 export const metadata: Metadata = {
@@ -45,12 +45,15 @@ export default async function ChallengesPage() {
   return (
     <main className="mx-auto flex w-full max-w-4xl flex-1 flex-col gap-8 px-4 py-10 sm:px-6">
       <div className="rounded-xl border border-black/10 bg-white p-5 dark:border-white/15 dark:bg-white/5">
-        <h2 className="text-lg font-semibold">Bingo</h2>
+        <div className="flex items-center justify-between gap-3">
+          <h2 className="text-lg font-semibold">Bingo</h2>
+          <CreateBingoCardButton hasTeam={user.team_id !== null} />
+        </div>
 
         <div className="mt-4 flex flex-col gap-6">
           {cards.length === 0 ? (
             <p className="rounded-xl border border-dashed border-black/15 p-6 text-center text-sm text-zinc-500 dark:border-white/15 dark:text-zinc-400">
-              Inga bingobrickor än. Skapa den första nedan!
+              Inga bingobrickor än. Skapa den första ovan!
             </p>
           ) : (
             <div className="flex flex-col gap-6">
@@ -64,15 +67,6 @@ export default async function ChallengesPage() {
               )}
             </div>
           )}
-
-          <details>
-            <summary className="cursor-pointer text-base font-semibold">
-              Skapa bingobricka
-            </summary>
-            <div className="mt-3">
-              <BingoCardForm hasTeam={user.team_id !== null} />
-            </div>
-          </details>
         </div>
       </div>
 
