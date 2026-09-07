@@ -196,7 +196,7 @@ export function SelectColumnFilter({
   );
 }
 
-function SortToggle({
+export function SortToggle({
   label,
   sortAsc,
   sortDesc,
@@ -475,7 +475,17 @@ function presetRange(preset: DatePreset): { from: string; to: string } {
   return { from: `${now.getFullYear()}-01-01`, to: `${now.getFullYear()}-12-31` };
 }
 
-export function DateColumnFilter({ years }: { years: number[] }) {
+export function DateColumnFilter({
+  years,
+  showMonthFilter = true,
+}: {
+  years: number[];
+  // The "Fångstmånad" checkboxes filter by a catch's caught_at month --
+  // meaningless wherever from/to instead filter something else (e.g. a
+  // fiskepass's start_time), so this hides them for that reuse instead of
+  // showing a control that silently does nothing.
+  showMonthFilter?: boolean;
+}) {
   const searchParams = useSearchParams();
   const apply = useApply();
   const currentFrom = searchParams.get("from") ?? "";
@@ -579,34 +589,38 @@ export function DateColumnFilter({ years }: { years: number[] }) {
               className={inputClassName}
             />
           </label>
-          <p className="mt-1 text-xs font-medium text-zinc-500 dark:text-zinc-400">
-            Fångstmånad (oavsett år)
-          </p>
-          <div className="flex flex-wrap gap-1">
-            {MONTHS.map((m) => {
-              const value = String(m.value);
-              const checked = months.includes(value);
-              return (
-                <label key={m.value} className="cursor-pointer">
-                  <input
-                    type="checkbox"
-                    checked={checked}
-                    onChange={(e) =>
-                      setMonths((prev) =>
-                        e.target.checked
-                          ? [...prev, value]
-                          : prev.filter((v) => v !== value)
-                      )
-                    }
-                    className="peer sr-only"
-                  />
-                  <span className="block rounded-full border border-black/10 px-2 py-0.5 text-xs transition-colors peer-checked:border-foreground peer-checked:bg-foreground peer-checked:text-background dark:border-white/15">
-                    {m.label.slice(0, 3)}
-                  </span>
-                </label>
-              );
-            })}
-          </div>
+          {showMonthFilter && (
+            <>
+              <p className="mt-1 text-xs font-medium text-zinc-500 dark:text-zinc-400">
+                Fångstmånad (oavsett år)
+              </p>
+              <div className="flex flex-wrap gap-1">
+                {MONTHS.map((m) => {
+                  const value = String(m.value);
+                  const checked = months.includes(value);
+                  return (
+                    <label key={m.value} className="cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={checked}
+                        onChange={(e) =>
+                          setMonths((prev) =>
+                            e.target.checked
+                              ? [...prev, value]
+                              : prev.filter((v) => v !== value)
+                          )
+                        }
+                        className="peer sr-only"
+                      />
+                      <span className="block rounded-full border border-black/10 px-2 py-0.5 text-xs transition-colors peer-checked:border-foreground peer-checked:bg-foreground peer-checked:text-background dark:border-white/15">
+                        {m.label.slice(0, 3)}
+                      </span>
+                    </label>
+                  );
+                })}
+              </div>
+            </>
+          )}
           <div className="flex items-center gap-2">
             <button
               type="button"
@@ -616,8 +630,10 @@ export function DateColumnFilter({ years }: { years: number[] }) {
                   else params.delete("from");
                   if (to) params.set("to", to);
                   else params.delete("to");
-                  params.delete("month");
-                  months.forEach((m) => params.append("month", m));
+                  if (showMonthFilter) {
+                    params.delete("month");
+                    months.forEach((m) => params.append("month", m));
+                  }
                 });
                 close();
               }}

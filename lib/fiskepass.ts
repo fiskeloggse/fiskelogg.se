@@ -1,6 +1,8 @@
 import "server-only";
 import sql from "./db";
+import { TIMEZONE } from "./constants";
 import type { Catch } from "@/app/components/catch-list";
+import type { MapCatch } from "@/app/components/catches-map";
 
 export type Fiskepass = {
   id: number;
@@ -85,6 +87,58 @@ export async function getOpenFiskepass(
   return pass ?? null;
 }
 
+export type FiskepassFilters = {
+  q: string;
+  typ: "" | "Ensam" | "Team";
+  malart: string;
+  from: string;
+  to: string;
+  sort: string;
+};
+
+export const FISKEPASS_SORT_OPTIONS = [
+  { value: "date-desc", label: "Datum, nyast först", column: "fp.start_time desc" },
+  { value: "date-asc", label: "Datum, äldst först", column: "fp.start_time asc" },
+  { value: "catches-desc", label: "Fångster, flest först", column: "catch_count desc" },
+  { value: "catches-asc", label: "Fångster, färst först", column: "catch_count asc" },
+] as const;
+
+export function parseFiskepassFilters(params: URLSearchParams): FiskepassFilters {
+  const typRaw = params.get("typ") ?? "";
+  return {
+    q: params.get("q") ?? "",
+    typ: typRaw === "Ensam" || typRaw === "Team" ? typRaw : "",
+    malart: params.get("malart") ?? "",
+    from: params.get("from") ?? "",
+    to: params.get("to") ?? "",
+    sort: params.get("sort") || "date-desc",
+  };
+}
+
+export function hasActiveFiskepassFilters(filters: FiskepassFilters): boolean {
+  return Boolean(filters.q || filters.typ || filters.malart || filters.from || filters.to);
+}
+
+export async function getDistinctTargetSpecies(userId: number): Promise<string[]> {
+  const rows = await sql<{ species: string }[]>`
+    select distinct t as species
+    from fiskepass fp, unnest(fp.target_species) t
+    where fp.user_id = ${userId}
+    order by species
+  `;
+  return rows.map((r) => r.species);
+}
+
+export async function getDistinctFiskepassYears(userId: number): Promise<number[]> {
+  const rows = await sql<{ year: number }[]>`
+    select distinct extract(year from start_time at time zone ${TIMEZONE})::int as year
+    from fiskepass
+    where user_id = ${userId}
+    order by year desc
+  `;
+  return rows.map((r) => r.year);
+}
+
 // Matches the same two things a pass's own detail view would show: its
 // målart, and the species/vatten of whatever was actually caught in it --
 // mirrors getFilteredCatches' "art eller vatten" search on the Fångster tab.
@@ -115,17 +169,77 @@ function fiskepassSearchCondition(q: string) {
   `;
 }
 
+function fiskepassTypCondition(typ: FiskepassFilters["typ"]) {
+  if (typ === "Ensam") return sql`and fp.team_id is null`;
+  if (typ === "Team") return sql`and fp.team_id is not null`;
+  return sql``;
+}
+
+function fiskepassMalartCondition(malart: string) {
+  return malart ? sql`and ${malart} = any(coalesce(fp.target_species, '{}'::text[]))` : sql``;
+}
+
+function fiskepassDateCondition(from: string, to: string) {
+  if (from && to) {
+    return sql`and (fp.start_time at time zone ${TIMEZONE})::date between ${from}::date and ${to}::date`;
+  }
+  if (from) return sql`and (fp.start_time at time zone ${TIMEZONE})::date >= ${from}::date`;
+  if (to) return sql`and (fp.start_time at time zone ${TIMEZONE})::date <= ${to}::date`;
+  return sql``;
+}
+
+// Shared by getFiskepassHistory and getFiskepassMapCatches so both filter
+// identically -- the map's pins always reflect exactly the passes the list
+// shows.
+function fiskepassFilterConditions(filters: FiskepassFilters) {
+  return sql`
+    ${fiskepassSearchCondition(filters.q.trim())}
+    ${fiskepassTypCondition(filters.typ)}
+    ${fiskepassMalartCondition(filters.malart)}
+    ${fiskepassDateCondition(filters.from, filters.to)}
+  `;
+}
+
 export async function getFiskepassHistory(
   userId: number,
-  q: string = ""
+  filters: FiskepassFilters
 ): Promise<FiskepassWithCatchCount[]> {
+  const sortColumn =
+    FISKEPASS_SORT_OPTIONS.find((o) => o.value === filters.sort)?.column ??
+    FISKEPASS_SORT_OPTIONS[0].column;
+
   return sql<FiskepassWithCatchCount[]>`
     select fp.id, fp.user_id, fp.team_id, fp.target_species, fp.start_time, fp.stop_time, fp.created_at,
       ${catchCountSubquery()} as catch_count
     from fiskepass fp
     where fp.user_id = ${userId}
-      ${fiskepassSearchCondition(q.trim())}
-    order by fp.start_time desc
+      ${fiskepassFilterConditions(filters)}
+    order by ${sql.unsafe(sortColumn)}
+  `;
+}
+
+// Every catch (with a saved position) belonging to any pass that matches
+// the current filters -- feeds the same "Visa karta" toggle Fångster has,
+// scoped to whatever the filtered pass list shows instead of everything.
+export async function getFiskepassMapCatches(
+  userId: number,
+  filters: FiskepassFilters
+): Promise<MapCatch[]> {
+  return sql<MapCatch[]>`
+    select distinct c.id, c.species, c.length_cm, c.weight_kg, c.caught_at, c.latitude, c.longitude
+    from catches c
+    join users u on u.id = c.user_id
+    join fiskepass fp on c.caught_at >= fp.start_time
+      and (fp.stop_time is null or c.caught_at <= fp.stop_time)
+      and (
+        (fp.team_id is not null and u.team_id = fp.team_id)
+        or (fp.team_id is null and c.user_id = fp.user_id)
+      )
+    where fp.user_id = ${userId}
+      and c.deleted_at is null
+      and c.latitude is not null and c.longitude is not null
+      ${fiskepassFilterConditions(filters)}
+    order by c.caught_at desc
   `;
 }
 
