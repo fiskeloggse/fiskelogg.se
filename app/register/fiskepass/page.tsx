@@ -71,6 +71,12 @@ export default async function RegisterFiskepassPage(
             >
               Exportera
             </a>
+            <Link
+              href={`/register/fiskepass/papperskorg${params.toString() ? `?${params.toString()}` : ""}`}
+              className="text-zinc-500 underline dark:text-zinc-400"
+            >
+              Papperskorg
+            </Link>
           </div>
         </div>
         <RegisterSearch placeholder="Sök målart, vatten eller fångad art…" />

@@ -16,6 +16,8 @@ export type Fiskepass = {
 
 export type FiskepassWithCatchCount = Fiskepass & { catch_count: number };
 
+export type TrashedFiskepass = FiskepassWithCatchCount & { deleted_at: Date };
+
 export type FiskepassStats = {
   antalPass: number;
   antalBompass: number;
@@ -62,7 +64,8 @@ export async function getFiskepassCatches(
         (fp.team_id is not null and u.team_id = fp.team_id)
         or (fp.team_id is null and c.user_id = fp.user_id)
       )
-    where fp.id = ${passId} and fp.user_id = ${userId} and c.deleted_at is null
+    where fp.id = ${passId} and fp.user_id = ${userId} and fp.deleted_at is null
+      and c.deleted_at is null
     order by c.caught_at asc
   `;
 }
@@ -77,6 +80,7 @@ export async function getOpenFiskepass(
     select id, user_id, team_id, target_species, start_time, stop_time, created_at
     from fiskepass
     where stop_time is null
+      and deleted_at is null
       and (
         user_id = ${userId}
         or (team_id is not null and team_id = ${teamId})
@@ -123,7 +127,7 @@ export async function getDistinctTargetSpecies(userId: number): Promise<string[]
   const rows = await sql<{ species: string }[]>`
     select distinct t as species
     from fiskepass fp, unnest(fp.target_species) t
-    where fp.user_id = ${userId}
+    where fp.user_id = ${userId} and fp.deleted_at is null
     order by species
   `;
   return rows.map((r) => r.species);
@@ -133,7 +137,7 @@ export async function getDistinctFiskepassYears(userId: number): Promise<number[
   const rows = await sql<{ year: number }[]>`
     select distinct extract(year from start_time at time zone ${TIMEZONE})::int as year
     from fiskepass
-    where user_id = ${userId}
+    where user_id = ${userId} and deleted_at is null
     order by year desc
   `;
   return rows.map((r) => r.year);
@@ -213,8 +217,20 @@ export async function getFiskepassHistory(
       ${catchCountSubquery()} as catch_count
     from fiskepass fp
     where fp.user_id = ${userId}
+      and fp.deleted_at is null
       ${fiskepassFilterConditions(filters)}
     order by ${sql.unsafe(sortColumn)}
+  `;
+}
+
+export async function getTrashedFiskepass(userId: number): Promise<TrashedFiskepass[]> {
+  return sql<TrashedFiskepass[]>`
+    select fp.id, fp.user_id, fp.team_id, fp.target_species, fp.start_time, fp.stop_time, fp.created_at,
+      fp.deleted_at,
+      ${catchCountSubquery()} as catch_count
+    from fiskepass fp
+    where fp.user_id = ${userId} and fp.deleted_at is not null
+    order by fp.deleted_at desc
   `;
 }
 
@@ -236,6 +252,7 @@ export async function getFiskepassMapCatches(
         or (fp.team_id is null and c.user_id = fp.user_id)
       )
     where fp.user_id = ${userId}
+      and fp.deleted_at is null
       and c.deleted_at is null
       and c.latitude is not null and c.longitude is not null
       ${fiskepassFilterConditions(filters)}
@@ -250,7 +267,7 @@ export async function getFiskepassStats(userId: number): Promise<FiskepassStats>
     with pass_catches as (
       select fp.start_time, fp.stop_time, ${catchCountSubquery()} as catch_count
       from fiskepass fp
-      where fp.user_id = ${userId} and fp.stop_time is not null
+      where fp.user_id = ${userId} and fp.stop_time is not null and fp.deleted_at is null
     )
     select
       count(*)::int as antal_pass,

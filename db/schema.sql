@@ -147,14 +147,23 @@ create table if not exists fiskepass (
 -- of just the starter's own -- same "Ensam"/"Team" choice bingo_cards has.
 alter table fiskepass add column if not exists team_id integer references teams(id) on delete set null;
 
+-- Soft delete, mirroring catches.deleted_at -- a pass moves to Papperskorg
+-- instead of vanishing outright; the catches within it are never touched.
+alter table fiskepass add column if not exists deleted_at timestamptz;
+
 create index if not exists fiskepass_user_id_idx on fiskepass (user_id);
 
 -- Enforces "only one open pass at a time" at the database level, not just
--- in application code -- a partial unique index over just the open rows.
+-- in application code -- a partial unique index over just the open, non-
+-- deleted rows. Recreated (drop+create) each time deleted_at is null was
+-- added to the condition, so a soft-deleted open pass no longer blocks
+-- starting a new one.
+drop index if exists fiskepass_one_open_per_user;
 create unique index if not exists fiskepass_one_open_per_user
-  on fiskepass (user_id) where stop_time is null;
+  on fiskepass (user_id) where stop_time is null and deleted_at is null;
 
 -- Same guarantee for team passes -- two members can't each open a
 -- competing team pass while one is already running for the team.
+drop index if exists fiskepass_one_open_per_team;
 create unique index if not exists fiskepass_one_open_per_team
-  on fiskepass (team_id) where stop_time is null and team_id is not null;
+  on fiskepass (team_id) where stop_time is null and team_id is not null and deleted_at is null;

@@ -23,7 +23,8 @@ export async function startFiskepass(
   const user = await requireUser();
 
   const [existing] = await sql`
-    select id from fiskepass where user_id = ${user.id} and stop_time is null
+    select id from fiskepass
+    where user_id = ${user.id} and stop_time is null and deleted_at is null
   `;
   if (existing) {
     return { error: "Du har redan ett pågående fiskepass." };
@@ -43,7 +44,8 @@ export async function startFiskepass(
 
   if (teamId) {
     const [existingTeamPass] = await sql`
-      select id from fiskepass where team_id = ${teamId} and stop_time is null
+      select id from fiskepass
+      where team_id = ${teamId} and stop_time is null and deleted_at is null
     `;
     if (existingTeamPass) {
       return { error: "Ditt team har redan ett pågående fiskepass." };
@@ -140,7 +142,7 @@ export async function updateFiskepass(
     await sql`
       update fiskepass
       set start_time = ${startTime}, stop_time = ${stopTime === "" ? null : stopTime}
-      where id = ${id} and user_id = ${user.id}
+      where id = ${id} and user_id = ${user.id} and deleted_at is null
     `;
   } catch (err) {
     // Clearing stop_time re-opens a pass -- 23505 means another one is
@@ -156,13 +158,67 @@ export async function updateFiskepass(
   return { success: true };
 }
 
+// Soft delete, mirroring how a single catch moves to Papperskorg instead of
+// vanishing outright. The catches within the pass's time window are never
+// touched -- they stay in Fångster exactly as before.
 export async function deleteFiskepass(formData: FormData): Promise<void> {
   const user = await requireUser();
   const id = Number(formData.get("id"));
   if (!id) return;
 
-  await sql`delete from fiskepass where id = ${id} and user_id = ${user.id}`;
+  await sql`
+    update fiskepass set deleted_at = now()
+    where id = ${id} and user_id = ${user.id} and deleted_at is null
+  `;
 
   revalidatePath("/");
   revalidatePath("/statistik");
+  revalidatePath("/register/fiskepass");
+  revalidatePath("/register/fiskepass/papperskorg");
+}
+
+function parseFiskepassIds(formData: FormData): number[] {
+  return formData
+    .getAll("ids")
+    .map(Number)
+    .filter((n) => Number.isInteger(n) && n > 0);
+}
+
+export async function restoreFiskepass(formData: FormData): Promise<void> {
+  const user = await requireUser();
+  const ids = parseFiskepassIds(formData);
+  if (ids.length === 0) return;
+
+  try {
+    await sql`
+      update fiskepass set deleted_at = null
+      where user_id = ${user.id} and id = any(${sql.array(ids)}::int[]) and deleted_at is not null
+    `;
+  } catch (err) {
+    // 23505 -- restoring an open pass while another one is already open
+    // (fiskepass_one_open_per_user/_team) is refused rather than silently
+    // reopening a second concurrent pass.
+    if (err && typeof err === "object" && "code" in err && err.code === "23505") {
+      return;
+    }
+    throw err;
+  }
+
+  revalidatePath("/");
+  revalidatePath("/statistik");
+  revalidatePath("/register/fiskepass");
+  revalidatePath("/register/fiskepass/papperskorg");
+}
+
+export async function permanentlyDeleteFiskepass(formData: FormData): Promise<void> {
+  const user = await requireUser();
+  const ids = parseFiskepassIds(formData);
+  if (ids.length === 0) return;
+
+  await sql`
+    delete from fiskepass
+    where user_id = ${user.id} and id = any(${sql.array(ids)}::int[]) and deleted_at is not null
+  `;
+
+  revalidatePath("/register/fiskepass/papperskorg");
 }
