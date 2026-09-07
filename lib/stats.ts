@@ -89,16 +89,27 @@ export async function getCatchesWithPosition(
 
 export type FishingDayRow = { date: string; catches: number };
 
+// A "fiskedag" is any day with a logged catch OR a logged fiskepass -- a
+// bompass (pass, zero catches) still counts as a day spent fishing, so it
+// shows up here with catches = 0 instead of not appearing at all.
 export async function getFishingDaysByDate(
   userId: number
 ): Promise<FishingDayRow[]> {
   return sql<FishingDayRow[]>`
     select
-      (caught_at at time zone ${TIMEZONE})::date::text as date,
-      count(*)::int as catches
-    from catches c
-    where ${scopeCondition(userId)}
-    group by date
+      coalesce(c.date, fp.date) as date,
+      coalesce(c.catches, 0)::int as catches
+    from (
+      select (caught_at at time zone ${TIMEZONE})::date::text as date, count(*)::int as catches
+      from catches c
+      where ${scopeCondition(userId)}
+      group by date
+    ) c
+    full outer join (
+      select distinct (start_time at time zone ${TIMEZONE})::date::text as date
+      from fiskepass
+      where user_id = ${userId} and deleted_at is null
+    ) fp on fp.date = c.date
     order by date
   `;
 }

@@ -88,7 +88,7 @@ export default function FishingDaysExplorer({
       <div className="flex flex-col gap-3">
         {backButton}
         <p className="text-sm text-zinc-500 dark:text-zinc-400">
-          Inga fångster loggade än.
+          Inga fiskedagar loggade än.
         </p>
       </div>
     );
@@ -115,20 +115,29 @@ export default function FishingDaysExplorer({
                 return <div key={`${weekIndex}-${dayIndex}`} />;
               }
               const dateStr = `${selectedYear}-${pad2(selectedMonth)}-${pad2(day)}`;
+              const fished = byDate.has(dateStr);
               const count = byDate.get(dateStr) ?? 0;
               return (
                 <div
                   key={`${weekIndex}-${dayIndex}`}
-                  title={count > 0 ? `${count} fångster` : undefined}
+                  title={
+                    fished
+                      ? count > 0
+                        ? `${count} fångster`
+                        : "Bompass"
+                      : undefined
+                  }
                   className={
                     "flex aspect-square flex-col items-center justify-center rounded-lg text-xs " +
-                    (count > 0
+                    (fished
                       ? "bg-foreground text-background font-medium"
                       : "bg-black/5 text-zinc-400 dark:bg-white/10 dark:text-zinc-500")
                   }
                 >
                   <span>{day}</span>
-                  {count > 0 && <span className="text-[10px]">{count}</span>}
+                  {fished && (
+                    <span className="text-[10px]">{count > 0 ? count : "0"}</span>
+                  )}
                 </div>
               );
             })
@@ -166,7 +175,10 @@ export default function FishingDaysExplorer({
               onClick={() => setSelectedMonth(d.month)}
               className="flex flex-1 flex-col items-center gap-1 disabled:cursor-default"
             >
-              <div className="flex h-24 w-full items-end">
+              <span className="text-xs font-medium text-zinc-500 dark:text-zinc-400">
+                {d.days > 0 ? d.days : ""}
+              </span>
+              <div className="flex h-20 w-full items-end">
                 <div
                   className={
                     "w-full rounded-t " +
