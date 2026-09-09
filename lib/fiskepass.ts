@@ -22,6 +22,10 @@ export type FiskepassStats = {
   antalPass: number;
   antalBompass: number;
   totalHours: number;
+  antalPassEnsam: number;
+  antalPassTeam: number;
+  totalHoursEnsam: number;
+  totalHoursTeam: number;
 };
 
 // A catch "belongs" to a pass purely by falling inside its time window --
@@ -274,17 +278,29 @@ export async function getFiskepassMapCatches(
 
 export async function getFiskepassStats(userId: number): Promise<FiskepassStats> {
   const [row] = await sql<
-    { antal_pass: number; antal_bompass: number; total_seconds: number }[]
+    {
+      antal_pass: number;
+      antal_bompass: number;
+      total_seconds: number;
+      antal_pass_ensam: number;
+      antal_pass_team: number;
+      total_seconds_ensam: number;
+      total_seconds_team: number;
+    }[]
   >`
     with pass_catches as (
-      select fp.start_time, fp.stop_time, ${catchCountSubquery()} as catch_count
+      select fp.team_id, fp.start_time, fp.stop_time, ${catchCountSubquery()} as catch_count
       from fiskepass fp
       where fp.user_id = ${userId} and fp.stop_time is not null and fp.deleted_at is null
     )
     select
       count(*)::int as antal_pass,
       count(*) filter (where catch_count = 0)::int as antal_bompass,
-      coalesce(sum(extract(epoch from (stop_time - start_time))), 0)::float as total_seconds
+      coalesce(sum(extract(epoch from (stop_time - start_time))), 0)::float as total_seconds,
+      count(*) filter (where team_id is null)::int as antal_pass_ensam,
+      count(*) filter (where team_id is not null)::int as antal_pass_team,
+      coalesce(sum(extract(epoch from (stop_time - start_time))) filter (where team_id is null), 0)::float as total_seconds_ensam,
+      coalesce(sum(extract(epoch from (stop_time - start_time))) filter (where team_id is not null), 0)::float as total_seconds_team
     from pass_catches
   `;
 
@@ -292,6 +308,10 @@ export async function getFiskepassStats(userId: number): Promise<FiskepassStats>
     antalPass: row?.antal_pass ?? 0,
     antalBompass: row?.antal_bompass ?? 0,
     totalHours: (row?.total_seconds ?? 0) / 3600,
+    antalPassEnsam: row?.antal_pass_ensam ?? 0,
+    antalPassTeam: row?.antal_pass_team ?? 0,
+    totalHoursEnsam: (row?.total_seconds_ensam ?? 0) / 3600,
+    totalHoursTeam: (row?.total_seconds_team ?? 0) / 3600,
   };
 }
 
