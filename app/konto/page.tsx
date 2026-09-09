@@ -237,16 +237,18 @@ export default async function KontoPage() {
         </div>
       </details>
 
-      <div className="flex flex-col gap-4 rounded-xl border border-black/10 bg-white p-5 dark:border-white/15 dark:bg-white/5">
-        <div>
-          <h2 className="text-lg font-semibold">Importera från Excel</h2>
+      <details className="rounded-xl border border-black/10 bg-white p-5 dark:border-white/15 dark:bg-white/5">
+        <summary className="cursor-pointer text-lg font-semibold">
+          Importera från Excel
+        </summary>
+        <div className="mt-4 flex flex-col gap-4">
           <p className="text-sm text-zinc-500 dark:text-zinc-400">
             Ladda ner mallen, fyll i dina fångster och ladda upp filen för
             att logga flera fångster på en gång.
           </p>
+          <ImportCatchesToggle />
         </div>
-        <ImportCatchesToggle />
-      </div>
+      </details>
 
       <details className="rounded-xl border border-black/10 bg-white p-5 dark:border-white/15 dark:bg-white/5">
         <summary className="cursor-pointer text-lg font-semibold">
@@ -298,12 +300,14 @@ export default async function KontoPage() {
         </div>
       </details>
 
-      <div className="flex flex-col gap-4 rounded-xl border border-red-200 bg-white p-5 dark:border-red-900/50 dark:bg-white/5">
-        <h2 className="text-lg font-semibold text-red-600 dark:text-red-400">
+      <details className="rounded-xl border border-red-200 bg-white p-5 dark:border-red-900/50 dark:bg-white/5">
+        <summary className="cursor-pointer text-lg font-semibold text-red-600 dark:text-red-400">
           Farozon
-        </h2>
-        <DeleteAllCatchesForm catchCount={catchCount} />
-      </div>
+        </summary>
+        <div className="mt-4">
+          <DeleteAllCatchesForm catchCount={catchCount} />
+        </div>
+      </details>
     </main>
   );
 }
