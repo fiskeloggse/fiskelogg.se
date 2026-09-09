@@ -40,32 +40,36 @@ export default async function KontoPage() {
 
   return (
     <main className="mx-auto flex w-full max-w-4xl flex-1 flex-col gap-8 px-4 py-10 sm:px-6">
-      <div className="flex flex-col gap-4 rounded-xl border border-black/10 bg-white p-5 dark:border-white/15 dark:bg-white/5">
-        <div>
-          <h2 className="text-lg font-semibold">Konto</h2>
+      <details className="rounded-xl border border-black/10 bg-white p-5 dark:border-white/15 dark:bg-white/5">
+        <summary className="cursor-pointer text-lg font-semibold">
+          Kontouppgifter
+        </summary>
+        <div className="mt-4 flex flex-col gap-4">
           <p className="text-sm text-zinc-500 dark:text-zinc-400">
             {user.name} · {user.email}
           </p>
+
+          <form action={logout}>
+            <button
+              type="submit"
+              className="rounded-full border border-black/10 px-4 py-2 text-sm font-medium transition-colors hover:bg-black/5 dark:border-white/15 dark:hover:bg-white/10"
+            >
+              Logga ut
+            </button>
+          </form>
+
+          <ChangePasswordButton />
         </div>
+      </details>
 
-        <form action={logout}>
-          <button
-            type="submit"
-            className="rounded-full border border-black/10 px-4 py-2 text-sm font-medium transition-colors hover:bg-black/5 dark:border-white/15 dark:hover:bg-white/10"
-          >
-            Logga ut
-          </button>
-        </form>
-
-        <div className="border-t border-black/10 pt-4 dark:border-white/15">
-          <h3 className="mb-2 text-sm font-medium text-zinc-500 dark:text-zinc-400">
-            Tema
-          </h3>
+      <details className="rounded-xl border border-black/10 bg-white p-5 dark:border-white/15 dark:bg-white/5">
+        <summary className="cursor-pointer text-lg font-semibold">
+          Tema
+        </summary>
+        <div className="mt-4">
           <ThemeToggle />
         </div>
-
-        <ChangePasswordButton />
-      </div>
+      </details>
 
       <details className="rounded-xl border border-black/10 bg-white p-5 dark:border-white/15 dark:bg-white/5">
         <summary className="cursor-pointer text-lg font-semibold">
