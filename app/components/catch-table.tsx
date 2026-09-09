@@ -9,6 +9,7 @@ import {
   DateColumnFilter,
   MeasurementColumnFilter,
   SelectColumnFilter,
+  SortToggle,
   WeatherColumnFilter,
 } from "./register-header-filters";
 import { REGISTER_COLUMN_KEYS, WEATHER_DESCRIPTION_ICONS } from "@/lib/constants";
@@ -210,6 +211,8 @@ export default function CatchTable({
                       label="Art"
                       paramName="species"
                       options={speciesOptions}
+                      sortAsc="species-asc"
+                      sortDesc="species-desc"
                     />
                   </th>
                 )}
@@ -219,6 +222,8 @@ export default function CatchTable({
                       label="Plats"
                       paramName="lake"
                       options={lakeOptions}
+                      sortAsc="lake-asc"
+                      sortDesc="lake-desc"
                     />
                   </th>
                 )}
@@ -233,6 +238,8 @@ export default function CatchTable({
                       label="Metod/Bete"
                       paramName="bait"
                       options={baitOptions}
+                      sortAsc="bait-asc"
+                      sortDesc="bait-desc"
                     />
                   </th>
                 )}
@@ -241,7 +248,17 @@ export default function CatchTable({
                     <WeatherColumnFilter />
                   </th>
                 )}
-                {showManfas && <th className="px-1 py-2 font-medium">Månfas</th>}
+                {showManfas && (
+                  <th className="px-1 py-2 font-medium">
+                    <SortToggle
+                      label="Månfas"
+                      sortAsc="moonphase-asc"
+                      sortDesc="moonphase-desc"
+                      ascLabel="nymåne först"
+                      descLabel="nymåne sist"
+                    />
+                  </th>
+                )}
               </tr>
             </thead>
             <tbody className="divide-y divide-black/10 dark:divide-white/10">

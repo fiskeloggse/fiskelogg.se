@@ -105,6 +105,18 @@ export const FISKEPASS_SORT_OPTIONS = [
   { value: "date-asc", label: "Datum, äldst först", column: "fp.start_time asc" },
   { value: "catches-desc", label: "Fångster, flest först", column: "catch_count desc" },
   { value: "catches-asc", label: "Fångster, färst först", column: "catch_count asc" },
+  { value: "typ-asc", label: "Typ, Ensam först", column: "(fp.team_id is not null) asc" },
+  { value: "typ-desc", label: "Typ, Team först", column: "(fp.team_id is not null) desc" },
+  {
+    value: "malart-asc",
+    label: "Målart, A–Ö",
+    column: "fp.target_species[1] asc nulls last",
+  },
+  {
+    value: "malart-desc",
+    label: "Målart, Ö–A",
+    column: "fp.target_species[1] desc nulls last",
+  },
 ] as const;
 
 export function parseFiskepassFilters(params: URLSearchParams): FiskepassFilters {

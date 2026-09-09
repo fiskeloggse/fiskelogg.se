@@ -146,10 +146,22 @@ export function SelectColumnFilter({
   label,
   paramName,
   options,
+  sortAsc,
+  sortDesc,
+  sortAscLabel = "A–Ö",
+  sortDescLabel = "Ö–A",
 }: {
   label: string;
   paramName: string;
   options: string[];
+  // When given, adds a SortToggle above the option list -- lets this same
+  // column header both filter and sort. Labels default to A–Ö/Ö–A
+  // (alphabetical, the common case) but can be overridden for a
+  // non-alphabetical field (e.g. Ensam/Team).
+  sortAsc?: string;
+  sortDesc?: string;
+  sortAscLabel?: string;
+  sortDescLabel?: string;
 }) {
   const searchParams = useSearchParams();
   const apply = useApply();
@@ -166,30 +178,43 @@ export function SelectColumnFilter({
   return (
     <HeaderPopover label={label} active={active}>
       {(close) => (
-        <div className="flex max-h-64 flex-col gap-0.5 overflow-y-auto text-sm">
-          <button
-            type="button"
-            onClick={() => {
-              apply((params) => params.delete(paramName));
-              close();
-            }}
-            className={optionClassName(!active)}
-          >
-            Alla
-          </button>
-          {options.map((o) => (
+        <div className="flex flex-col gap-2 text-sm">
+          {sortAsc && sortDesc && (
+            <div className="border-b border-black/10 pb-2 dark:border-white/15">
+              <SortToggle
+                label={label}
+                sortAsc={sortAsc}
+                sortDesc={sortDesc}
+                ascLabel={sortAscLabel}
+                descLabel={sortDescLabel}
+              />
+            </div>
+          )}
+          <div className="flex max-h-64 flex-col gap-0.5 overflow-y-auto">
             <button
-              key={o}
               type="button"
               onClick={() => {
-                apply((params) => params.set(paramName, o));
+                apply((params) => params.delete(paramName));
                 close();
               }}
-              className={optionClassName(current === o)}
+              className={optionClassName(!active)}
             >
-              {o}
+              Alla
             </button>
-          ))}
+            {options.map((o) => (
+              <button
+                key={o}
+                type="button"
+                onClick={() => {
+                  apply((params) => params.set(paramName, o));
+                  close();
+                }}
+                className={optionClassName(current === o)}
+              >
+                {o}
+              </button>
+            ))}
+          </div>
         </div>
       )}
     </HeaderPopover>
@@ -200,10 +225,18 @@ export function SortToggle({
   label,
   sortAsc,
   sortDesc,
+  ascLabel = "minst först",
+  descLabel = "störst först",
 }: {
   label: string;
   sortAsc: string;
   sortDesc: string;
+  // CTA text, not a status readout -- shown text describes what clicking
+  // does next, so the "asc" label (e.g. "A–Ö") appears while NOT already
+  // ascending, and vice versa. Defaults preserve Längd/Vikt's original
+  // "störst/minst" wording.
+  ascLabel?: string;
+  descLabel?: string;
 }) {
   const searchParams = useSearchParams();
   const apply = useApply();
@@ -222,7 +255,7 @@ export function SortToggle({
           : "text-zinc-500 dark:text-zinc-400")
       }
     >
-      {label}: {isAsc ? "störst först" : "minst först"}
+      {label}: {isAsc ? descLabel : ascLabel}
     </button>
   );
 }
@@ -347,6 +380,15 @@ export function WeatherColumnFilter() {
     <HeaderPopover label="Väder" active={active}>
       {(close) => (
         <div className="flex flex-col gap-3 text-sm">
+          <div className="border-b border-black/10 pb-2 dark:border-white/15">
+            <SortToggle
+              label="Väder"
+              sortAsc="weather-asc"
+              sortDesc="weather-desc"
+              ascLabel="kallast först"
+              descLabel="varmast först"
+            />
+          </div>
           <DualRangeSlider
             label="Temperatur"
             min={WEATHER_TEMP_MIN}

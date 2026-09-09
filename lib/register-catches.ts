@@ -17,11 +17,19 @@ import type { Catch } from "@/app/components/catch-list";
 
 export { LENGTH_MIN, LENGTH_MAX, WEIGHT_MIN, WEIGHT_MAX };
 
+// Days since the reference new moon (2000-01-06 18:14 UTC), wrapped into a
+// single synodic month -- mirrors lib/moon-phase.ts's own math so sorting
+// by Månfas orders new-moon-first through the same 8-phase cycle the icon
+// itself is derived from, instead of duplicating a phase-index lookup here.
+const MOON_PHASE_DAYS_EXPR = `mod(mod((extract(epoch from (caught_at - timestamptz '2000-01-06 18:14:00+00')) / 86400.0)::numeric, 29.530588861::numeric) + 29.530588861::numeric, 29.530588861::numeric)`;
+
 // Sorterar alltid på hela tidsstämpeln (inklusive år) — till skillnad från
 // fångstmånad, som medvetet bortser från år.
 export const SORT_OPTIONS = [
   { value: "date-desc", label: "Datum, nyast först", column: "caught_at desc" },
   { value: "date-asc", label: "Datum, äldst först", column: "caught_at asc" },
+  { value: "species-asc", label: "Art, A–Ö", column: "species asc" },
+  { value: "species-desc", label: "Art, Ö–A", column: "species desc" },
   {
     value: "length-desc",
     label: "Längd, störst först",
@@ -41,6 +49,30 @@ export const SORT_OPTIONS = [
     value: "weight-asc",
     label: "Vikt, lättast först",
     column: "weight_kg asc nulls last",
+  },
+  { value: "lake-asc", label: "Vatten, A–Ö", column: "lake asc nulls last" },
+  { value: "lake-desc", label: "Vatten, Ö–A", column: "lake desc nulls last" },
+  { value: "bait-asc", label: "Bete, A–Ö", column: "bait asc nulls last" },
+  { value: "bait-desc", label: "Bete, Ö–A", column: "bait desc nulls last" },
+  {
+    value: "weather-desc",
+    label: "Väder, varmast först",
+    column: "weather_temp_c desc nulls last",
+  },
+  {
+    value: "weather-asc",
+    label: "Väder, kallast först",
+    column: "weather_temp_c asc nulls last",
+  },
+  {
+    value: "moonphase-asc",
+    label: "Månfas, nymåne först",
+    column: `${MOON_PHASE_DAYS_EXPR} asc`,
+  },
+  {
+    value: "moonphase-desc",
+    label: "Månfas, nymåne sist",
+    column: `${MOON_PHASE_DAYS_EXPR} desc`,
   },
 ] as const;
 
