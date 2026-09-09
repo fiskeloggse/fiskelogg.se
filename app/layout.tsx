@@ -1,7 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import Header from "@/app/components/header";
-import { getCurrentUser } from "@/lib/dal";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -58,9 +57,7 @@ const THEME_INIT_SCRIPT = `
 })();
 `;
 
-export default async function RootLayout({ children }: LayoutProps<"/">) {
-  const user = await getCurrentUser();
-
+export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
       lang="sv"
@@ -71,13 +68,14 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
         <script dangerouslySetInnerHTML={{ __html: THEME_INIT_SCRIPT }} />
       </head>
       <body
-        className={
-          "min-h-full flex flex-col bg-zinc-50 dark:bg-black" +
-          // Room for the fixed mobile bottom tab bar so page content never
-          // sits underneath it — desktop uses the regular in-flow tabs, no
-          // extra padding needed there.
-          (user ? " pb-20 sm:pb-0" : "")
-        }
+        // Always reserves room for the fixed mobile bottom tab bar (desktop
+        // uses in-flow tabs, no padding needed there) instead of checking
+        // the signed-in user here — that would need an async DB lookup in
+        // the layout itself, which blocks every navigation's loading.tsx
+        // fallback from showing at all (see the Next.js docs on loading.js
+        // and runtime data in layouts). Harmless extra whitespace at the
+        // bottom of the signed-out landing page is a fair trade for that.
+        className="min-h-full flex flex-col bg-zinc-50 pb-20 dark:bg-black sm:pb-0"
       >
         <Header />
         {children}
