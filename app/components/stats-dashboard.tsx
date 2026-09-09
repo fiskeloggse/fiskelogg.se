@@ -10,8 +10,10 @@ import type {
   SpeciesBreakdownRow,
 } from "@/lib/stats";
 import type { PersonalBest } from "@/lib/personal-bests";
+import type { FiskepassStats as FiskepassStatsType } from "@/lib/fiskepass";
 import { getStorfiskPercent } from "@/lib/storfisk";
 import FishingDaysExplorer from "./fishing-days-explorer";
+import FiskepassStats from "./fiskepass-stats";
 import PersonalBests from "./personal-bests";
 import WatersMap from "./waters-map";
 
@@ -152,6 +154,7 @@ export default function StatsDashboard({
   fishingDays,
   personalBests,
   mappedCatches,
+  fiskepassStats,
   initialExpanded = null,
 }: {
   speciesBreakdown: SpeciesBreakdownRow[];
@@ -159,12 +162,13 @@ export default function StatsDashboard({
   fishingDays: FishingDayRow[];
   personalBests: PersonalBest[];
   mappedCatches: MappedCatchRow[];
-  initialExpanded?: "species" | "lakes" | "fishingdays" | null;
+  fiskepassStats: FiskepassStatsType | null;
+  initialExpanded?: "species" | "lakes" | "fishingdays" | "fiskepass" | null;
 }) {
   const router = useRouter();
   const pathname = usePathname();
   const [expanded, setExpanded] = useState<
-    "species" | "lakes" | "fishingdays" | null
+    "species" | "lakes" | "fishingdays" | "fiskepass" | null
   >(initialExpanded);
 
   // Keeps the open panel in the URL so reloading the page, or navigating
@@ -184,7 +188,7 @@ export default function StatsDashboard({
   const lakeCount = lakeStats.length;
   const fishCount = speciesBreakdown.reduce((sum, s) => sum + s.count, 0);
   const fishingDaysCount = fishingDays.length;
-  const hasAnyCatches = fishCount > 0;
+  const hasAnyCatches = fishCount > 0 || (fiskepassStats?.antalPass ?? 0) > 0;
 
   function speciesHref(species: string) {
     return `/statistik/${encodeURIComponent(species)}`;
@@ -220,7 +224,12 @@ export default function StatsDashboard({
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+      <div
+        className={
+          "grid grid-cols-1 gap-4 " +
+          (fiskepassStats ? "sm:grid-cols-2 lg:grid-cols-4" : "sm:grid-cols-3")
+        }
+      >
         <DualStatCard
           primaryLabel="Arter"
           primaryValue={speciesCount}
@@ -244,6 +253,16 @@ export default function StatsDashboard({
             setExpanded(expanded === "fishingdays" ? null : "fishingdays")
           }
         />
+        {fiskepassStats && (
+          <StatCard
+            label="Antal fiskepass"
+            value={fiskepassStats.antalPass}
+            active={expanded === "fiskepass"}
+            onClick={() =>
+              setExpanded(expanded === "fiskepass" ? null : "fiskepass")
+            }
+          />
+        )}
       </div>
 
       {expanded === "species" && (
@@ -273,6 +292,10 @@ export default function StatsDashboard({
             onBack={() => setExpanded(null)}
           />
         </div>
+      )}
+
+      {expanded === "fiskepass" && fiskepassStats && (
+        <FiskepassStats stats={fiskepassStats} />
       )}
 
       {expanded === "lakes" && (

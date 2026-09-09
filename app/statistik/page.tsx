@@ -9,7 +9,6 @@ import {
 import { getPersonalBests } from "@/lib/personal-bests";
 import { getFiskepassStats } from "@/lib/fiskepass";
 import StatsDashboard from "@/app/components/stats-dashboard";
-import FiskepassStats from "@/app/components/fiskepass-stats";
 
 export const metadata: Metadata = {
   title: "Statistik – Fisklogg",
@@ -25,7 +24,9 @@ export default async function StatistikPage(props: PageProps<"/statistik">) {
         ? "lakes"
         : searchParams.expand === "fishingdays"
           ? "fishingdays"
-          : null;
+          : searchParams.expand === "fiskepass"
+            ? "fiskepass"
+            : null;
 
   const [speciesBreakdown, lakeStats, fishingDays, personalBests, mappedCatches, fiskepassStats] =
     await Promise.all([
@@ -45,9 +46,9 @@ export default async function StatistikPage(props: PageProps<"/statistik">) {
         fishingDays={fishingDays}
         personalBests={personalBests}
         mappedCatches={mappedCatches}
+        fiskepassStats={user.show_fiskepass ? fiskepassStats : null}
         initialExpanded={initialExpanded}
       />
-      {user.show_fiskepass && fiskepassStats && <FiskepassStats stats={fiskepassStats} />}
     </main>
   );
 }
