@@ -148,7 +148,7 @@ export default function BingoCardGrid({
 
   return (
     <details className="rounded-xl border border-black/10 bg-white p-3 sm:p-5 dark:border-white/15 dark:bg-white/5">
-      <summary className="flex cursor-pointer list-none flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+      <summary className="flex cursor-pointer list-none flex-col gap-3">
         <div>
           <h2 className="text-lg font-semibold">
             {card.species} {card.min_cm}–{card.max_cm} cm
@@ -175,18 +175,16 @@ export default function BingoCardGrid({
             )}
           </p>
         </div>
-        {/* Stops the click from also toggling the <details> open/closed —
-            deleting shouldn't require expanding the card first. */}
-        <span onClick={(e) => e.preventDefault()}>
+      </summary>
+
+      <div className="mt-3 flex flex-col gap-3">
+        <div className="flex justify-end">
           <ConfirmDeleteButton
             action={deleteBingoCard}
             id={card.id}
             label="Ta bort bingobricka"
           />
-        </span>
-      </summary>
-
-      <div className="mt-3 flex flex-col gap-3">
+        </div>
         {/* One column per decade, values running top to bottom within it
             (70–79 in column 1, 80–89 in column 2, ...). Each cell is placed
             explicitly by its own ones-digit (row) and decade index (column)

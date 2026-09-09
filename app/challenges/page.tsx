@@ -71,8 +71,10 @@ export default async function ChallengesPage() {
       </div>
 
       {user.show_species_collection && (
-        <div className="rounded-xl border border-black/10 bg-white p-5 dark:border-white/15 dark:bg-white/5">
-          <h2 className="text-lg font-semibold">Artjakten</h2>
+        <details open className="rounded-xl border border-black/10 bg-white p-5 dark:border-white/15 dark:bg-white/5">
+          <summary className="cursor-pointer text-lg font-semibold">
+            Artjakten
+          </summary>
 
           <div className="mt-4 flex flex-col gap-3">
             <p className="text-sm text-zinc-500 dark:text-zinc-400">
@@ -86,7 +88,7 @@ export default async function ChallengesPage() {
               hiddenSpecies={user.hidden_species ?? []}
             />
           </div>
-        </div>
+        </details>
       )}
     </main>
   );
