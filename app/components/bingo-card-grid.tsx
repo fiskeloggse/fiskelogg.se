@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
 import { deleteBingoCard } from "@/app/actions/bingo";
 import type { BingoCard, BingoCatch } from "@/lib/bingo";
@@ -42,13 +43,15 @@ function groupByDecade(min: number, max: number): [number, number[]][] {
 }
 
 function BingoCell({
-  cardId,
   cm,
   matches,
+  selected,
+  onSelect,
 }: {
-  cardId: number;
   cm: number;
   matches: BingoCatch[] | undefined;
+  selected: boolean;
+  onSelect: () => void;
 }) {
   if (!matches) {
     return (
@@ -59,39 +62,70 @@ function BingoCell({
   }
 
   return (
-    // Grouped by card so opening one cell's popup closes any other cell
-    // already open on the SAME card -- native <details name> accordion,
-    // same fix as Register > Fiskepass's rows.
-    <details name={`bingo-cell-${cardId}`} className="group relative">
-      {/* z-20, above a neighboring cell's open popup (z-10) -- decade
-          columns stack cells directly on top of each other, so an open
-          popup can extend down over the very next cell. Without this, that
-          cell becomes unclickable until the popup above it is closed. */}
-      <summary className="relative z-20 flex h-8 w-8 shrink-0 cursor-pointer list-none items-center justify-center rounded-sm bg-green-600 text-xs font-medium text-white transition-colors hover:bg-green-700 sm:h-9 sm:w-9">
-        {cm}
-      </summary>
-      <div className="absolute z-10 mt-1 w-56 rounded-lg border border-black/10 bg-white p-3 text-sm shadow-lg dark:border-white/15 dark:bg-zinc-900">
-        <ul className="flex flex-col gap-2">
-          {matches.map((c) => (
-            <li key={c.id}>
-              <Link
-                href={`/register/${c.id}`}
-                className="block rounded-md px-1 py-0.5 -mx-1 transition-colors hover:bg-black/5 dark:hover:bg-white/10"
-              >
-                <p className="font-medium underline-offset-2 hover:underline">
-                  {c.angler_name}
-                </p>
-                <p className="text-zinc-500 dark:text-zinc-400">
-                  {c.length_cm} cm
-                  {c.weight_kg != null ? ` · ${c.weight_kg} kg` : ""} ·{" "}
-                  {formatDate(c.caught_at)}
-                </p>
-              </Link>
-            </li>
-          ))}
-        </ul>
+    <button
+      type="button"
+      onClick={onSelect}
+      className={
+        "flex h-8 w-8 shrink-0 items-center justify-center rounded-sm text-xs font-medium text-white transition-colors sm:h-9 sm:w-9 " +
+        (selected
+          ? "bg-green-700 ring-2 ring-green-700 ring-offset-1 dark:ring-offset-zinc-900"
+          : "bg-green-600 hover:bg-green-700")
+      }
+    >
+      {cm}
+    </button>
+  );
+}
+
+// Whichever matched cell is tapped, its catches show in one panel below the
+// whole grid instead of a popup anchored to the cell itself -- a popup
+// wide/tall enough to list several catches would otherwise overlap
+// neighboring cells (in the same column below it, or adjacent decade
+// columns beside it), either hiding their content behind it or, if raised
+// above them with z-index, having THEM cut into the popup's own text.
+// A single panel that never overlaps the grid sidesteps the whole problem.
+function CellDetailPanel({
+  cm,
+  matches,
+  onClose,
+}: {
+  cm: number;
+  matches: BingoCatch[];
+  onClose: () => void;
+}) {
+  return (
+    <div className="rounded-lg border border-black/10 bg-white p-3 text-sm dark:border-white/15 dark:bg-zinc-900">
+      <div className="mb-2 flex items-center justify-between">
+        <p className="font-medium">{cm} cm</p>
+        <button
+          type="button"
+          onClick={onClose}
+          aria-label="Stäng"
+          className="text-zinc-500 hover:text-foreground dark:text-zinc-400"
+        >
+          ×
+        </button>
       </div>
-    </details>
+      <ul className="flex flex-col gap-2">
+        {matches.map((c) => (
+          <li key={c.id}>
+            <Link
+              href={`/register/${c.id}`}
+              className="block rounded-md px-1 py-0.5 -mx-1 transition-colors hover:bg-black/5 dark:hover:bg-white/10"
+            >
+              <p className="font-medium underline-offset-2 hover:underline">
+                {c.angler_name}
+              </p>
+              <p className="text-zinc-500 dark:text-zinc-400">
+                {c.length_cm} cm
+                {c.weight_kg != null ? ` · ${c.weight_kg} kg` : ""} ·{" "}
+                {formatDate(c.caught_at)}
+              </p>
+            </Link>
+          </li>
+        ))}
+      </ul>
+    </div>
   );
 }
 
@@ -102,6 +136,7 @@ export default function BingoCardGrid({
   card: BingoCard;
   catchesByCm: Map<number, BingoCatch[]>;
 }) {
+  const [selectedCm, setSelectedCm] = useState<number | null>(null);
   const decadeRows = groupByDecade(card.min_cm, card.max_cm);
   const totalCount = decadeRows.reduce((sum, [, cms]) => sum + cms.length, 0);
   const doneCount = decadeRows.reduce(
@@ -109,6 +144,7 @@ export default function BingoCardGrid({
     0
   );
   const status = dateStatus(card.to_date);
+  const selectedMatches = selectedCm != null ? catchesByCm.get(selectedCm) : undefined;
 
   return (
     <details className="rounded-xl border border-black/10 bg-white p-3 sm:p-5 dark:border-white/15 dark:bg-white/5">
@@ -150,31 +186,46 @@ export default function BingoCardGrid({
         </span>
       </summary>
 
-      {/* One column per decade, values running top to bottom within it
-          (70–79 in column 1, 80–89 in column 2, ...). Each cell is placed
-          explicitly by its own ones-digit (row) and decade index (column)
-          instead of relying on source order, so a range that doesn't start
-          on a round decade (e.g. 72–115) still lines up — 72 lands in the
-          "2" row under its decade instead of shifting the whole column up.
-          self-start keeps the grid sized to its own content — without it,
-          the flex-col parent's default cross-axis stretch would make the
-          grid (and so its auto columns) fill the card's full width,
-          leaving each column much wider than its 32px cells. */}
-      <div
-        className="mt-3 inline-grid self-start gap-px"
-        style={{
-          gridTemplateColumns: `repeat(${decadeRows.length}, auto)`,
-        }}
-      >
-        {decadeRows.flatMap(([, cms], colIndex) =>
-          cms.map((cm) => (
-            <div
-              key={cm}
-              style={{ gridColumn: colIndex + 1, gridRow: (cm % 10) + 1 }}
-            >
-              <BingoCell cardId={card.id} cm={cm} matches={catchesByCm.get(cm)} />
-            </div>
-          ))
+      <div className="mt-3 flex flex-col gap-3">
+        {/* One column per decade, values running top to bottom within it
+            (70–79 in column 1, 80–89 in column 2, ...). Each cell is placed
+            explicitly by its own ones-digit (row) and decade index (column)
+            instead of relying on source order, so a range that doesn't start
+            on a round decade (e.g. 72–115) still lines up — 72 lands in the
+            "2" row under its decade instead of shifting the whole column up.
+            self-start keeps the grid sized to its own content — without it,
+            the flex-col parent's default cross-axis stretch would make the
+            grid (and so its auto columns) fill the card's full width,
+            leaving each column much wider than its 32px cells. */}
+        <div
+          className="inline-grid self-start gap-px"
+          style={{
+            gridTemplateColumns: `repeat(${decadeRows.length}, auto)`,
+          }}
+        >
+          {decadeRows.flatMap(([, cms], colIndex) =>
+            cms.map((cm) => (
+              <div
+                key={cm}
+                style={{ gridColumn: colIndex + 1, gridRow: (cm % 10) + 1 }}
+              >
+                <BingoCell
+                  cm={cm}
+                  matches={catchesByCm.get(cm)}
+                  selected={selectedCm === cm}
+                  onSelect={() => setSelectedCm((prev) => (prev === cm ? null : cm))}
+                />
+              </div>
+            ))
+          )}
+        </div>
+
+        {selectedCm != null && selectedMatches && (
+          <CellDetailPanel
+            cm={selectedCm}
+            matches={selectedMatches}
+            onClose={() => setSelectedCm(null)}
+          />
         )}
       </div>
     </details>
