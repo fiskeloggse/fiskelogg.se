@@ -167,3 +167,19 @@ create unique index if not exists fiskepass_one_open_per_user
 drop index if exists fiskepass_one_open_per_team;
 create unique index if not exists fiskepass_one_open_per_team
   on fiskepass (team_id) where stop_time is null and team_id is not null and deleted_at is null;
+
+-- Null means "hasn't seen the first-login guide yet" -- new signups get no
+-- default so they see it once. Reopening the guide from Konto re-saves
+-- this, but coalesce() in completeOnboarding/skipOnboarding keeps it
+-- pinned to the first time.
+alter table users add column if not exists onboarding_completed_at timestamptz;
+
+-- One-time backfill for accounts that already existed before this feature
+-- shipped, so they don't suddenly see the guide. schema.sql is re-run in
+-- full on every `db:migrate`, so this can't key off now() -- a dynamic
+-- cutoff would mark every future signup "already onboarded" too, on the
+-- very next unrelated migration run. A fixed date keeps this a no-op for
+-- anyone created after this line shipped.
+update users
+set onboarding_completed_at = created_at
+where onboarding_completed_at is null and created_at < timestamp '2026-09-10';

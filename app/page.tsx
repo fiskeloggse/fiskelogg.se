@@ -24,6 +24,7 @@ import CatchSpeciesFilter from "@/app/components/catch-species-filter";
 import FiskepassButton, { FiskepassStatus } from "@/app/components/fiskepass-bar";
 import LandingPage from "@/app/components/landing-page";
 import CatchesTable from "@/app/components/catches-table";
+import OnboardingGuide from "@/app/components/onboarding-guide";
 
 const CATCHES_LIMIT = 5;
 
@@ -197,6 +198,13 @@ export default async function Home(props: PageProps<"/">) {
 
   return (
     <main className="mx-auto flex w-full max-w-4xl flex-1 flex-col gap-6 px-4 py-8 sm:px-6">
+      <OnboardingGuide
+        showBingo={user.show_bingo}
+        showSpeciesCollection={user.show_species_collection}
+        showFiskepass={user.show_fiskepass}
+        autoOpen={!user.onboarding_completed_at}
+      />
+
       {user.show_fiskepass && <FiskepassStatus openPass={openFiskepass} />}
 
       <CatchForm

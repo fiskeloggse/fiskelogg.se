@@ -21,6 +21,7 @@ import {
 } from "@/lib/constants";
 import ChangePasswordButton from "@/app/components/change-password-button";
 import InviteForm from "@/app/components/invite-form";
+import OnboardingGuide from "@/app/components/onboarding-guide";
 import TeamNameForm from "@/app/components/team-name-form";
 import ThemeToggle from "@/app/components/theme-toggle";
 import DeleteAllCatchesForm from "@/app/components/delete-all-catches-form";
@@ -59,6 +60,13 @@ export default async function KontoPage() {
           </form>
 
           <ChangePasswordButton />
+
+          <OnboardingGuide
+            showBingo={user.show_bingo}
+            showSpeciesCollection={user.show_species_collection}
+            showFiskepass={user.show_fiskepass}
+            withTrigger
+          />
         </div>
       </details>
 

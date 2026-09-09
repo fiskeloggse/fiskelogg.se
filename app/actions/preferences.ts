@@ -41,6 +41,42 @@ export async function updateShowFiskepass(formData: FormData) {
   revalidatePath("/", "layout");
 }
 
+// Saves the feature picks from the first-login guide and marks it seen in
+// one write. coalesce() keeps onboarding_completed_at pinned to the first
+// time this ran even when the guide is reopened from Konto later.
+export async function completeOnboarding(formData: FormData) {
+  const user = await requireUser();
+  const showBingo = formData.get("show_bingo") === "on";
+  const showSpeciesCollection = formData.get("show_species_collection") === "on";
+  const showFiskepass = formData.get("show_fiskepass") === "on";
+
+  await sql`
+    update users
+    set show_bingo = ${showBingo},
+        show_species_collection = ${showSpeciesCollection},
+        show_fiskepass = ${showFiskepass},
+        onboarding_completed_at = coalesce(onboarding_completed_at, now())
+    where id = ${user.id}
+  `;
+
+  revalidatePath("/", "layout");
+}
+
+// Dismissing the guide without picking anything (the welcome step's
+// "Hoppa över", or closing the dialog) still marks it seen -- otherwise it
+// would just reopen on the next visit to "/" with nothing to skip past.
+export async function skipOnboarding() {
+  const user = await requireUser();
+
+  await sql`
+    update users
+    set onboarding_completed_at = coalesce(onboarding_completed_at, now())
+    where id = ${user.id}
+  `;
+
+  revalidatePath("/", "layout");
+}
+
 export async function updateGpsMode(formData: FormData) {
   const user = await requireUser();
   const gpsModeRaw = String(formData.get("gps_mode") ?? "");
