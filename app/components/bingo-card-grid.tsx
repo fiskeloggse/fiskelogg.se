@@ -27,6 +27,16 @@ function formatDateRange(from: Date, to: Date): string {
     : `${formatDate(from)}–${formatDate(to)}`;
 }
 
+// "Gädda 70–100 2026" (or without a year suffix if no date range is set) --
+// the default title, also reused as the secondary line under a custom name.
+function formatCardTitle(card: BingoCard): string {
+  const range = `${card.species} ${card.min_cm}–${card.max_cm}`;
+  if (card.from_date && card.to_date) {
+    return `${range} ${formatDateRange(card.from_date, card.to_date)}`;
+  }
+  return range;
+}
+
 // Days remaining until (and including) to_date, or a finished label once
 // it's passed. Compares by calendar date, not exact time, since to_date
 // has no time component of its own.
@@ -173,7 +183,7 @@ export default function BingoCardGrid({
       <summary className="flex cursor-pointer list-none items-start justify-between gap-3">
         <div>
           <h2 className="text-lg font-semibold">
-            {card.name || `${card.species} ${card.min_cm}–${card.max_cm} cm`}
+            {card.name || formatCardTitle(card)}
             <span className="ml-2 rounded-full bg-black/10 px-2 py-0.5 text-xs font-normal text-zinc-500 dark:bg-white/10 dark:text-zinc-400">
               {card.team_id ? "Team" : "Ensam"}
             </span>
@@ -184,11 +194,8 @@ export default function BingoCardGrid({
             )}
           </h2>
           <p className="text-sm text-zinc-500 dark:text-zinc-400">
-            {card.name && <>{card.species} {card.min_cm}–{card.max_cm} cm · </>}
+            {card.name && <>{formatCardTitle(card)} · </>}
             {doneCount}/{totalCount} fångade
-            {card.from_date && card.to_date && (
-              <> · {formatDateRange(card.from_date, card.to_date)}</>
-            )}
           </p>
         </div>
 
