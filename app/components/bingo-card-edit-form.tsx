@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState, useEffect, useState } from "react";
+import { useActionState, useEffect } from "react";
 import { updateBingoCard } from "@/app/actions/bingo";
 
 const inputClassName =
@@ -11,38 +11,27 @@ function toDateInputValue(date: Date | null): string {
   return date.toISOString().slice(0, 10);
 }
 
+// Controlled from BingoCardGrid -- the trigger button lives top-right in
+// the card's summary, but the fields themselves render down in the
+// expanded content, so open/close state has to live one level up.
 export default function BingoCardEditForm({
   cardId,
   currentName,
   currentFromDate,
   currentToDate,
+  onDone,
 }: {
   cardId: number;
   currentName: string | null;
   currentFromDate: Date | null;
   currentToDate: Date | null;
+  onDone: () => void;
 }) {
-  const [editing, setEditing] = useState(false);
   const [state, formAction, pending] = useActionState(updateBingoCard, undefined);
 
   useEffect(() => {
-    if (state && "success" in state) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
-      setEditing(false);
-    }
-  }, [state]);
-
-  if (!editing) {
-    return (
-      <button
-        type="button"
-        onClick={() => setEditing(true)}
-        className="self-start rounded-full border border-black/10 px-4 py-2 text-sm font-medium transition-colors hover:bg-black/5 dark:border-white/15 dark:hover:bg-white/10"
-      >
-        Redigera
-      </button>
-    );
-  }
+    if (state && "success" in state) onDone();
+  }, [state, onDone]);
 
   return (
     <form
@@ -109,7 +98,7 @@ export default function BingoCardEditForm({
         </button>
         <button
           type="button"
-          onClick={() => setEditing(false)}
+          onClick={onDone}
           className="rounded-full px-4 py-2 text-sm text-zinc-500 hover:text-foreground dark:text-zinc-400"
         >
           Avbryt

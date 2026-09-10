@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import Link from "next/link";
 import { archiveBingoCard, deleteBingoCard, unarchiveBingoCard } from "@/app/actions/bingo";
 import type { BingoCard, BingoCatch } from "@/lib/bingo";
@@ -153,7 +153,9 @@ export default function BingoCardGrid({
   card: BingoCard;
   catchesByCm: Map<number, BingoCatch[]>;
 }) {
+  const detailsRef = useRef<HTMLDetailsElement>(null);
   const [selectedCm, setSelectedCm] = useState<number | null>(null);
+  const [editingCard, setEditingCard] = useState(false);
   const decadeRows = groupByDecade(card.min_cm, card.max_cm);
   const totalCount = decadeRows.reduce((sum, [, cms]) => sum + cms.length, 0);
   const doneCount = decadeRows.reduce(
@@ -164,31 +166,21 @@ export default function BingoCardGrid({
   const selectedMatches = selectedCm != null ? catchesByCm.get(selectedCm) : undefined;
 
   return (
-    <details className="rounded-xl border border-black/10 bg-white p-2 sm:p-5 dark:border-white/15 dark:bg-white/5">
-      <summary className="flex cursor-pointer list-none flex-col gap-3">
+    <details
+      ref={detailsRef}
+      className="rounded-xl border border-black/10 bg-white p-2 sm:p-5 dark:border-white/15 dark:bg-white/5"
+    >
+      <summary className="flex cursor-pointer list-none items-start justify-between gap-3">
         <div>
           <h2 className="text-lg font-semibold">
             {card.name || `${card.species} ${card.min_cm}–${card.max_cm} cm`}
             <span className="ml-2 rounded-full bg-black/10 px-2 py-0.5 text-xs font-normal text-zinc-500 dark:bg-white/10 dark:text-zinc-400">
               {card.team_id ? "Team" : "Ensam"}
             </span>
-            {card.archived_at ? (
+            {card.archived_at && (
               <span className="ml-2 inline-block whitespace-nowrap rounded-full bg-zinc-200 px-2 py-0.5 text-xs font-normal text-zinc-600 dark:bg-zinc-700 dark:text-zinc-300">
                 Arkiverad
               </span>
-            ) : (
-              status && (
-                <span
-                  className={
-                    "ml-2 inline-block whitespace-nowrap rounded-full px-2 py-0.5 text-xs font-normal " +
-                    (status === "Avslutad"
-                      ? "bg-zinc-200 text-zinc-600 dark:bg-zinc-700 dark:text-zinc-300"
-                      : "bg-amber-100 text-amber-700 dark:bg-amber-950/40 dark:text-amber-400")
-                  }
-                >
-                  {status}
-                </span>
-              )
             )}
           </h2>
           <p className="text-sm text-zinc-500 dark:text-zinc-400">
@@ -199,15 +191,47 @@ export default function BingoCardGrid({
             )}
           </p>
         </div>
+
+        {/* A <button> inside <summary> swallows the click before it reaches
+            summary's own toggle behavior, so opening the card (to reveal
+            the edit fields down in the content area) needs an explicit
+            imperative nudge via the ref instead of relying on that. */}
+        <button
+          type="button"
+          onClick={() => {
+            if (detailsRef.current) detailsRef.current.open = true;
+            setEditingCard(true);
+          }}
+          className="shrink-0 rounded-full border border-black/10 px-4 py-2 text-sm font-medium transition-colors hover:bg-black/5 dark:border-white/15 dark:hover:bg-white/10"
+        >
+          Redigera
+        </button>
       </summary>
 
       <div className="mt-3 flex flex-col gap-3">
-        <BingoCardEditForm
-          cardId={card.id}
-          currentName={card.name}
-          currentFromDate={card.from_date}
-          currentToDate={card.to_date}
-        />
+        {editingCard ? (
+          <BingoCardEditForm
+            cardId={card.id}
+            currentName={card.name}
+            currentFromDate={card.from_date}
+            currentToDate={card.to_date}
+            onDone={() => setEditingCard(false)}
+          />
+        ) : (
+          !card.archived_at &&
+          status && (
+            <span
+              className={
+                "self-start inline-block whitespace-nowrap rounded-full px-2 py-0.5 text-xs font-normal " +
+                (status === "Avslutad"
+                  ? "bg-zinc-200 text-zinc-600 dark:bg-zinc-700 dark:text-zinc-300"
+                  : "bg-amber-100 text-amber-700 dark:bg-amber-950/40 dark:text-amber-400")
+              }
+            >
+              {status}
+            </span>
+          )
+        )}
 
         <div className="flex items-center justify-between gap-3">
           <form action={card.archived_at ? unarchiveBingoCard : archiveBingoCard}>
