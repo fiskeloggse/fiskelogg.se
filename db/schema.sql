@@ -183,3 +183,8 @@ alter table users add column if not exists onboarding_completed_at timestamptz;
 update users
 set onboarding_completed_at = created_at
 where onboarding_completed_at is null and created_at < timestamp '2026-09-10';
+
+-- Optional custom title for a bingo card (e.g. "Sommartävlingen"),
+-- overriding the default "species min–max cm" heading. Null keeps the
+-- default.
+alter table bingo_cards add column if not exists name text;

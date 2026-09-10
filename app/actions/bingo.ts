@@ -87,6 +87,41 @@ export async function createBingoCard(
   return { success: true };
 }
 
+const BingoNameSchema = z.object({
+  name: z.string().trim().max(60, { error: "Namnet är för långt (max 60 tecken)." }),
+});
+
+export async function updateBingoCardName(
+  _prevState: BingoState,
+  formData: FormData
+): Promise<BingoState> {
+  const user = await requireUser();
+  const id = Number(formData.get("id"));
+  if (!id) return { error: "Ogiltig bricka." };
+
+  const parsed = BingoNameSchema.safeParse({ name: formData.get("name") });
+  if (!parsed.success) {
+    return { error: parsed.error.issues[0]?.message ?? "Ogiltigt namn." };
+  }
+
+  // Empty input clears the custom name, falling back to the default
+  // "species min–max cm" heading.
+  const name = parsed.data.name || null;
+
+  await sql`
+    update bingo_cards
+    set name = ${name}
+    where id = ${id}
+      and (
+        created_by = ${user.id}
+        or (team_id is not null and team_id = ${user.team_id})
+      )
+  `;
+
+  revalidatePath("/challenges");
+  return { success: true };
+}
+
 export async function deleteBingoCard(formData: FormData) {
   const user = await requireUser();
 

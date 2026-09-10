@@ -4,6 +4,7 @@ import { TIMEZONE } from "./constants";
 
 export type BingoCard = {
   id: number;
+  name: string | null;
   species: string;
   min_cm: number;
   max_cm: number;
@@ -26,7 +27,7 @@ export async function getBingoCards(
   teamId: number | null
 ): Promise<BingoCard[]> {
   return sql<BingoCard[]>`
-    select id, species, min_cm, max_cm, team_id, created_by, from_date, to_date
+    select id, name, species, min_cm, max_cm, team_id, created_by, from_date, to_date
     from bingo_cards
     where (team_id is not null and team_id = ${teamId})
       or (team_id is null and created_by = ${userId})

@@ -4,6 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { deleteBingoCard } from "@/app/actions/bingo";
 import type { BingoCard, BingoCatch } from "@/lib/bingo";
+import BingoCardNameForm from "./bingo-card-name-form";
 import ConfirmDeleteButton from "./confirm-delete-button";
 
 function formatDate(date: Date) {
@@ -151,7 +152,7 @@ export default function BingoCardGrid({
       <summary className="flex cursor-pointer list-none flex-col gap-3">
         <div>
           <h2 className="text-lg font-semibold">
-            {card.species} {card.min_cm}–{card.max_cm} cm
+            {card.name || `${card.species} ${card.min_cm}–${card.max_cm} cm`}
             <span className="ml-2 rounded-full bg-black/10 px-2 py-0.5 text-xs font-normal text-zinc-500 dark:bg-white/10 dark:text-zinc-400">
               {card.team_id ? "Team" : "Ensam"}
             </span>
@@ -169,6 +170,7 @@ export default function BingoCardGrid({
             )}
           </h2>
           <p className="text-sm text-zinc-500 dark:text-zinc-400">
+            {card.name && <>{card.species} {card.min_cm}–{card.max_cm} cm · </>}
             {doneCount}/{totalCount} fångade
             {card.from_date && card.to_date && (
               <> · {formatDate(card.from_date)}–{formatDate(card.to_date)}</>
@@ -178,6 +180,8 @@ export default function BingoCardGrid({
       </summary>
 
       <div className="mt-3 flex flex-col gap-3">
+        <BingoCardNameForm cardId={card.id} currentName={card.name} />
+
         <div className="flex justify-end">
           <ConfirmDeleteButton
             action={deleteBingoCard}
