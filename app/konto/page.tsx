@@ -267,21 +267,43 @@ export default async function KontoPage() {
           Team
         </summary>
 
-        <div className="mt-2 flex flex-col gap-2">
-          {user.team_id && <TeamNameForm currentName={teamName} />}
+        <div className="mt-2 flex flex-col gap-3">
+          {user.team_id ? (
+            <ul className="flex flex-col gap-2">
+              <li>
+                <details className="rounded-lg border border-black/10 dark:border-white/15">
+                  <summary className="cursor-pointer px-3 py-2 text-sm font-medium">
+                    {teamName || "Team"}
+                  </summary>
+                  <div className="flex flex-col gap-3 border-t border-black/10 px-3 py-3 dark:border-white/15">
+                    <TeamNameForm currentName={teamName} />
 
-          {teamMembers.length > 0 ? (
-            <ul className="flex flex-col gap-1 text-sm">
-              {teamMembers.map((member) => (
-                <li key={member.id}>
-                  {member.name}
-                  {member.id === user.id && " (du)"}
-                  <span className="text-zinc-500 dark:text-zinc-400">
-                    {" "}
-                    · {member.email}
-                  </span>
-                </li>
-              ))}
+                    {teamMembers.length > 0 && (
+                      <ul className="flex flex-col gap-1 text-sm">
+                        {teamMembers.map((member) => (
+                          <li key={member.id}>
+                            {member.name}
+                            {member.id === user.id && " (du)"}
+                            <span className="text-zinc-500 dark:text-zinc-400">
+                              {" "}
+                              · {member.email}
+                            </span>
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+
+                    <form action={leaveTeam}>
+                      <button
+                        type="submit"
+                        className="text-sm text-red-600 underline dark:text-red-400"
+                      >
+                        Lämna teamet
+                      </button>
+                    </form>
+                  </div>
+                </details>
+              </li>
             </ul>
           ) : (
             <p className="text-sm text-zinc-500 dark:text-zinc-400">
@@ -298,17 +320,6 @@ export default async function KontoPage() {
               Personen måste redan ha ett konto på Fisklogg.
             </p>
           </div>
-
-          {user.team_id && (
-            <form action={leaveTeam}>
-              <button
-                type="submit"
-                className="text-sm text-red-600 underline dark:text-red-400"
-              >
-                Lämna teamet
-              </button>
-            </form>
-          )}
         </div>
       </details>
 
