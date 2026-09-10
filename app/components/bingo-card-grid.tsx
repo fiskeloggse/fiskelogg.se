@@ -217,13 +217,33 @@ export default function BingoCardGrid({
 
       <div className="mt-3 flex flex-col gap-3">
         {editingCard ? (
-          <BingoCardEditForm
-            cardId={card.id}
-            currentName={card.name}
-            currentFromDate={card.from_date}
-            currentToDate={card.to_date}
-            onDone={() => setEditingCard(false)}
-          />
+          <>
+            <BingoCardEditForm
+              cardId={card.id}
+              currentName={card.name}
+              currentFromDate={card.from_date}
+              currentToDate={card.to_date}
+              onDone={() => setEditingCard(false)}
+            />
+
+            <div className="flex items-center justify-between gap-3">
+              <form action={card.archived_at ? unarchiveBingoCard : archiveBingoCard}>
+                <input type="hidden" name="id" value={card.id} />
+                <button
+                  type="submit"
+                  className="rounded-full px-3 py-1.5 text-sm text-zinc-500 transition-colors hover:bg-black/5 hover:text-foreground dark:text-zinc-400 dark:hover:bg-white/10"
+                >
+                  {card.archived_at ? "Återställ bingobricka" : "Arkivera bingobricka"}
+                </button>
+              </form>
+
+              <ConfirmDeleteButton
+                action={deleteBingoCard}
+                id={card.id}
+                label="Ta bort bingobricka"
+              />
+            </div>
+          </>
         ) : (
           !card.archived_at &&
           status && (
@@ -239,24 +259,6 @@ export default function BingoCardGrid({
             </span>
           )
         )}
-
-        <div className="flex items-center justify-between gap-3">
-          <form action={card.archived_at ? unarchiveBingoCard : archiveBingoCard}>
-            <input type="hidden" name="id" value={card.id} />
-            <button
-              type="submit"
-              className="rounded-full px-3 py-1.5 text-sm text-zinc-500 transition-colors hover:bg-black/5 hover:text-foreground dark:text-zinc-400 dark:hover:bg-white/10"
-            >
-              {card.archived_at ? "Återställ bingobricka" : "Arkivera bingobricka"}
-            </button>
-          </form>
-
-          <ConfirmDeleteButton
-            action={deleteBingoCard}
-            id={card.id}
-            label="Ta bort bingobricka"
-          />
-        </div>
         {/* One row per decade, values running left to right within it
             (70–79 in row 1, 80–89 in row 2, ...). Each cell is placed
             explicitly by its own ones-digit (column) and decade index (row)
