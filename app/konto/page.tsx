@@ -40,12 +40,12 @@ export default async function KontoPage() {
   ]);
 
   return (
-    <main className="mx-auto flex w-full max-w-4xl flex-1 flex-col gap-8 px-4 py-10 sm:px-6">
-      <details className="rounded-xl border border-black/10 bg-white p-5 dark:border-white/15 dark:bg-white/5">
+    <main className="mx-auto flex w-full max-w-4xl flex-1 flex-col gap-3 px-4 py-6 sm:px-6">
+      <details className="rounded-xl border border-black/10 bg-white p-3 dark:border-white/15 dark:bg-white/5">
         <summary className="cursor-pointer text-lg font-semibold">
           Kontouppgifter
         </summary>
-        <div className="mt-4 flex flex-col gap-4">
+        <div className="mt-2 flex flex-col gap-2">
           <p className="text-sm text-zinc-500 dark:text-zinc-400">
             {user.name} · {user.email}
           </p>
@@ -70,20 +70,20 @@ export default async function KontoPage() {
         </div>
       </details>
 
-      <details className="rounded-xl border border-black/10 bg-white p-5 dark:border-white/15 dark:bg-white/5">
+      <details className="rounded-xl border border-black/10 bg-white p-3 dark:border-white/15 dark:bg-white/5">
         <summary className="cursor-pointer text-lg font-semibold">
           Tema
         </summary>
-        <div className="mt-4">
+        <div className="mt-2">
           <ThemeToggle />
         </div>
       </details>
 
-      <details className="rounded-xl border border-black/10 bg-white p-5 dark:border-white/15 dark:bg-white/5">
+      <details className="rounded-xl border border-black/10 bg-white p-3 dark:border-white/15 dark:bg-white/5">
         <summary className="cursor-pointer text-lg font-semibold">
           Funktioner
         </summary>
-        <div className="mt-4 flex flex-col gap-4">
+        <div className="mt-2 flex flex-col gap-2">
           <form action={updateShowBingo} className="flex flex-col gap-3">
             <label className="flex items-center gap-2 text-sm">
               <input
@@ -137,11 +137,11 @@ export default async function KontoPage() {
         </div>
       </details>
 
-      <details className="rounded-xl border border-black/10 bg-white p-5 dark:border-white/15 dark:bg-white/5">
+      <details className="rounded-xl border border-black/10 bg-white p-3 dark:border-white/15 dark:bg-white/5">
         <summary className="cursor-pointer text-lg font-semibold">
           Loggning
         </summary>
-        <div className="mt-4 flex flex-col gap-6">
+        <div className="mt-2 flex flex-col gap-4">
           <form action={updateGpsMode} className="flex flex-col gap-3">
             <fieldset className="flex flex-col gap-2">
               <legend className="text-sm font-medium">GPS</legend>
@@ -173,7 +173,7 @@ export default async function KontoPage() {
             </button>
           </form>
 
-          <div className="flex flex-col gap-3 border-t border-black/10 pt-4 dark:border-white/15">
+          <div className="flex flex-col gap-3 border-t border-black/10 pt-2 dark:border-white/15">
             <div>
               <p className="text-sm font-medium">Snabbloggning</p>
               <p className="text-sm text-zinc-500 dark:text-zinc-400">
@@ -211,7 +211,7 @@ export default async function KontoPage() {
             </form>
           </div>
 
-          <div className="flex flex-col gap-3 border-t border-black/10 pt-4 dark:border-white/15">
+          <div className="flex flex-col gap-3 border-t border-black/10 pt-2 dark:border-white/15">
             <div>
               <p className="text-sm font-medium">Dela fångst</p>
               <p className="text-sm text-zinc-500 dark:text-zinc-400">
@@ -249,11 +249,11 @@ export default async function KontoPage() {
         </div>
       </details>
 
-      <details className="rounded-xl border border-black/10 bg-white p-5 dark:border-white/15 dark:bg-white/5">
+      <details className="rounded-xl border border-black/10 bg-white p-3 dark:border-white/15 dark:bg-white/5">
         <summary className="cursor-pointer text-lg font-semibold">
           Importera från Excel
         </summary>
-        <div className="mt-4 flex flex-col gap-4">
+        <div className="mt-2 flex flex-col gap-2">
           <p className="text-sm text-zinc-500 dark:text-zinc-400">
             Ladda ner mallen, fyll i dina fångster och ladda upp filen för
             att logga flera fångster på en gång.
@@ -262,12 +262,12 @@ export default async function KontoPage() {
         </div>
       </details>
 
-      <details className="rounded-xl border border-black/10 bg-white p-5 dark:border-white/15 dark:bg-white/5">
+      <details className="rounded-xl border border-black/10 bg-white p-3 dark:border-white/15 dark:bg-white/5">
         <summary className="cursor-pointer text-lg font-semibold">
           {teamName || "Team"}
         </summary>
 
-        <div className="mt-4 flex flex-col gap-4">
+        <div className="mt-2 flex flex-col gap-2">
           {user.team_id && <TeamNameForm currentName={teamName} />}
 
           {teamMembers.length > 0 ? (
@@ -312,11 +312,11 @@ export default async function KontoPage() {
         </div>
       </details>
 
-      <details className="rounded-xl border border-red-200 bg-white p-5 dark:border-red-900/50 dark:bg-white/5">
+      <details className="rounded-xl border border-red-200 bg-white p-3 dark:border-red-900/50 dark:bg-white/5">
         <summary className="cursor-pointer text-lg font-semibold text-red-600 dark:text-red-400">
           Farozon
         </summary>
-        <div className="mt-4">
+        <div className="mt-2">
           <DeleteAllCatchesForm catchCount={catchCount} />
         </div>
       </details>
