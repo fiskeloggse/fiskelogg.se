@@ -264,7 +264,7 @@ export default async function KontoPage() {
 
       <details className="rounded-xl border border-black/10 bg-white p-3 dark:border-white/15 dark:bg-white/5">
         <summary className="cursor-pointer text-lg font-semibold">
-          {teamName || "Team"}
+          Team
         </summary>
 
         <div className="mt-2 flex flex-col gap-2">
