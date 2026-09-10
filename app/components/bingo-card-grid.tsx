@@ -185,27 +185,27 @@ export default function BingoCardGrid({
             label="Ta bort bingobricka"
           />
         </div>
-        {/* One column per decade, values running top to bottom within it
-            (70–79 in column 1, 80–89 in column 2, ...). Each cell is placed
-            explicitly by its own ones-digit (row) and decade index (column)
+        {/* One row per decade, values running left to right within it
+            (70–79 in row 1, 80–89 in row 2, ...). Each cell is placed
+            explicitly by its own ones-digit (column) and decade index (row)
             instead of relying on source order, so a range that doesn't start
             on a round decade (e.g. 72–115) still lines up — 72 lands in the
-            "2" row under its decade instead of shifting the whole column up.
+            "2" column of its decade instead of shifting the whole row over.
             self-start keeps the grid sized to its own content — without it,
             the flex-col parent's default cross-axis stretch would make the
-            grid (and so its auto columns) fill the card's full width,
-            leaving each column much wider than its 32px cells. */}
+            grid (and so its auto rows) fill the card's full width, leaving
+            each cell much wider than 32px. */}
         <div
           className="inline-grid self-start gap-px"
           style={{
-            gridTemplateColumns: `repeat(${decadeRows.length}, auto)`,
+            gridTemplateRows: `repeat(${decadeRows.length}, auto)`,
           }}
         >
-          {decadeRows.flatMap(([, cms], colIndex) =>
+          {decadeRows.flatMap(([, cms], rowIndex) =>
             cms.map((cm) => (
               <div
                 key={cm}
-                style={{ gridColumn: colIndex + 1, gridRow: (cm % 10) + 1 }}
+                style={{ gridRow: rowIndex + 1, gridColumn: (cm % 10) + 1 }}
               >
                 <BingoCell
                   cm={cm}
