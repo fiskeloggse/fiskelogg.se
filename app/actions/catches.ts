@@ -10,7 +10,7 @@ import { getWeatherAt } from "@/lib/weather";
 import { uploadCatchPhoto, deleteCatchPhoto, validatePhotoFile } from "@/lib/photos";
 
 export type CatchNotices = {
-  bingoMatch?: { species: string; cm: number };
+  bingoMatch?: { species: string; cm: number; cardNames: string[] };
   personalBest?: {
     species: string;
     isLongest: boolean;
@@ -225,7 +225,13 @@ export async function addCatch(
   ]);
 
   if (bingoMatches.length > 0 && lengthCm !== undefined) {
-    notices.bingoMatch = { species: inserted.species, cm: lengthCm };
+    notices.bingoMatch = {
+      species: inserted.species,
+      cm: lengthCm,
+      cardNames: bingoMatches.map(
+        (card) => card.name || `${card.species} ${card.min_cm}–${card.max_cm}`
+      ),
+    };
   }
 
   const isLongest =

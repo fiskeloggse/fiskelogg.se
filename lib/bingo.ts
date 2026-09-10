@@ -104,9 +104,13 @@ export async function findMatchingBingoCards(
   lengthCm: number,
   caughtAt: Date,
   excludeCatchId: number
-): Promise<{ id: number; species: string; min_cm: number; max_cm: number }[]> {
-  return sql<{ id: number; species: string; min_cm: number; max_cm: number }[]>`
-    select bc.id, bc.species, bc.min_cm, bc.max_cm
+): Promise<
+  { id: number; name: string | null; species: string; min_cm: number; max_cm: number }[]
+> {
+  return sql<
+    { id: number; name: string | null; species: string; min_cm: number; max_cm: number }[]
+  >`
+    select bc.id, bc.name, bc.species, bc.min_cm, bc.max_cm
     from bingo_cards bc
     where bc.species = ${species}
       and bc.archived_at is null
