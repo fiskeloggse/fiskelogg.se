@@ -55,7 +55,7 @@ function BingoCell({
 }) {
   if (!matches) {
     return (
-      <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-sm bg-black/10 text-xs text-zinc-500 sm:h-9 sm:w-9 dark:bg-white/10 dark:text-zinc-400">
+      <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-sm bg-black/10 text-[11px] text-zinc-500 sm:h-9 sm:w-9 sm:text-xs dark:bg-white/10 dark:text-zinc-400">
         {cm}
       </div>
     );
@@ -66,7 +66,7 @@ function BingoCell({
       type="button"
       onClick={onSelect}
       className={
-        "flex h-8 w-8 shrink-0 items-center justify-center rounded-sm text-xs font-medium text-white transition-colors sm:h-9 sm:w-9 " +
+        "flex h-7 w-7 shrink-0 items-center justify-center rounded-sm text-[11px] font-medium text-white transition-colors sm:h-9 sm:w-9 sm:text-xs " +
         (selected
           ? "bg-green-700 ring-2 ring-green-700 ring-offset-1 dark:ring-offset-zinc-900"
           : "bg-green-600 hover:bg-green-700")
@@ -194,28 +194,32 @@ export default function BingoCardGrid({
             self-start keeps the grid sized to its own content — without it,
             the flex-col parent's default cross-axis stretch would make the
             grid (and so its auto rows) fill the card's full width, leaving
-            each cell much wider than 32px. */}
-        <div
-          className="inline-grid self-start gap-px"
-          style={{
-            gridTemplateRows: `repeat(${decadeRows.length}, auto)`,
-          }}
-        >
-          {decadeRows.flatMap(([, cms], rowIndex) =>
-            cms.map((cm) => (
-              <div
-                key={cm}
-                style={{ gridRow: rowIndex + 1, gridColumn: (cm % 10) + 1 }}
-              >
-                <BingoCell
-                  cm={cm}
-                  matches={catchesByCm.get(cm)}
-                  selected={selectedCm === cm}
-                  onSelect={() => setSelectedCm((prev) => (prev === cm ? null : cm))}
-                />
-              </div>
-            ))
-          )}
+            each cell much wider than 28px. The wrapper scrolls horizontally
+            as a fallback for a decade with all 10 ones-digits on the
+            narrowest phones, rather than overflowing the page. */}
+        <div className="max-w-full overflow-x-auto">
+          <div
+            className="inline-grid gap-px"
+            style={{
+              gridTemplateRows: `repeat(${decadeRows.length}, auto)`,
+            }}
+          >
+            {decadeRows.flatMap(([, cms], rowIndex) =>
+              cms.map((cm) => (
+                <div
+                  key={cm}
+                  style={{ gridRow: rowIndex + 1, gridColumn: (cm % 10) + 1 }}
+                >
+                  <BingoCell
+                    cm={cm}
+                    matches={catchesByCm.get(cm)}
+                    selected={selectedCm === cm}
+                    onSelect={() => setSelectedCm((prev) => (prev === cm ? null : cm))}
+                  />
+                </div>
+              ))
+            )}
+          </div>
         </div>
 
         {selectedCm != null && selectedMatches && (
