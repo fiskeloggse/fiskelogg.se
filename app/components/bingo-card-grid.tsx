@@ -55,7 +55,7 @@ function BingoCell({
 }) {
   if (!matches) {
     return (
-      <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-sm bg-black/10 text-[11px] text-zinc-500 sm:h-9 sm:w-9 sm:text-xs dark:bg-white/10 dark:text-zinc-400">
+      <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-sm bg-black/10 text-[9px] text-zinc-500 sm:h-9 sm:w-9 sm:text-xs dark:bg-white/10 dark:text-zinc-400">
         {cm}
       </div>
     );
@@ -66,7 +66,7 @@ function BingoCell({
       type="button"
       onClick={onSelect}
       className={
-        "flex h-7 w-7 shrink-0 items-center justify-center rounded-sm text-[11px] font-medium text-white transition-colors sm:h-9 sm:w-9 sm:text-xs " +
+        "flex h-6 w-6 shrink-0 items-center justify-center rounded-sm text-[9px] font-medium text-white transition-colors sm:h-9 sm:w-9 sm:text-xs " +
         (selected
           ? "bg-green-700 ring-2 ring-green-700 ring-offset-1 dark:ring-offset-zinc-900"
           : "bg-green-600 hover:bg-green-700")
@@ -147,7 +147,7 @@ export default function BingoCardGrid({
   const selectedMatches = selectedCm != null ? catchesByCm.get(selectedCm) : undefined;
 
   return (
-    <details className="rounded-xl border border-black/10 bg-white p-3 sm:p-5 dark:border-white/15 dark:bg-white/5">
+    <details className="rounded-xl border border-black/10 bg-white p-2 sm:p-5 dark:border-white/15 dark:bg-white/5">
       <summary className="flex cursor-pointer list-none flex-col gap-3">
         <div>
           <h2 className="text-lg font-semibold">

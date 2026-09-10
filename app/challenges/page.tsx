@@ -44,7 +44,7 @@ export default async function ChallengesPage() {
 
   return (
     <main className="mx-auto flex w-full max-w-4xl flex-1 flex-col gap-8 px-4 py-10 sm:px-6">
-      <div className="rounded-xl border border-black/10 bg-white p-5 dark:border-white/15 dark:bg-white/5">
+      <div className="rounded-xl border border-black/10 bg-white p-3 sm:p-5 dark:border-white/15 dark:bg-white/5">
         <div className="flex items-center justify-between gap-3">
           <h2 className="text-lg font-semibold">Bingo</h2>
           <CreateBingoCardButton hasTeam={user.team_id !== null} />
