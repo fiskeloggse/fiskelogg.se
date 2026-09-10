@@ -88,22 +88,13 @@ export default function BingoCardEditForm({
         </p>
       )}
 
-      <div className="flex items-center gap-2">
-        <button
-          type="submit"
-          disabled={pending}
-          className="rounded-full bg-foreground px-4 py-2 text-sm font-medium text-background disabled:opacity-60"
-        >
-          {pending ? "Sparar…" : "Spara"}
-        </button>
-        <button
-          type="button"
-          onClick={onDone}
-          className="rounded-full px-4 py-2 text-sm text-zinc-500 hover:text-foreground dark:text-zinc-400"
-        >
-          Avbryt
-        </button>
-      </div>
+      <button
+        type="submit"
+        disabled={pending}
+        className="self-start rounded-full bg-foreground px-4 py-2 text-sm font-medium text-background disabled:opacity-60"
+      >
+        {pending ? "Sparar…" : "Spara"}
+      </button>
     </form>
   );
 }

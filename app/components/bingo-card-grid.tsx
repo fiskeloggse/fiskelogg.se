@@ -207,10 +207,10 @@ export default function BingoCardGrid({
         {cardOpen && (
           <button
             type="button"
-            onClick={() => setEditingCard(true)}
+            onClick={() => setEditingCard((prev) => !prev)}
             className="shrink-0 rounded-full border border-black/10 px-4 py-2 text-sm font-medium transition-colors hover:bg-black/5 dark:border-white/15 dark:hover:bg-white/10"
           >
-            Redigera
+            {editingCard ? "Avbryt" : "Redigera"}
           </button>
         )}
       </summary>
