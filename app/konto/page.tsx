@@ -293,6 +293,16 @@ export default async function KontoPage() {
                       </ul>
                     )}
 
+                    <div className="flex flex-col gap-1.5 border-t border-black/10 pt-3 dark:border-white/15">
+                      <label htmlFor="email" className="text-sm font-medium">
+                        Bjud in ett konto
+                      </label>
+                      <InviteForm />
+                      <p className="text-xs text-zinc-500 dark:text-zinc-400">
+                        Personen måste redan ha ett konto på Fisklogg.
+                      </p>
+                    </div>
+
                     <form action={leaveTeam}>
                       <button
                         type="submit"
@@ -306,20 +316,20 @@ export default async function KontoPage() {
               </li>
             </ul>
           ) : (
-            <p className="text-sm text-zinc-500 dark:text-zinc-400">
-              Du har inget team än. Bjud in någon nedan för att dela fångster.
-            </p>
+            <div className="flex flex-col gap-1.5">
+              <p className="text-sm text-zinc-500 dark:text-zinc-400">
+                Du har inget team än. Bjud in någon nedan för att dela
+                fångster.
+              </p>
+              <label htmlFor="email" className="text-sm font-medium">
+                Bjud in ett konto
+              </label>
+              <InviteForm />
+              <p className="text-xs text-zinc-500 dark:text-zinc-400">
+                Personen måste redan ha ett konto på Fisklogg.
+              </p>
+            </div>
           )}
-
-          <div className="flex flex-col gap-1.5">
-            <label htmlFor="email" className="text-sm font-medium">
-              Bjud in ett konto
-            </label>
-            <InviteForm />
-            <p className="text-xs text-zinc-500 dark:text-zinc-400">
-              Personen måste redan ha ett konto på Fisklogg.
-            </p>
-          </div>
         </div>
       </details>
 
