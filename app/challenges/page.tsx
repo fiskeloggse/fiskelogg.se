@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { requireUser } from "@/lib/dal";
-import { getBingoCards, getBingoCatches } from "@/lib/bingo";
+import { getArchivedBingoCards, getBingoCards, getBingoCatches } from "@/lib/bingo";
 import { getSpeciesBreakdown, getWeighedCatches } from "@/lib/stats";
 import { getPersonalBests } from "@/lib/personal-bests";
 import { getStorfiskPercent, STORFISKREGISTRET_SPECIES } from "@/lib/storfisk";
@@ -14,12 +14,14 @@ export const metadata: Metadata = {
 
 export default async function ChallengesPage() {
   const user = await requireUser();
-  const [cards, speciesBreakdown, personalBests, weighedCatches] = await Promise.all([
-    getBingoCards(user.id, user.team_id),
-    user.show_species_collection ? getSpeciesBreakdown(user.id) : Promise.resolve([]),
-    user.show_species_collection ? getPersonalBests(user.id) : Promise.resolve([]),
-    user.show_species_collection ? getWeighedCatches(user.id) : Promise.resolve([]),
-  ]);
+  const [cards, archivedCards, speciesBreakdown, personalBests, weighedCatches] =
+    await Promise.all([
+      getBingoCards(user.id, user.team_id),
+      getArchivedBingoCards(user.id, user.team_id),
+      user.show_species_collection ? getSpeciesBreakdown(user.id) : Promise.resolve([]),
+      user.show_species_collection ? getPersonalBests(user.id) : Promise.resolve([]),
+      user.show_species_collection ? getWeighedCatches(user.id) : Promise.resolve([]),
+    ]);
   const hiddenSpeciesSet = new Set(user.hidden_species ?? []);
   const trackedSpecies = STORFISKREGISTRET_SPECIES.filter(
     (species) => !hiddenSpeciesSet.has(species)
@@ -69,6 +71,24 @@ export default async function ChallengesPage() {
           )}
         </div>
       </div>
+
+      {archivedCards.length > 0 && (
+        <details className="rounded-xl border border-black/10 bg-white p-2 sm:p-5 dark:border-white/15 dark:bg-white/5">
+          <summary className="cursor-pointer text-lg font-semibold">
+            Arkiverade brickor
+          </summary>
+          <div className="mt-4 flex flex-col gap-6">
+            {await Promise.all(
+              archivedCards.map(async (card) => {
+                const catchesByCm = await getBingoCatches(card);
+                return (
+                  <BingoCardGrid key={card.id} card={card} catchesByCm={catchesByCm} />
+                );
+              })
+            )}
+          </div>
+        </details>
+      )}
 
       {user.show_species_collection && (
         <details className="rounded-xl border border-black/10 bg-white p-5 dark:border-white/15 dark:bg-white/5">

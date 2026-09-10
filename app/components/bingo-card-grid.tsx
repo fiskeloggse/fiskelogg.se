@@ -2,13 +2,29 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { deleteBingoCard } from "@/app/actions/bingo";
+import { archiveBingoCard, deleteBingoCard, unarchiveBingoCard } from "@/app/actions/bingo";
 import type { BingoCard, BingoCatch } from "@/lib/bingo";
-import BingoCardNameForm from "./bingo-card-name-form";
+import BingoCardEditForm from "./bingo-card-edit-form";
 import ConfirmDeleteButton from "./confirm-delete-button";
 
 function formatDate(date: Date) {
   return date.toLocaleDateString("sv-SE", { dateStyle: "medium" });
+}
+
+// A full calendar year (1 jan–31 dec, same year) reads as just the year --
+// "2026" instead of "1 jan. 2026–31 dec. 2026" -- since that's exactly how
+// these cards are normally set up for the yearly bingo season.
+function formatDateRange(from: Date, to: Date): string {
+  const isFullYear =
+    from.getUTCMonth() === 0 &&
+    from.getUTCDate() === 1 &&
+    to.getUTCMonth() === 11 &&
+    to.getUTCDate() === 31 &&
+    from.getUTCFullYear() === to.getUTCFullYear();
+
+  return isFullYear
+    ? String(from.getUTCFullYear())
+    : `${formatDate(from)}–${formatDate(to)}`;
 }
 
 // Days remaining until (and including) to_date, or a finished label once
@@ -156,33 +172,54 @@ export default function BingoCardGrid({
             <span className="ml-2 rounded-full bg-black/10 px-2 py-0.5 text-xs font-normal text-zinc-500 dark:bg-white/10 dark:text-zinc-400">
               {card.team_id ? "Team" : "Ensam"}
             </span>
-            {status && (
-              <span
-                className={
-                  "ml-2 inline-block whitespace-nowrap rounded-full px-2 py-0.5 text-xs font-normal " +
-                  (status === "Avslutad"
-                    ? "bg-zinc-200 text-zinc-600 dark:bg-zinc-700 dark:text-zinc-300"
-                    : "bg-amber-100 text-amber-700 dark:bg-amber-950/40 dark:text-amber-400")
-                }
-              >
-                {status}
+            {card.archived_at ? (
+              <span className="ml-2 inline-block whitespace-nowrap rounded-full bg-zinc-200 px-2 py-0.5 text-xs font-normal text-zinc-600 dark:bg-zinc-700 dark:text-zinc-300">
+                Arkiverad
               </span>
+            ) : (
+              status && (
+                <span
+                  className={
+                    "ml-2 inline-block whitespace-nowrap rounded-full px-2 py-0.5 text-xs font-normal " +
+                    (status === "Avslutad"
+                      ? "bg-zinc-200 text-zinc-600 dark:bg-zinc-700 dark:text-zinc-300"
+                      : "bg-amber-100 text-amber-700 dark:bg-amber-950/40 dark:text-amber-400")
+                  }
+                >
+                  {status}
+                </span>
+              )
             )}
           </h2>
           <p className="text-sm text-zinc-500 dark:text-zinc-400">
             {card.name && <>{card.species} {card.min_cm}–{card.max_cm} cm · </>}
             {doneCount}/{totalCount} fångade
             {card.from_date && card.to_date && (
-              <> · {formatDate(card.from_date)}–{formatDate(card.to_date)}</>
+              <> · {formatDateRange(card.from_date, card.to_date)}</>
             )}
           </p>
         </div>
       </summary>
 
       <div className="mt-3 flex flex-col gap-3">
-        <BingoCardNameForm cardId={card.id} currentName={card.name} />
+        <BingoCardEditForm
+          cardId={card.id}
+          currentName={card.name}
+          currentFromDate={card.from_date}
+          currentToDate={card.to_date}
+        />
 
-        <div className="flex justify-end">
+        <div className="flex items-center justify-between gap-3">
+          <form action={card.archived_at ? unarchiveBingoCard : archiveBingoCard}>
+            <input type="hidden" name="id" value={card.id} />
+            <button
+              type="submit"
+              className="rounded-full px-3 py-1.5 text-sm text-zinc-500 transition-colors hover:bg-black/5 hover:text-foreground dark:text-zinc-400 dark:hover:bg-white/10"
+            >
+              {card.archived_at ? "Återställ bingobricka" : "Arkivera bingobricka"}
+            </button>
+          </form>
+
           <ConfirmDeleteButton
             action={deleteBingoCard}
             id={card.id}

@@ -87,11 +87,22 @@ export async function createBingoCard(
   return { success: true };
 }
 
-const BingoNameSchema = z.object({
-  name: z.string().trim().max(60, { error: "Namnet är för långt (max 60 tecken)." }),
-});
+const BingoEditSchema = z
+  .object({
+    name: z.string().trim().max(60, { error: "Namnet är för långt (max 60 tecken)." }),
+    fromDate: optionalDate,
+    toDate: optionalDate,
+  })
+  .refine((data) => Boolean(data.fromDate) === Boolean(data.toDate), {
+    error: "Fyll i både startdatum och slutdatum, eller lämna båda tomma.",
+    path: ["toDate"],
+  })
+  .refine((data) => !data.fromDate || !data.toDate || data.toDate >= data.fromDate, {
+    error: "Slutdatumet måste vara efter startdatumet.",
+    path: ["toDate"],
+  });
 
-export async function updateBingoCardName(
+export async function updateBingoCard(
   _prevState: BingoState,
   formData: FormData
 ): Promise<BingoState> {
@@ -99,18 +110,23 @@ export async function updateBingoCardName(
   const id = Number(formData.get("id"));
   if (!id) return { error: "Ogiltig bricka." };
 
-  const parsed = BingoNameSchema.safeParse({ name: formData.get("name") });
+  const parsed = BingoEditSchema.safeParse({
+    name: formData.get("name"),
+    fromDate: formData.get("fromDate"),
+    toDate: formData.get("toDate"),
+  });
   if (!parsed.success) {
-    return { error: parsed.error.issues[0]?.message ?? "Ogiltigt namn." };
+    return { error: parsed.error.issues[0]?.message ?? "Ogiltiga uppgifter." };
   }
 
-  // Empty input clears the custom name, falling back to the default
+  // Empty name clears the custom title, falling back to the default
   // "species min–max cm" heading.
+  const { fromDate, toDate } = parsed.data;
   const name = parsed.data.name || null;
 
   await sql`
     update bingo_cards
-    set name = ${name}
+    set name = ${name}, from_date = ${fromDate}, to_date = ${toDate}
     where id = ${id}
       and (
         created_by = ${user.id}
@@ -130,6 +146,44 @@ export async function deleteBingoCard(formData: FormData) {
 
   await sql`
     delete from bingo_cards
+    where id = ${id}
+      and (
+        created_by = ${user.id}
+        or (team_id is not null and team_id = ${user.team_id})
+      )
+  `;
+
+  revalidatePath("/challenges");
+}
+
+export async function archiveBingoCard(formData: FormData) {
+  const user = await requireUser();
+
+  const id = Number(formData.get("id"));
+  if (!id) return;
+
+  await sql`
+    update bingo_cards
+    set archived_at = now()
+    where id = ${id}
+      and (
+        created_by = ${user.id}
+        or (team_id is not null and team_id = ${user.team_id})
+      )
+  `;
+
+  revalidatePath("/challenges");
+}
+
+export async function unarchiveBingoCard(formData: FormData) {
+  const user = await requireUser();
+
+  const id = Number(formData.get("id"));
+  if (!id) return;
+
+  await sql`
+    update bingo_cards
+    set archived_at = null
     where id = ${id}
       and (
         created_by = ${user.id}

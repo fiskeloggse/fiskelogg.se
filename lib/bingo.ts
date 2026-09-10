@@ -12,6 +12,7 @@ export type BingoCard = {
   created_by: number | null;
   from_date: Date | null;
   to_date: Date | null;
+  archived_at: Date | null;
 };
 
 export type BingoCatch = {
@@ -27,11 +28,30 @@ export async function getBingoCards(
   teamId: number | null
 ): Promise<BingoCard[]> {
   return sql<BingoCard[]>`
-    select id, name, species, min_cm, max_cm, team_id, created_by, from_date, to_date
+    select id, name, species, min_cm, max_cm, team_id, created_by, from_date, to_date, archived_at
     from bingo_cards
-    where (team_id is not null and team_id = ${teamId})
+    where (
+      (team_id is not null and team_id = ${teamId})
       or (team_id is null and created_by = ${userId})
+    )
+      and archived_at is null
     order by created_at desc
+  `;
+}
+
+export async function getArchivedBingoCards(
+  userId: number,
+  teamId: number | null
+): Promise<BingoCard[]> {
+  return sql<BingoCard[]>`
+    select id, name, species, min_cm, max_cm, team_id, created_by, from_date, to_date, archived_at
+    from bingo_cards
+    where (
+      (team_id is not null and team_id = ${teamId})
+      or (team_id is null and created_by = ${userId})
+    )
+      and archived_at is not null
+    order by archived_at desc
   `;
 }
 
@@ -89,6 +109,7 @@ export async function findMatchingBingoCards(
     select bc.id, bc.species, bc.min_cm, bc.max_cm
     from bingo_cards bc
     where bc.species = ${species}
+      and bc.archived_at is null
       and bc.min_cm <= ${lengthCm}
       and bc.max_cm >= ${lengthCm}
       and (bc.from_date is null or (${caughtAt}::timestamptz at time zone ${TIMEZONE})::date >= bc.from_date)

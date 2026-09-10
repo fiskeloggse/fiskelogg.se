@@ -188,3 +188,8 @@ where onboarding_completed_at is null and created_at < timestamp '2026-09-10';
 -- overriding the default "species min–max cm" heading. Null keeps the
 -- default.
 alter table bingo_cards add column if not exists name text;
+
+-- Archiving a finished season's card moves it out of the active list into
+-- a separate "Arkiverade brickor" section, without deleting it -- its
+-- catches and cell results stay visible for looking back at how it went.
+alter table bingo_cards add column if not exists archived_at timestamptz;
