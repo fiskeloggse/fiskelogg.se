@@ -56,7 +56,7 @@ export default function BingoCardForm({
   return (
     <form
       action={formAction}
-      className="flex flex-col gap-4 rounded-xl border border-black/10 bg-white p-5 dark:border-white/15 dark:bg-white/5"
+      className="flex flex-col gap-4 rounded-xl border border-black/10 bg-white p-5 dark:border-white/15 dark:bg-zinc-900"
     >
       <div className="flex items-center justify-between">
         <h2 className="text-lg font-semibold">Ny bingobricka</h2>
