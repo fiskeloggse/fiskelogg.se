@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import BingoCardForm from "./bingo-card-form";
 
 // Lives top-right next to the "Bingo" heading, same slot pattern as
@@ -9,6 +9,14 @@ import BingoCardForm from "./bingo-card-form";
 export default function CreateBingoCardButton({ hasTeam }: { hasTeam: boolean }) {
   const [open, setOpen] = useState(false);
   const dialogRef = useRef<HTMLDialogElement>(null);
+  // Stable identity across every open/close -- BingoCardForm never unmounts
+  // (the dialog just toggles native open/close), so its useActionState
+  // "success" result lingers after the first card is created. A fresh
+  // inline closure here would change on every reopen, re-triggering
+  // BingoCardForm's success effect (which reads that stale state and
+  // schedules another auto-close) even though nothing was submitted --
+  // that's what closed the dialog "by itself" on a later open.
+  const handleClose = useCallback(() => setOpen(false), []);
 
   useEffect(() => {
     const dialog = dialogRef.current;
@@ -38,7 +46,7 @@ export default function CreateBingoCardButton({ hasTeam }: { hasTeam: boolean })
         }}
         className="m-auto max-h-[90vh] w-[min(90vw,32rem)] overflow-y-auto bg-transparent p-0 backdrop:bg-black/40"
       >
-        <BingoCardForm hasTeam={hasTeam} onClose={() => setOpen(false)} />
+        <BingoCardForm hasTeam={hasTeam} onClose={handleClose} />
       </dialog>
     </>
   );
