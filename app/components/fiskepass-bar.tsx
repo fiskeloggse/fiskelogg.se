@@ -30,7 +30,13 @@ function formatClockTime(date: Date): string {
   return date.toLocaleTimeString("sv-SE", { hour: "2-digit", minute: "2-digit" });
 }
 
-function StartFiskepassButton({ hasTeam }: { hasTeam: boolean }) {
+function StartFiskepassButton({
+  hasTeam,
+  recentTargetSpecies,
+}: {
+  hasTeam: boolean;
+  recentTargetSpecies: string[];
+}) {
   const [state, formAction, pending] = useActionState(startFiskepass, undefined);
   const [open, setOpen] = useState(false);
   const dialogRef = useRef<HTMLDialogElement>(null);
@@ -149,6 +155,22 @@ function StartFiskepassButton({ hasTeam }: { hasTeam: boolean }) {
                 Lägg till
               </button>
             </div>
+            {recentTargetSpecies.filter((s) => !targetSpecies.includes(s)).length > 0 && (
+              <div className="flex flex-wrap gap-1.5">
+                {recentTargetSpecies
+                  .filter((s) => !targetSpecies.includes(s))
+                  .map((s) => (
+                    <button
+                      key={s}
+                      type="button"
+                      onClick={() => addSpecies(s)}
+                      className="rounded-full border border-black/10 px-3 py-1 text-sm transition-colors hover:bg-black/5 dark:border-white/15 dark:hover:bg-white/10"
+                    >
+                      {s}
+                    </button>
+                  ))}
+              </div>
+            )}
             {targetSpecies.length > 0 && (
               <div className="flex flex-wrap gap-1.5">
                 {targetSpecies.map((s) => (
@@ -262,12 +284,16 @@ function StopFiskepassButton({ id, startTime }: { id: number; startTime: Date })
 export default function FiskepassButton({
   openPass,
   hasTeam,
+  recentTargetSpecies = [],
 }: {
   openPass: OpenFiskepass | null;
   hasTeam: boolean;
+  recentTargetSpecies?: string[];
 }) {
   if (openPass) return <StopFiskepassButton id={openPass.id} startTime={openPass.start_time} />;
-  return <StartFiskepassButton hasTeam={hasTeam} />;
+  return (
+    <StartFiskepassButton hasTeam={hasTeam} recentTargetSpecies={recentTargetSpecies} />
+  );
 }
 
 // Status line shown above the log form while a pass is open. A blinking

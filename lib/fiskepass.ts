@@ -150,6 +150,25 @@ export async function getDistinctTargetSpecies(userId: number): Promise<string[]
   return rows.map((r) => r.species);
 }
 
+// Most recently used target species across past passes, for one-tap re-add
+// when starting a new pass -- ordered by the last time each species was
+// targeted, not alphabetically like getDistinctTargetSpecies (that one
+// backs a filter dropdown instead).
+export async function getRecentFiskepassTargetSpecies(
+  userId: number,
+  limit = 3
+): Promise<string[]> {
+  const rows = await sql<{ species: string }[]>`
+    select t as species
+    from fiskepass fp, unnest(fp.target_species) t
+    where fp.user_id = ${userId} and fp.deleted_at is null
+    group by t
+    order by max(fp.start_time) desc
+    limit ${limit}
+  `;
+  return rows.map((r) => r.species);
+}
+
 export async function getDistinctFiskepassYears(userId: number): Promise<number[]> {
   const rows = await sql<{ year: number }[]>`
     select distinct extract(year from start_time at time zone ${TIMEZONE})::int as year

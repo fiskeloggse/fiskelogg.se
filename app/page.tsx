@@ -17,6 +17,7 @@ import {
   getFiskepassSpeciesList,
   getFiskepassTopCatches,
   getOpenFiskepass,
+  getRecentFiskepassTargetSpecies,
 } from "@/lib/fiskepass";
 import CatchForm from "@/app/components/catch-form";
 import type { Catch } from "@/app/components/catch-list";
@@ -51,6 +52,7 @@ export default async function Home(props: PageProps<"/">) {
     defaultBait,
     defaultMethod,
     openFiskepass,
+    recentFiskepassTargetSpecies,
   ] = await Promise.all([
     getSpeciesSuggestions(user.id),
     getBaitSuggestions(user.id),
@@ -63,6 +65,7 @@ export default async function Home(props: PageProps<"/">) {
     getTodaysLastBait(user.id, user.team_id),
     getTodaysLastMethod(user.id, user.team_id),
     user.show_fiskepass ? getOpenFiskepass(user.id, user.team_id) : Promise.resolve(null),
+    user.show_fiskepass ? getRecentFiskepassTargetSpecies(user.id) : Promise.resolve([]),
   ]);
 
   // While a pass is open, the two catch boxes below switch from "today" to
@@ -225,7 +228,11 @@ export default async function Home(props: PageProps<"/">) {
         openFiskepassWaterTempC={openFiskepass?.water_temp_c ?? null}
         fiskepassButton={
           user.show_fiskepass ? (
-            <FiskepassButton openPass={openFiskepass} hasTeam={user.team_id !== null} />
+            <FiskepassButton
+              openPass={openFiskepass}
+              hasTeam={user.team_id !== null}
+              recentTargetSpecies={recentFiskepassTargetSpecies}
+            />
           ) : null
         }
       />
