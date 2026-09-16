@@ -197,6 +197,12 @@ export default function CatchDetail({
             <p className="text-zinc-500 dark:text-zinc-400">Bete</p>
             <p className="text-lg font-medium">{item.bait || "–"}</p>
           </div>
+          {item.water_temp_c != null && (
+            <div>
+              <p className="text-zinc-500 dark:text-zinc-400">Vattentemperatur</p>
+              <p className="text-lg font-medium">{item.water_temp_c}°C</p>
+            </div>
+          )}
           {item.comment && (
             <div className="col-span-2">
               <p className="text-zinc-500 dark:text-zinc-400">Kommentar</p>

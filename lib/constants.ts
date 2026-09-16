@@ -9,6 +9,8 @@ export const WEIGHT_MIN = 0;
 export const WEIGHT_MAX = 20;
 export const WEATHER_TEMP_MIN = -30;
 export const WEATHER_TEMP_MAX = 40;
+export const WATER_TEMP_MIN = 0;
+export const WATER_TEMP_MAX = 40;
 export const WEATHER_WIND_MIN = 0;
 export const WEATHER_WIND_MAX = 80;
 export const WEATHER_PRESSURE_MIN = 950;
@@ -88,6 +90,7 @@ export const QUICK_LOG_FIELDS = [
   { key: "anglerId", label: "Fiskare" },
   { key: "comment", label: "Kommentar" },
   { key: "gps", label: "GPS-position" },
+  { key: "waterTempC", label: "Vattentemperatur" },
 ] as const;
 
 export type QuickLogFieldKey = (typeof QUICK_LOG_FIELDS)[number]["key"];

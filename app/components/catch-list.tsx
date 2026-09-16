@@ -9,6 +9,7 @@ export type Catch = {
   method?: string | null;
   bait?: string | null;
   comment?: string | null;
+  water_temp_c?: number | null;
   latitude?: number | null;
   longitude?: number | null;
   weather_temp_c?: number | null;

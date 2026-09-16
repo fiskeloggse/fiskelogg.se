@@ -8,6 +8,7 @@ import { findMatchingBingoCards } from "@/lib/bingo";
 import { getPreviousBest } from "@/lib/personal-bests";
 import { getWeatherAt } from "@/lib/weather";
 import { uploadCatchPhoto, deleteCatchPhoto, validatePhotoFile } from "@/lib/photos";
+import { WATER_TEMP_MAX, WATER_TEMP_MIN } from "@/lib/constants";
 
 export type CatchNotices = {
   bingoMatch?: { species: string; cm: number; cardNames: string[] };
@@ -48,6 +49,11 @@ const CatchSchema = z.object({
   method: z.string().trim().max(100).optional(),
   bait: z.string().trim().max(100).optional(),
   comment: z.string().trim().max(1000).optional(),
+  waterTempC: z.coerce
+    .number({ error: "Ange en giltig vattentemperatur." })
+    .min(WATER_TEMP_MIN, { error: `Vattentemperaturen kan inte vara under ${WATER_TEMP_MIN}°C.` })
+    .max(WATER_TEMP_MAX, { error: `Vattentemperaturen kan inte vara över ${WATER_TEMP_MAX}°C.` })
+    .optional(),
   latitude: z.coerce.number().min(-90).max(90).optional(),
   longitude: z.coerce.number().min(-180).max(180).optional(),
   caughtAt: z.coerce
@@ -77,6 +83,7 @@ export async function addCatch(
   const rawMethod = formData.get("method");
   const rawBait = formData.get("bait");
   const rawComment = formData.get("comment");
+  const rawWaterTemp = formData.get("waterTempC");
   const rawLatitude = formData.get("latitude");
   const rawLongitude = formData.get("longitude");
   const rawAnglerId = formData.get("anglerId");
@@ -108,6 +115,10 @@ export async function addCatch(
       typeof rawComment === "string" && rawComment.trim() !== ""
         ? rawComment
         : undefined,
+    waterTempC:
+      typeof rawWaterTemp === "string" && rawWaterTemp.trim() !== ""
+        ? rawWaterTemp
+        : undefined,
     latitude:
       typeof rawLatitude === "string" && rawLatitude.trim() !== ""
         ? rawLatitude
@@ -136,6 +147,7 @@ export async function addCatch(
     method,
     bait,
     comment,
+    waterTempC,
     latitude,
     longitude,
     caughtAt,
@@ -187,13 +199,13 @@ export async function addCatch(
   // by exact species string.
   const [inserted] = await sql<{ id: number; species: string }[]>`
     insert into catches (
-      user_id, species, length_cm, weight_kg, lake, location, method, bait, comment, latitude, longitude, caught_at,
+      user_id, species, length_cm, weight_kg, lake, location, method, bait, comment, water_temp_c, latitude, longitude, caught_at,
       weather_temp_c, weather_description, weather_wind_kmh, weather_wind_dir_deg, weather_pressure_hpa, weather_cloud_pct,
       photo_url
     )
     values (
       ${anglerId}, initcap(${species}), ${lengthCm ?? null}, ${weightKg ?? null},
-      ${lake ?? null}, ${location ?? null}, ${method ?? null}, ${bait ?? null}, ${comment ?? null},
+      ${lake ?? null}, ${location ?? null}, ${method ?? null}, ${bait ?? null}, ${comment ?? null}, ${waterTempC ?? null},
       ${persistedLatitude}, ${persistedLongitude}, ${caughtAt ?? new Date()},
       ${weather?.temp_c ?? null}, ${weather?.description ?? null}, ${weather?.wind_kmh ?? null},
       ${weather?.wind_dir_deg ?? null}, ${weather?.pressure_hpa ?? null}, ${weather?.cloud_pct ?? null},

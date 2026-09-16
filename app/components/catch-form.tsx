@@ -10,7 +10,12 @@ import type { BaitSuggestions } from "@/lib/bait-suggestions";
 import type { LakeSuggestions } from "@/lib/lake-suggestions";
 import type { LocationSuggestions } from "@/lib/location-suggestions";
 import type { MethodSuggestions } from "@/lib/method-suggestions";
-import { QUICK_LOG_FIELD_KEYS, type GpsModeKey } from "@/lib/constants";
+import {
+  QUICK_LOG_FIELD_KEYS,
+  WATER_TEMP_MAX,
+  WATER_TEMP_MIN,
+  type GpsModeKey,
+} from "@/lib/constants";
 import { compressImage, replaceInputFile } from "@/lib/compress-image";
 import TextSuggestInput from "./text-suggest-input";
 import MapPositionPicker from "./map-position-picker";
@@ -125,6 +130,7 @@ export default function CatchForm({
   quickLogFields,
   gpsMode,
   openFiskepassSpecies,
+  openFiskepassWaterTempC,
   fiskepassButton,
 }: {
   suggestions: SpeciesSuggestions;
@@ -141,6 +147,7 @@ export default function CatchForm({
   quickLogFields: string[] | null;
   gpsMode: GpsModeKey;
   openFiskepassSpecies?: string[] | null;
+  openFiskepassWaterTempC?: number | null;
   fiskepassButton?: React.ReactNode;
 }) {
   const [state, formAction, pending] = useActionState(addCatch, undefined);
@@ -211,6 +218,7 @@ export default function CatchForm({
   const showAngler = quickFields.includes("anglerId");
   const showComment = quickFields.includes("comment");
   const showGps = quickFields.includes("gps");
+  const showWaterTemp = quickFields.includes("waterTempC");
   const hasHiddenFields =
     !showPhoto ||
     !showWeight ||
@@ -218,6 +226,7 @@ export default function CatchForm({
     !showBait ||
     !showComment ||
     !showGps ||
+    !showWaterTemp ||
     (teamMembers.length > 0 && !showAngler);
   // Whether each section has anything to show at all — a section with every
   // field hidden shouldn't render just its heading.
@@ -245,6 +254,20 @@ export default function CatchForm({
   const [method, setMethod] = useState(defaultMethod ?? "");
   const [bait, setBait] = useState(defaultBait ?? "");
   const [comment, setComment] = useState("");
+  const [waterTempC, setWaterTempC] = useState(
+    openFiskepassWaterTempC != null ? String(openFiskepassWaterTempC) : ""
+  );
+  // Reactively pulls in the pass's value (not just on first mount) so
+  // starting a pass with a water temp fills this in immediately for the
+  // very next catch, without needing a page reload — unlike defaultLake/
+  // defaultBait/defaultMethod above, which only ever seed the initial
+  // value. Never clears a manually typed value when no pass is open.
+  useEffect(() => {
+    if (openFiskepassWaterTempC != null) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setWaterTempC(String(openFiskepassWaterTempC));
+    }
+  }, [openFiskepassWaterTempC]);
   const [caughtAtLocal, setCaughtAtLocal] = useState("");
   const defaultLogPosition = gpsMode === "both";
   const defaultLogWeather =
@@ -263,9 +286,18 @@ export default function CatchForm({
   const [lakeAutoFilled, setLakeAutoFilled] = useState(false);
   // Position is always offered for a past catch (there's no live GPS fix to
   // fall back on), so the Plats section stays visible in that mode even if
-  // Vatten/Plats themselves are hidden.
+  // Vatten/Plats themselves are hidden. Also stays visible whenever an open
+  // pass has a water temp to carry in, even if Vattentemperatur itself is
+  // configured hidden -- the value still needs a home in the DOM to submit.
   const showPlatsSection =
-    mode === "past" ? true : showLake || showGps || showMore || lakeAutoFilled;
+    mode === "past"
+      ? true
+      : showLake ||
+        showGps ||
+        showMore ||
+        lakeAutoFilled ||
+        showWaterTemp ||
+        openFiskepassWaterTempC != null;
   const [waterLookupPending, setWaterLookupPending] = useState(false);
   // Logging a past catch has no live GPS fix to attach — let the user pin
   // the spot on a map instead.
@@ -771,6 +803,33 @@ export default function CatchForm({
                   },
                 ]}
               />
+
+              {/* Rendered outside OrderedFields (like Längd/Vikt below) so
+                  it stays in the DOM and keeps submitting an open pass's
+                  auto-filled value even while configured hidden -- an
+                  OrderedFields block with show:false is removed from the
+                  DOM entirely once "Fler fält" isn't open. */}
+              <div
+                className={
+                  showWaterTemp || showMore ? "mt-3 flex flex-col gap-1.5" : "hidden"
+                }
+              >
+                <label htmlFor="waterTempC" className="text-sm font-medium">
+                  Vattentemperatur (°C)
+                </label>
+                <input
+                  id="waterTempC"
+                  name="waterTempC"
+                  type="number"
+                  inputMode="decimal"
+                  step="0.1"
+                  min={WATER_TEMP_MIN}
+                  max={WATER_TEMP_MAX}
+                  value={waterTempC}
+                  onChange={(e) => setWaterTempC(e.target.value)}
+                  className={inputClassName}
+                />
+              </div>
             </Section>
           )}
 

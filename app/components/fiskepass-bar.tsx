@@ -2,6 +2,7 @@
 
 import { useActionState, useEffect, useRef, useState } from "react";
 import { startFiskepass, stopFiskepass } from "@/app/actions/fiskepass";
+import { WATER_TEMP_MAX, WATER_TEMP_MIN } from "@/lib/constants";
 import { FISH_SPECIES } from "@/lib/species";
 import ConfirmDialog from "./confirm-dialog";
 import TextSuggestInput from "./text-suggest-input";
@@ -13,6 +14,7 @@ type OpenFiskepass = {
   id: number;
   team_id: number | null;
   target_species: string[] | null;
+  water_temp_c: number | null;
   start_time: Date;
 };
 
@@ -35,6 +37,7 @@ function StartFiskepassButton({ hasTeam }: { hasTeam: boolean }) {
   const [speciesInput, setSpeciesInput] = useState("");
   const [targetSpecies, setTargetSpecies] = useState<string[]>([]);
   const [mode, setMode] = useState<"solo" | "team">("solo");
+  const [waterTemp, setWaterTemp] = useState("");
 
   useEffect(() => {
     const dialog = dialogRef.current;
@@ -48,6 +51,7 @@ function StartFiskepassButton({ hasTeam }: { hasTeam: boolean }) {
       // eslint-disable-next-line react-hooks/set-state-in-effect
       setOpen(false);
       setMode("solo");
+      setWaterTemp("");
     }
   }, [state]);
 
@@ -168,6 +172,28 @@ function StartFiskepassButton({ hasTeam }: { hasTeam: boolean }) {
                 ))}
               </div>
             )}
+          </div>
+
+          <div className="flex flex-col gap-1.5">
+            <label htmlFor="fiskepass-water-temp" className="text-sm font-medium">
+              Vattentemperatur (valfritt)
+            </label>
+            <input
+              id="fiskepass-water-temp"
+              name="waterTempC"
+              type="number"
+              inputMode="decimal"
+              step="0.1"
+              min={WATER_TEMP_MIN}
+              max={WATER_TEMP_MAX}
+              value={waterTemp}
+              onChange={(e) => setWaterTemp(e.target.value)}
+              placeholder="°C"
+              className={inputClassName}
+            />
+            <p className="text-xs text-zinc-400 dark:text-zinc-500">
+              Fylls i automatiskt när du loggar fisk under passet.
+            </p>
           </div>
 
           {state && "error" in state && (

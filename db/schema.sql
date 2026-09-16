@@ -193,3 +193,8 @@ alter table bingo_cards add column if not exists name text;
 -- a separate "Arkiverade brickor" section, without deleting it -- its
 -- catches and cell results stay visible for looking back at how it went.
 alter table bingo_cards add column if not exists archived_at timestamptz;
+
+-- Water temperature, set when starting a pass (carried onto every catch
+-- logged during it) or typed manually per catch when no pass is running.
+alter table fiskepass add column if not exists water_temp_c real;
+alter table catches add column if not exists water_temp_c real;

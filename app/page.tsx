@@ -222,6 +222,7 @@ export default async function Home(props: PageProps<"/">) {
         quickLogFields={user.quick_log_fields}
         gpsMode={user.gps_mode}
         openFiskepassSpecies={openFiskepass?.target_species ?? null}
+        openFiskepassWaterTempC={openFiskepass?.water_temp_c ?? null}
         fiskepassButton={
           user.show_fiskepass ? (
             <FiskepassButton openPass={openFiskepass} hasTeam={user.team_id !== null} />

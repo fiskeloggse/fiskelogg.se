@@ -5,6 +5,7 @@ import * as z from "zod";
 import sql from "@/lib/db";
 import { requireUser } from "@/lib/dal";
 import { getFiskepassCatches } from "@/lib/fiskepass";
+import { WATER_TEMP_MIN, WATER_TEMP_MAX } from "@/lib/constants";
 import type { Catch } from "@/app/components/catch-list";
 
 export type FiskepassState = { error: string } | { success: true } | undefined;
@@ -42,6 +43,22 @@ export async function startFiskepass(
   }
   const teamId = mode === "team" ? user.team_id : null;
 
+  const rawWaterTemp = formData.get("waterTempC");
+  let waterTempC: number | null = null;
+  if (typeof rawWaterTemp === "string" && rawWaterTemp.trim() !== "") {
+    const parsed = Number(rawWaterTemp);
+    if (
+      Number.isNaN(parsed) ||
+      parsed < WATER_TEMP_MIN ||
+      parsed > WATER_TEMP_MAX
+    ) {
+      return {
+        error: `Ange en vattentemperatur mellan ${WATER_TEMP_MIN} och ${WATER_TEMP_MAX}°C.`,
+      };
+    }
+    waterTempC = parsed;
+  }
+
   if (teamId) {
     const [existingTeamPass] = await sql`
       select id from fiskepass
@@ -54,11 +71,12 @@ export async function startFiskepass(
 
   try {
     await sql`
-      insert into fiskepass (user_id, team_id, target_species, start_time)
+      insert into fiskepass (user_id, team_id, target_species, water_temp_c, start_time)
       values (
         ${user.id},
         ${teamId},
         ${targetSpecies.length > 0 ? sql.array(targetSpecies) : null},
+        ${waterTempC},
         now()
       )
     `;
