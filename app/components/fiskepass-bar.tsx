@@ -2,10 +2,11 @@
 
 import { useActionState, useEffect, useRef, useState } from "react";
 import { startFiskepass, stopFiskepass } from "@/app/actions/fiskepass";
-import { WATER_TEMP_MAX, WATER_TEMP_MIN } from "@/lib/constants";
+import { WATER_TEMP_MAX, WATER_TEMP_MIN, type GpsModeKey } from "@/lib/constants";
 import { FISH_SPECIES } from "@/lib/species";
 import ConfirmDialog from "./confirm-dialog";
 import TextSuggestInput from "./text-suggest-input";
+import { PositionIcon, WeatherIcon, WaterIcon } from "./logging-icons";
 
 const inputClassName =
   "rounded-lg border border-black/10 bg-white px-3 py-2 text-sm dark:border-white/15 dark:bg-transparent";
@@ -15,6 +16,9 @@ type OpenFiskepass = {
   team_id: number | null;
   target_species: string[] | null;
   water_temp_c: number | null;
+  log_position: boolean | null;
+  log_weather: boolean | null;
+  fill_water: boolean | null;
   start_time: Date;
 };
 
@@ -33,9 +37,11 @@ function formatClockTime(date: Date): string {
 function StartFiskepassButton({
   hasTeam,
   recentTargetSpecies,
+  gpsMode,
 }: {
   hasTeam: boolean;
   recentTargetSpecies: string[];
+  gpsMode: GpsModeKey;
 }) {
   const [state, formAction, pending] = useActionState(startFiskepass, undefined);
   const [open, setOpen] = useState(false);
@@ -44,6 +50,15 @@ function StartFiskepassButton({
   const [targetSpecies, setTargetSpecies] = useState<string[]>([]);
   const [mode, setMode] = useState<"solo" | "team">("solo");
   const [waterTemp, setWaterTemp] = useState("");
+  // Same defaults as the per-catch toggles (catch-form.tsx) -- pre-filled
+  // from the account's own GPS mode, then adjustable just for this pass.
+  const defaultLogPosition = gpsMode === "both";
+  const defaultLogWeather =
+    gpsMode === "both" || gpsMode === "weather" || gpsMode === "water";
+  const defaultFillWater = gpsMode === "water";
+  const [logPosition, setLogPosition] = useState(defaultLogPosition);
+  const [logWeather, setLogWeather] = useState(defaultLogWeather);
+  const [fillWater, setFillWater] = useState(defaultFillWater);
 
   useEffect(() => {
     const dialog = dialogRef.current;
@@ -58,7 +73,11 @@ function StartFiskepassButton({
       setOpen(false);
       setMode("solo");
       setWaterTemp("");
+      setLogPosition(defaultLogPosition);
+      setLogWeather(defaultLogWeather);
+      setFillWater(defaultFillWater);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [state]);
 
   function addSpecies(species: string) {
@@ -197,6 +216,60 @@ function StartFiskepassButton({
           </div>
 
           <div className="flex flex-col gap-1.5">
+            <p className="text-sm font-medium">Logga under passet</p>
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                aria-pressed={logPosition}
+                title={logPosition ? "Loggar position" : "Logga position"}
+                onClick={() => setLogPosition((v) => !v)}
+                className={
+                  "flex h-9 w-9 items-center justify-center rounded-full border text-base transition-colors " +
+                  (logPosition
+                    ? "border-foreground bg-foreground text-background"
+                    : "border-black/10 text-zinc-400 hover:bg-black/5 dark:border-white/15 dark:text-zinc-500 dark:hover:bg-white/10")
+                }
+              >
+                <PositionIcon className="h-4 w-4" />
+              </button>
+              <button
+                type="button"
+                aria-pressed={logWeather}
+                title={logWeather ? "Loggar väder" : "Logga väder"}
+                onClick={() => setLogWeather((v) => !v)}
+                className={
+                  "flex h-9 w-9 items-center justify-center rounded-full border text-base transition-colors " +
+                  (logWeather
+                    ? "border-foreground bg-foreground text-background"
+                    : "border-black/10 text-zinc-400 hover:bg-black/5 dark:border-white/15 dark:text-zinc-500 dark:hover:bg-white/10")
+                }
+              >
+                <WeatherIcon />
+              </button>
+              <button
+                type="button"
+                aria-pressed={fillWater}
+                title={fillWater ? "Fyller i vatten" : "Fyll i vatten"}
+                onClick={() => setFillWater((v) => !v)}
+                className={
+                  "flex h-9 w-9 items-center justify-center rounded-full border text-base transition-colors " +
+                  (fillWater
+                    ? "border-foreground bg-foreground text-background"
+                    : "border-black/10 text-zinc-400 hover:bg-black/5 dark:border-white/15 dark:text-zinc-500 dark:hover:bg-white/10")
+                }
+              >
+                <WaterIcon className="h-4 w-4" />
+              </button>
+            </div>
+            <input type="hidden" name="logPosition" value={logPosition ? "on" : ""} />
+            <input type="hidden" name="logWeather" value={logWeather ? "on" : ""} />
+            <input type="hidden" name="fillWater" value={fillWater ? "on" : ""} />
+            <p className="text-xs text-zinc-400 dark:text-zinc-500">
+              Gäller alla fångster du loggar under passet.
+            </p>
+          </div>
+
+          <div className="flex flex-col gap-1.5">
             <label htmlFor="fiskepass-water-temp" className="text-sm font-medium">
               Vattentemperatur (valfritt)
             </label>
@@ -285,14 +358,20 @@ export default function FiskepassButton({
   openPass,
   hasTeam,
   recentTargetSpecies = [],
+  gpsMode,
 }: {
   openPass: OpenFiskepass | null;
   hasTeam: boolean;
   recentTargetSpecies?: string[];
+  gpsMode: GpsModeKey;
 }) {
   if (openPass) return <StopFiskepassButton id={openPass.id} startTime={openPass.start_time} />;
   return (
-    <StartFiskepassButton hasTeam={hasTeam} recentTargetSpecies={recentTargetSpecies} />
+    <StartFiskepassButton
+      hasTeam={hasTeam}
+      recentTargetSpecies={recentTargetSpecies}
+      gpsMode={gpsMode}
+    />
   );
 }
 

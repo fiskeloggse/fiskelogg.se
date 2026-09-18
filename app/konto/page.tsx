@@ -45,7 +45,7 @@ const GPS_MODE_ICONS: Record<string, React.ReactNode> = {
   weather: <WeatherIcon className="text-sm" />,
   water: (
     <>
-      <WaterIcon className="text-sm" />
+      <WaterIcon className={iconClassName} />
       <WeatherIcon className="text-sm" />
     </>
   ),

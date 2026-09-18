@@ -59,6 +59,10 @@ export async function startFiskepass(
     waterTempC = parsed;
   }
 
+  const logPosition = formData.get("logPosition") === "on";
+  const logWeather = formData.get("logWeather") === "on";
+  const fillWater = formData.get("fillWater") === "on";
+
   if (teamId) {
     const [existingTeamPass] = await sql`
       select id from fiskepass
@@ -71,12 +75,15 @@ export async function startFiskepass(
 
   try {
     await sql`
-      insert into fiskepass (user_id, team_id, target_species, water_temp_c, start_time)
+      insert into fiskepass (user_id, team_id, target_species, water_temp_c, log_position, log_weather, fill_water, start_time)
       values (
         ${user.id},
         ${teamId},
         ${targetSpecies.length > 0 ? sql.array(targetSpecies) : null},
         ${waterTempC},
+        ${logPosition},
+        ${logWeather},
+        ${fillWater},
         now()
       )
     `;

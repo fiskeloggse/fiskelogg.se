@@ -10,6 +10,9 @@ export type Fiskepass = {
   team_id: number | null;
   target_species: string[] | null;
   water_temp_c: number | null;
+  log_position: boolean | null;
+  log_weather: boolean | null;
+  fill_water: boolean | null;
   start_time: Date;
   stop_time: Date | null;
   created_at: Date;
@@ -84,7 +87,7 @@ export async function getFiskepassById(
   passId: number
 ): Promise<Fiskepass | null> {
   const [pass] = await sql<Fiskepass[]>`
-    select id, user_id, team_id, target_species, water_temp_c, start_time, stop_time, created_at
+    select id, user_id, team_id, target_species, water_temp_c, log_position, log_weather, fill_water, start_time, stop_time, created_at
     from fiskepass
     where id = ${passId} and user_id = ${userId} and deleted_at is null
   `;
@@ -98,7 +101,7 @@ export async function getOpenFiskepass(
   teamId: number | null
 ): Promise<Fiskepass | null> {
   const [pass] = await sql<Fiskepass[]>`
-    select id, user_id, team_id, target_species, water_temp_c, start_time, stop_time, created_at
+    select id, user_id, team_id, target_species, water_temp_c, log_position, log_weather, fill_water, start_time, stop_time, created_at
     from fiskepass
     where stop_time is null
       and deleted_at is null
@@ -265,7 +268,7 @@ export async function getFiskepassHistory(
     FISKEPASS_SORT_OPTIONS[0].column;
 
   return sql<FiskepassWithCatchCount[]>`
-    select fp.id, fp.user_id, fp.team_id, fp.target_species, fp.water_temp_c, fp.start_time, fp.stop_time, fp.created_at,
+    select fp.id, fp.user_id, fp.team_id, fp.target_species, fp.water_temp_c, fp.log_position, fp.log_weather, fp.fill_water, fp.start_time, fp.stop_time, fp.created_at,
       ${catchCountSubquery()} as catch_count
     from fiskepass fp
     where fp.user_id = ${userId}
@@ -277,7 +280,7 @@ export async function getFiskepassHistory(
 
 export async function getTrashedFiskepass(userId: number): Promise<TrashedFiskepass[]> {
   return sql<TrashedFiskepass[]>`
-    select fp.id, fp.user_id, fp.team_id, fp.target_species, fp.water_temp_c, fp.start_time, fp.stop_time, fp.created_at,
+    select fp.id, fp.user_id, fp.team_id, fp.target_species, fp.water_temp_c, fp.log_position, fp.log_weather, fp.fill_water, fp.start_time, fp.stop_time, fp.created_at,
       fp.deleted_at,
       ${catchCountSubquery()} as catch_count
     from fiskepass fp

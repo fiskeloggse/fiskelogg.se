@@ -198,3 +198,11 @@ alter table bingo_cards add column if not exists archived_at timestamptz;
 -- logged during it) or typed manually per catch when no pass is running.
 alter table fiskepass add column if not exists water_temp_c real;
 alter table catches add column if not exists water_temp_c real;
+
+-- The same "log position / log väder / fill in vatten" choice as the
+-- account-level gps_mode, but settable per pass -- null means the pass
+-- never set one (older passes, before this existed), so catches during it
+-- fall back to the logger's own account default, same as before.
+alter table fiskepass add column if not exists log_position boolean;
+alter table fiskepass add column if not exists log_weather boolean;
+alter table fiskepass add column if not exists fill_water boolean;

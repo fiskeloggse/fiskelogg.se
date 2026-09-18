@@ -226,12 +226,16 @@ export default async function Home(props: PageProps<"/">) {
         gpsMode={user.gps_mode}
         openFiskepassSpecies={openFiskepass?.target_species ?? null}
         openFiskepassWaterTempC={openFiskepass?.water_temp_c ?? null}
+        openFiskepassLogPosition={openFiskepass?.log_position ?? null}
+        openFiskepassLogWeather={openFiskepass?.log_weather ?? null}
+        openFiskepassFillWater={openFiskepass?.fill_water ?? null}
         fiskepassButton={
           user.show_fiskepass ? (
             <FiskepassButton
               openPass={openFiskepass}
               hasTeam={user.team_id !== null}
               recentTargetSpecies={recentFiskepassTargetSpecies}
+              gpsMode={user.gps_mode}
             />
           ) : null
         }

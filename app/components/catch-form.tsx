@@ -132,6 +132,9 @@ export default function CatchForm({
   gpsMode,
   openFiskepassSpecies,
   openFiskepassWaterTempC,
+  openFiskepassLogPosition,
+  openFiskepassLogWeather,
+  openFiskepassFillWater,
   fiskepassButton,
 }: {
   suggestions: SpeciesSuggestions;
@@ -149,6 +152,9 @@ export default function CatchForm({
   gpsMode: GpsModeKey;
   openFiskepassSpecies?: string[] | null;
   openFiskepassWaterTempC?: number | null;
+  openFiskepassLogPosition?: boolean | null;
+  openFiskepassLogWeather?: boolean | null;
+  openFiskepassFillWater?: boolean | null;
   fiskepassButton?: React.ReactNode;
 }) {
   const [state, formAction, pending] = useActionState(addCatch, undefined);
@@ -274,12 +280,36 @@ export default function CatchForm({
   const defaultLogWeather =
     gpsMode === "both" || gpsMode === "weather" || gpsMode === "water";
   const defaultAutoFillWater = gpsMode === "water";
-  const [useGps, setUseGps] = useState(defaultLogPosition);
-  const [logWeather, setLogWeather] = useState(defaultLogWeather);
+  const [useGps, setUseGps] = useState(openFiskepassLogPosition ?? defaultLogPosition);
+  const [logWeather, setLogWeather] = useState(openFiskepassLogWeather ?? defaultLogWeather);
   // Looks up the nearest water once, like "Logga väder", but the exact
   // position is never submitted for this — it only fills the Vatten field
   // client-side (weather can still be logged alongside it).
-  const [autoFillWater, setAutoFillWater] = useState(defaultAutoFillWater);
+  const [autoFillWater, setAutoFillWater] = useState(
+    openFiskepassFillWater ?? defaultAutoFillWater
+  );
+  // Reactively pulls in a pass's own choice, same reasoning as the
+  // waterTempC effect above -- an already-mounted form should pick up a
+  // just-started pass's logging choice immediately, not just on first
+  // mount. Never overrides a manual per-catch change when no pass sets one.
+  useEffect(() => {
+    if (openFiskepassLogPosition != null) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setUseGps(openFiskepassLogPosition);
+    }
+  }, [openFiskepassLogPosition]);
+  useEffect(() => {
+    if (openFiskepassLogWeather != null) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setLogWeather(openFiskepassLogWeather);
+    }
+  }, [openFiskepassLogWeather]);
+  useEffect(() => {
+    if (openFiskepassFillWater != null) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setAutoFillWater(openFiskepassFillWater);
+    }
+  }, [openFiskepassFillWater]);
   const [gpsStatus, setGpsStatus] = useState<"idle" | "loading" | "success" | "error">(
     "idle"
   );
@@ -684,7 +714,7 @@ export default function CatchForm({
                                   : "border-black/10 text-zinc-400 hover:bg-black/5 dark:border-white/15 dark:text-zinc-500 dark:hover:bg-white/10")
                               }
                             >
-                              <WaterIcon />
+                              <WaterIcon className="h-4 w-4" />
                             </button>
                           </div>
                           {gpsStatus === "loading" && (
