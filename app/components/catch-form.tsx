@@ -19,6 +19,7 @@ import {
 import { compressImage, replaceInputFile } from "@/lib/compress-image";
 import TextSuggestInput from "./text-suggest-input";
 import MapPositionPicker from "./map-position-picker";
+import { PositionIcon, WeatherIcon, WaterIcon } from "./logging-icons";
 
 const inputClassName =
   "rounded-lg border border-black/10 bg-white px-3 py-2 text-sm dark:border-white/15 dark:bg-transparent";
@@ -617,56 +618,74 @@ export default function CatchForm({
                     show: mode === "now" ? showGps : true,
                     content:
                       mode === "now" ? (
-                        <div className="flex flex-col gap-1">
-                          <div className="flex items-center gap-4">
-                            <label className="flex items-center gap-2 text-sm">
-                              <input
-                                type="checkbox"
-                                checked={useGps}
-                                onChange={(e) => {
-                                  const checked = e.target.checked;
-                                  setUseGps(checked);
-                                  if (!checked && !logWeather && !autoFillWater) {
-                                    setGpsCoords(null);
-                                    setGpsStatus("idle");
-                                    setLakeAutoFilled(false);
-                                  }
-                                }}
-                              />
-                              Logga position
-                            </label>
-                            <label className="flex items-center gap-2 text-sm">
-                              <input
-                                type="checkbox"
-                                checked={logWeather}
-                                onChange={(e) => {
-                                  const checked = e.target.checked;
-                                  setLogWeather(checked);
-                                  if (!checked && !useGps && !autoFillWater) {
-                                    setGpsCoords(null);
-                                    setGpsStatus("idle");
-                                    setLakeAutoFilled(false);
-                                  }
-                                }}
-                              />
-                              Logga väder
-                            </label>
-                            <label className="flex items-center gap-2 text-sm">
-                              <input
-                                type="checkbox"
-                                checked={autoFillWater}
-                                onChange={(e) => {
-                                  const checked = e.target.checked;
-                                  setAutoFillWater(checked);
-                                  if (!checked && !useGps && !logWeather) {
-                                    setGpsCoords(null);
-                                    setGpsStatus("idle");
-                                    setLakeAutoFilled(false);
-                                  }
-                                }}
-                              />
-                              Fyll i vatten
-                            </label>
+                        <div className="flex flex-col gap-1.5">
+                          <div className="flex items-center gap-2">
+                            <button
+                              type="button"
+                              aria-pressed={useGps}
+                              title={useGps ? "Loggar position" : "Logga position"}
+                              onClick={() => {
+                                const checked = !useGps;
+                                setUseGps(checked);
+                                if (!checked && !logWeather && !autoFillWater) {
+                                  setGpsCoords(null);
+                                  setGpsStatus("idle");
+                                  setLakeAutoFilled(false);
+                                }
+                              }}
+                              className={
+                                "flex h-9 w-9 items-center justify-center rounded-full border text-base transition-colors " +
+                                (useGps
+                                  ? "border-foreground bg-foreground text-background"
+                                  : "border-black/10 text-zinc-400 hover:bg-black/5 dark:border-white/15 dark:text-zinc-500 dark:hover:bg-white/10")
+                              }
+                            >
+                              <PositionIcon className="h-4 w-4" />
+                            </button>
+                            <button
+                              type="button"
+                              aria-pressed={logWeather}
+                              title={logWeather ? "Loggar väder" : "Logga väder"}
+                              onClick={() => {
+                                const checked = !logWeather;
+                                setLogWeather(checked);
+                                if (!checked && !useGps && !autoFillWater) {
+                                  setGpsCoords(null);
+                                  setGpsStatus("idle");
+                                  setLakeAutoFilled(false);
+                                }
+                              }}
+                              className={
+                                "flex h-9 w-9 items-center justify-center rounded-full border text-base transition-colors " +
+                                (logWeather
+                                  ? "border-foreground bg-foreground text-background"
+                                  : "border-black/10 text-zinc-400 hover:bg-black/5 dark:border-white/15 dark:text-zinc-500 dark:hover:bg-white/10")
+                              }
+                            >
+                              <WeatherIcon />
+                            </button>
+                            <button
+                              type="button"
+                              aria-pressed={autoFillWater}
+                              title={autoFillWater ? "Fyller i vatten" : "Fyll i vatten"}
+                              onClick={() => {
+                                const checked = !autoFillWater;
+                                setAutoFillWater(checked);
+                                if (!checked && !useGps && !logWeather) {
+                                  setGpsCoords(null);
+                                  setGpsStatus("idle");
+                                  setLakeAutoFilled(false);
+                                }
+                              }}
+                              className={
+                                "flex h-9 w-9 items-center justify-center rounded-full border text-base transition-colors " +
+                                (autoFillWater
+                                  ? "border-foreground bg-foreground text-background"
+                                  : "border-black/10 text-zinc-400 hover:bg-black/5 dark:border-white/15 dark:text-zinc-500 dark:hover:bg-white/10")
+                              }
+                            >
+                              <WaterIcon />
+                            </button>
                           </div>
                           {gpsStatus === "loading" && (
                             <p className="text-xs text-zinc-500 dark:text-zinc-400">

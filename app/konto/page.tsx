@@ -21,6 +21,7 @@ import {
 } from "@/lib/constants";
 import ChangePasswordButton from "@/app/components/change-password-button";
 import InviteForm from "@/app/components/invite-form";
+import { PositionIcon, WeatherIcon, WaterIcon } from "@/app/components/logging-icons";
 import OnboardingGuide from "@/app/components/onboarding-guide";
 import TeamNameForm from "@/app/components/team-name-form";
 import ThemeToggle from "@/app/components/theme-toggle";
@@ -29,6 +30,25 @@ import ImportCatchesToggle from "@/app/components/import-catches-toggle";
 
 export const metadata: Metadata = {
   title: "Konto – Fisklogg",
+};
+
+// Same icons the per-catch logging toggles use (catch-form.tsx), so a GPS
+// mode here visibly maps to what it turns on by default there.
+const iconClassName = "h-3.5 w-3.5 text-zinc-400 dark:text-zinc-500";
+const GPS_MODE_ICONS: Record<string, React.ReactNode> = {
+  both: (
+    <>
+      <PositionIcon className={iconClassName} />
+      <WeatherIcon className="text-sm" />
+    </>
+  ),
+  weather: <WeatherIcon className="text-sm" />,
+  water: (
+    <>
+      <WaterIcon className="text-sm" />
+      <WeatherIcon className="text-sm" />
+    </>
+  ),
 };
 
 export default async function KontoPage() {
@@ -155,7 +175,14 @@ export default async function KontoPage() {
                     className="mt-0.5"
                   />
                   <span>
-                    {mode.label}
+                    <span className="inline-flex items-center gap-1.5">
+                      {mode.label}
+                      {GPS_MODE_ICONS[mode.value] && (
+                        <span className="inline-flex items-center gap-1">
+                          {GPS_MODE_ICONS[mode.value]}
+                        </span>
+                      )}
+                    </span>
                     {"hint" in mode && (
                       <span className="block text-xs text-zinc-500 dark:text-zinc-400">
                         {mode.hint}
