@@ -2,6 +2,7 @@
 
 import { useActionState, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { updateFiskepass, deleteFiskepass, fetchFiskepassCatches } from "@/app/actions/fiskepass";
 import type { FiskepassWithCatchCount } from "@/lib/fiskepass";
 import type { Catch } from "./catch-list";
@@ -46,7 +47,7 @@ function toMappedCatches(catches: Catch[]): MappedCatchRow[] {
     }));
 }
 
-function PassCatchList({ catches, isTeam }: { catches: Catch[]; isTeam: boolean }) {
+export function PassCatchList({ catches, isTeam }: { catches: Catch[]; isTeam: boolean }) {
   const router = useRouter();
 
   if (catches.length === 0) {
@@ -298,6 +299,12 @@ function FiskepassRow({ pass }: { pass: FiskepassWithCatchCount }) {
             onClick={(e) => e.preventDefault()}
             className="flex shrink-0 items-center gap-3"
           >
+            <Link
+              href={`/register/fiskepass/${pass.id}`}
+              className="text-sm text-zinc-500 underline hover:text-foreground dark:text-zinc-400"
+            >
+              Öppna
+            </Link>
             <button
               type="button"
               onClick={() => setEditing(true)}

@@ -57,7 +57,7 @@ export async function getFiskepassCatches(
 ): Promise<Catch[]> {
   return sql<Catch[]>`
     select c.id, c.user_id, c.species, c.length_cm, c.weight_kg, c.lake, c.location,
-      c.method, c.bait, c.comment, c.caught_at, u.name as angler_name,
+      c.method, c.bait, c.comment, c.water_temp_c, c.caught_at, u.name as angler_name,
       c.latitude, c.longitude,
       c.weather_temp_c, c.weather_description, c.weather_wind_kmh, c.weather_wind_dir_deg,
       c.weather_pressure_hpa, c.weather_cloud_pct, c.photo_url
@@ -73,6 +73,22 @@ export async function getFiskepassCatches(
       and c.deleted_at is null
     order by c.caught_at asc
   `;
+}
+
+// One pass by id, for its own detail page (Register → Fiskepass → Öppna) --
+// same "you started it" scope as getFiskepassHistory/getFiskepassCatches,
+// not the broader "or your team's" scope getOpenFiskepass uses (that one's
+// about sharing live status, not browsing history you didn't create).
+export async function getFiskepassById(
+  userId: number,
+  passId: number
+): Promise<Fiskepass | null> {
+  const [pass] = await sql<Fiskepass[]>`
+    select id, user_id, team_id, target_species, water_temp_c, start_time, stop_time, created_at
+    from fiskepass
+    where id = ${passId} and user_id = ${userId} and deleted_at is null
+  `;
+  return pass ?? null;
 }
 
 // Your own open pass, or -- so a team pass reads the same to every member,
