@@ -547,19 +547,17 @@ export default function CatchForm({
             <Chips
               options={
                 openFiskepassSpecies && openFiskepassSpecies.length > 0
-                  ? suggestions.recent.filter((s) => !openFiskepassSpecies.includes(s))
+                  ? [
+                      ...openFiskepassSpecies,
+                      ...suggestions.recent.filter(
+                        (s) => !openFiskepassSpecies.includes(s)
+                      ),
+                    ]
                   : suggestions.recent
               }
               selected={species}
               onSelect={setSpecies}
             />
-            {openFiskepassSpecies && openFiskepassSpecies.length > 0 && (
-              <Chips
-                options={openFiskepassSpecies}
-                selected={species}
-                onSelect={setSpecies}
-              />
-            )}
           </div>
 
           <div className={showPhoto || showMore ? "flex flex-col gap-2" : "hidden"}>
