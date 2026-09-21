@@ -22,6 +22,7 @@ import ChangePasswordButton from "@/app/components/change-password-button";
 import InviteForm from "@/app/components/invite-form";
 import { PositionIcon, WeatherIcon, WaterIcon } from "@/app/components/logging-icons";
 import OnboardingGuide from "@/app/components/onboarding-guide";
+import SaveButton from "@/app/components/save-button";
 import TeamNameForm from "@/app/components/team-name-form";
 import ThemeToggle from "@/app/components/theme-toggle";
 import DeleteAllCatchesForm from "@/app/components/delete-all-catches-form";
@@ -118,12 +119,7 @@ export default async function KontoPage() {
               />
               Visa Utmaningar-fliken
             </label>
-            <button
-              type="submit"
-              className="self-start rounded-full bg-foreground px-4 py-2 text-sm font-medium text-background"
-            >
-              Spara
-            </button>
+            <SaveButton />
           </form>
 
           <form action={updateShowSpeciesCollection} className="flex flex-col gap-3">
@@ -135,12 +131,7 @@ export default async function KontoPage() {
               />
               Visa Artjakten (under Utmaningar)
             </label>
-            <button
-              type="submit"
-              className="self-start rounded-full bg-foreground px-4 py-2 text-sm font-medium text-background"
-            >
-              Spara
-            </button>
+            <SaveButton />
           </form>
 
           <form action={updateShowFiskepass} className="flex flex-col gap-3">
@@ -152,12 +143,7 @@ export default async function KontoPage() {
               />
               Visa Fiskepass
             </label>
-            <button
-              type="submit"
-              className="self-start rounded-full bg-foreground px-4 py-2 text-sm font-medium text-background"
-            >
-              Spara
-            </button>
+            <SaveButton />
           </form>
         </div>
       </details>
@@ -190,12 +176,7 @@ export default async function KontoPage() {
                 </label>
               ))}
             </fieldset>
-            <button
-              type="submit"
-              className="self-start rounded-full bg-foreground px-4 py-2 text-sm font-medium text-background"
-            >
-              Spara
-            </button>
+            <SaveButton />
           </form>
 
           <div className="flex flex-col gap-3 border-t border-black/10 pt-2 dark:border-white/15">
@@ -227,12 +208,7 @@ export default async function KontoPage() {
                   </label>
                 ))}
               </div>
-              <button
-                type="submit"
-                className="self-start rounded-full bg-foreground px-4 py-2 text-sm font-medium text-background"
-              >
-                Spara
-              </button>
+              <SaveButton />
             </form>
           </div>
 
@@ -263,12 +239,7 @@ export default async function KontoPage() {
                   </label>
                 ))}
               </div>
-              <button
-                type="submit"
-                className="self-start rounded-full bg-foreground px-4 py-2 text-sm font-medium text-background"
-              >
-                Spara
-              </button>
+              <SaveButton />
             </form>
           </div>
         </div>
