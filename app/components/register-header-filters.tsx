@@ -281,6 +281,21 @@ export function MeasurementColumnFilter() {
     currentLengthMin || currentLengthMax || currentWeightMin || currentWeightMax
   );
 
+  // Keeps the sliders in sync when the URL's filters change from outside
+  // this popover (e.g. "Rensa filter") -- this component never unmounts
+  // between popover opens, so its own state wouldn't otherwise pick that up.
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setLengthRange([
+      currentLengthMin ? Number(currentLengthMin) : LENGTH_MIN,
+      currentLengthMax ? Number(currentLengthMax) : LENGTH_MAX,
+    ]);
+    setWeightRange([
+      currentWeightMin ? Number(currentWeightMin) : WEIGHT_MIN,
+      currentWeightMax ? Number(currentWeightMax) : WEIGHT_MAX,
+    ]);
+  }, [currentLengthMin, currentLengthMax, currentWeightMin, currentWeightMax]);
+
   return (
     <HeaderPopover label="Storlek" active={active}>
       {(close) => (
@@ -375,6 +390,32 @@ export function WeatherColumnFilter() {
       currentPressureMin ||
       currentPressureMax
   );
+
+  // Keeps the sliders in sync when the URL's filters change from outside
+  // this popover (e.g. "Rensa filter") -- this component never unmounts
+  // between popover opens, so its own state wouldn't otherwise pick that up.
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setTempRange([
+      currentTempMin ? Number(currentTempMin) : WEATHER_TEMP_MIN,
+      currentTempMax ? Number(currentTempMax) : WEATHER_TEMP_MAX,
+    ]);
+    setWindRange([
+      currentWindMin ? Number(currentWindMin) : WEATHER_WIND_MIN,
+      currentWindMax ? Number(currentWindMax) : WEATHER_WIND_MAX,
+    ]);
+    setPressureRange([
+      currentPressureMin ? Number(currentPressureMin) : WEATHER_PRESSURE_MIN,
+      currentPressureMax ? Number(currentPressureMax) : WEATHER_PRESSURE_MAX,
+    ]);
+  }, [
+    currentTempMin,
+    currentTempMax,
+    currentWindMin,
+    currentWindMax,
+    currentPressureMin,
+    currentPressureMax,
+  ]);
 
   return (
     <HeaderPopover label="Väder" active={active}>
