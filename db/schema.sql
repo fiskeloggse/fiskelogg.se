@@ -228,3 +228,9 @@ update users set log_weather = true
   where gps_mode = 'weather' and created_at < timestamp '2026-09-21';
 update users set log_weather = true, fill_water = true
   where gps_mode = 'water' and created_at < timestamp '2026-09-21';
+
+-- Signup/login/password-reset all look users up by lower(email), but the
+-- plain `unique` above is case-sensitive -- without this, two signups
+-- differing only by case (or a race between two concurrent signups) could
+-- still create two accounts for what a person considers one email address.
+create unique index if not exists users_email_lower_idx on users (lower(email));

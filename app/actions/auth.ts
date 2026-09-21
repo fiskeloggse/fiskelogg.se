@@ -42,7 +42,7 @@ export async function signup(
 
   const { name, email, password } = parsed.data;
 
-  const [existing] = await sql`select id from users where email = ${email}`;
+  const [existing] = await sql`select id from users where lower(email) = ${email.toLowerCase()}`;
   if (existing) {
     return { error: "Det finns redan ett konto med den e-postadressen." };
   }
@@ -85,7 +85,7 @@ export async function login(
   const { email, password } = parsed.data;
 
   const [user] = await sql<{ id: number; password_hash: string }[]>`
-    select id, password_hash from users where email = ${email}
+    select id, password_hash from users where lower(email) = ${email.toLowerCase()}
   `;
 
   if (!user || !verifyPassword(password, user.password_hash)) {
@@ -168,7 +168,7 @@ export async function requestPasswordReset(
   const { email } = parsed.data;
 
   const [user] = await sql<{ id: number }[]>`
-    select id from users where email = ${email}
+    select id from users where lower(email) = ${email.toLowerCase()}
   `;
 
   if (user) {
