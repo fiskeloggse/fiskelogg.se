@@ -129,7 +129,7 @@ export async function updateBingoCard(
     set name = ${name}, from_date = ${fromDate}, to_date = ${toDate}
     where id = ${id}
       and (
-        created_by = ${user.id}
+        (team_id is null and created_by = ${user.id})
         or (team_id is not null and team_id = ${user.team_id})
       )
   `;
@@ -148,7 +148,7 @@ export async function deleteBingoCard(formData: FormData) {
     delete from bingo_cards
     where id = ${id}
       and (
-        created_by = ${user.id}
+        (team_id is null and created_by = ${user.id})
         or (team_id is not null and team_id = ${user.team_id})
       )
   `;
@@ -167,7 +167,7 @@ export async function archiveBingoCard(formData: FormData) {
     set archived_at = now()
     where id = ${id}
       and (
-        created_by = ${user.id}
+        (team_id is null and created_by = ${user.id})
         or (team_id is not null and team_id = ${user.team_id})
       )
   `;
@@ -186,7 +186,7 @@ export async function unarchiveBingoCard(formData: FormData) {
     set archived_at = null
     where id = ${id}
       and (
-        created_by = ${user.id}
+        (team_id is null and created_by = ${user.id})
         or (team_id is not null and team_id = ${user.team_id})
       )
   `;
