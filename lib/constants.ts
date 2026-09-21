@@ -128,25 +128,3 @@ export type RegisterColumnKey = (typeof REGISTER_COLUMNS)[number]["key"];
 
 export const REGISTER_COLUMN_KEYS = REGISTER_COLUMNS.map((c) => c.key);
 
-export const GPS_MODES = [
-  { value: "off", label: "Av" },
-  {
-    value: "both",
-    label: "Spara position och väder",
-    hint: "Position sparas och visas på kartan, väder hämtas och sparas också.",
-  },
-  {
-    value: "weather",
-    label: "Spara väder",
-    hint: "Använder din position en gång för att hämta vädret — positionen sparas aldrig.",
-  },
-  {
-    value: "water",
-    label: "Fyll i vatten och väder automatiskt",
-    hint: "Använder din position en gång för att fylla i vatten och hämta väder — exakt position sparas aldrig.",
-  },
-] as const;
-
-export type GpsModeKey = (typeof GPS_MODES)[number]["value"];
-
-export const GPS_MODE_KEYS = GPS_MODES.map((m) => m.value);

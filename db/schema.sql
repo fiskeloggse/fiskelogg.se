@@ -206,3 +206,23 @@ alter table catches add column if not exists water_temp_c real;
 alter table fiskepass add column if not exists log_position boolean;
 alter table fiskepass add column if not exists log_weather boolean;
 alter table fiskepass add column if not exists fill_water boolean;
+
+-- Replaces the old single gps_mode enum (kept, but no longer read by the
+-- app) with three independent checkboxes -- gps_mode only ever modeled 4
+-- fixed combinations, not every combination someone might actually want.
+alter table users add column if not exists log_position boolean not null default false;
+alter table users add column if not exists log_weather boolean not null default false;
+alter table users add column if not exists fill_water boolean not null default false;
+
+-- One-time backfill from the old gps_mode value, for accounts that
+-- predate this change. Keyed off a fixed cutoff date rather than gps_mode
+-- alone -- schema.sql replays in full on every db:migrate, and matching on
+-- gps_mode alone would keep re-overwriting these three columns back to a
+-- now-stale value every time, clobbering anyone who later unchecks one of
+-- the new boxes without also changing their (now-unused) gps_mode.
+update users set log_position = true, log_weather = true
+  where gps_mode = 'both' and created_at < timestamp '2026-09-21';
+update users set log_weather = true
+  where gps_mode = 'weather' and created_at < timestamp '2026-09-21';
+update users set log_weather = true, fill_water = true
+  where gps_mode = 'water' and created_at < timestamp '2026-09-21';

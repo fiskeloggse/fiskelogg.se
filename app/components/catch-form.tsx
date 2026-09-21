@@ -10,12 +10,7 @@ import type { BaitSuggestions } from "@/lib/bait-suggestions";
 import type { LakeSuggestions } from "@/lib/lake-suggestions";
 import type { LocationSuggestions } from "@/lib/location-suggestions";
 import type { MethodSuggestions } from "@/lib/method-suggestions";
-import {
-  QUICK_LOG_FIELD_KEYS,
-  WATER_TEMP_MAX,
-  WATER_TEMP_MIN,
-  type GpsModeKey,
-} from "@/lib/constants";
+import { QUICK_LOG_FIELD_KEYS, WATER_TEMP_MAX, WATER_TEMP_MIN } from "@/lib/constants";
 import { compressImage, replaceInputFile } from "@/lib/compress-image";
 import TextSuggestInput from "./text-suggest-input";
 import MapPositionPicker from "./map-position-picker";
@@ -129,7 +124,9 @@ export default function CatchForm({
   defaultBait,
   defaultMethod,
   quickLogFields,
-  gpsMode,
+  defaultLogPosition,
+  defaultLogWeather,
+  defaultFillWater,
   openFiskepassSpecies,
   openFiskepassWaterTempC,
   openFiskepassLogPosition,
@@ -149,7 +146,9 @@ export default function CatchForm({
   defaultBait: string | null;
   defaultMethod: string | null;
   quickLogFields: string[] | null;
-  gpsMode: GpsModeKey;
+  defaultLogPosition: boolean;
+  defaultLogWeather: boolean;
+  defaultFillWater: boolean;
   openFiskepassSpecies?: string[] | null;
   openFiskepassWaterTempC?: number | null;
   openFiskepassLogPosition?: boolean | null;
@@ -276,17 +275,13 @@ export default function CatchForm({
     }
   }, [openFiskepassWaterTempC]);
   const [caughtAtLocal, setCaughtAtLocal] = useState("");
-  const defaultLogPosition = gpsMode === "both";
-  const defaultLogWeather =
-    gpsMode === "both" || gpsMode === "weather" || gpsMode === "water";
-  const defaultAutoFillWater = gpsMode === "water";
   const [useGps, setUseGps] = useState(openFiskepassLogPosition ?? defaultLogPosition);
   const [logWeather, setLogWeather] = useState(openFiskepassLogWeather ?? defaultLogWeather);
   // Looks up the nearest water once, like "Logga väder", but the exact
   // position is never submitted for this — it only fills the Vatten field
   // client-side (weather can still be logged alongside it).
   const [autoFillWater, setAutoFillWater] = useState(
-    openFiskepassFillWater ?? defaultAutoFillWater
+    openFiskepassFillWater ?? defaultFillWater
   );
   // Reactively pulls in a pass's own choice, same reasoning as the
   // waterTempC effect above -- an already-mounted form should pick up a

@@ -223,7 +223,9 @@ export default async function Home(props: PageProps<"/">) {
         defaultBait={defaultBait}
         defaultMethod={defaultMethod}
         quickLogFields={user.quick_log_fields}
-        gpsMode={user.gps_mode}
+        defaultLogPosition={user.log_position}
+        defaultLogWeather={user.log_weather}
+        defaultFillWater={user.fill_water}
         openFiskepassSpecies={openFiskepass?.target_species ?? null}
         openFiskepassWaterTempC={openFiskepass?.water_temp_c ?? null}
         openFiskepassLogPosition={openFiskepass?.log_position ?? null}
@@ -235,7 +237,9 @@ export default async function Home(props: PageProps<"/">) {
               openPass={openFiskepass}
               hasTeam={user.team_id !== null}
               recentTargetSpecies={recentFiskepassTargetSpecies}
-              gpsMode={user.gps_mode}
+              defaultLogPosition={user.log_position}
+              defaultLogWeather={user.log_weather}
+              defaultFillWater={user.fill_water}
             />
           ) : null
         }

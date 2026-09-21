@@ -2,7 +2,7 @@
 
 import { useActionState, useEffect, useRef, useState } from "react";
 import { startFiskepass, stopFiskepass } from "@/app/actions/fiskepass";
-import { WATER_TEMP_MAX, WATER_TEMP_MIN, type GpsModeKey } from "@/lib/constants";
+import { WATER_TEMP_MAX, WATER_TEMP_MIN } from "@/lib/constants";
 import { FISH_SPECIES } from "@/lib/species";
 import ConfirmDialog from "./confirm-dialog";
 import TextSuggestInput from "./text-suggest-input";
@@ -37,11 +37,15 @@ function formatClockTime(date: Date): string {
 function StartFiskepassButton({
   hasTeam,
   recentTargetSpecies,
-  gpsMode,
+  defaultLogPosition,
+  defaultLogWeather,
+  defaultFillWater,
 }: {
   hasTeam: boolean;
   recentTargetSpecies: string[];
-  gpsMode: GpsModeKey;
+  defaultLogPosition: boolean;
+  defaultLogWeather: boolean;
+  defaultFillWater: boolean;
 }) {
   const [state, formAction, pending] = useActionState(startFiskepass, undefined);
   const [open, setOpen] = useState(false);
@@ -51,11 +55,7 @@ function StartFiskepassButton({
   const [mode, setMode] = useState<"solo" | "team">("solo");
   const [waterTemp, setWaterTemp] = useState("");
   // Same defaults as the per-catch toggles (catch-form.tsx) -- pre-filled
-  // from the account's own GPS mode, then adjustable just for this pass.
-  const defaultLogPosition = gpsMode === "both";
-  const defaultLogWeather =
-    gpsMode === "both" || gpsMode === "weather" || gpsMode === "water";
-  const defaultFillWater = gpsMode === "water";
+  // from the account's own logging icons, then adjustable just for this pass.
   const [logPosition, setLogPosition] = useState(defaultLogPosition);
   const [logWeather, setLogWeather] = useState(defaultLogWeather);
   const [fillWater, setFillWater] = useState(defaultFillWater);
@@ -358,19 +358,25 @@ export default function FiskepassButton({
   openPass,
   hasTeam,
   recentTargetSpecies = [],
-  gpsMode,
+  defaultLogPosition,
+  defaultLogWeather,
+  defaultFillWater,
 }: {
   openPass: OpenFiskepass | null;
   hasTeam: boolean;
   recentTargetSpecies?: string[];
-  gpsMode: GpsModeKey;
+  defaultLogPosition: boolean;
+  defaultLogWeather: boolean;
+  defaultFillWater: boolean;
 }) {
   if (openPass) return <StopFiskepassButton id={openPass.id} startTime={openPass.start_time} />;
   return (
     <StartFiskepassButton
       hasTeam={hasTeam}
       recentTargetSpecies={recentTargetSpecies}
-      gpsMode={gpsMode}
+      defaultLogPosition={defaultLogPosition}
+      defaultLogWeather={defaultLogWeather}
+      defaultFillWater={defaultFillWater}
     />
   );
 }

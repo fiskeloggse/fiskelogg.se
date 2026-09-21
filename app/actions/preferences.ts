@@ -7,11 +7,9 @@ import {
   QUICK_LOG_FIELD_KEYS,
   REGISTER_COLUMN_KEYS,
   SHARE_CARD_FIELD_KEYS,
-  GPS_MODE_KEYS,
   type QuickLogFieldKey,
   type RegisterColumnKey,
   type ShareCardFieldKey,
-  type GpsModeKey,
 } from "@/lib/constants";
 
 export async function updateShowBingo(formData: FormData) {
@@ -77,14 +75,17 @@ export async function skipOnboarding() {
   revalidatePath("/", "layout");
 }
 
-export async function updateGpsMode(formData: FormData) {
+export async function updateLoggingIcons(formData: FormData) {
   const user = await requireUser();
-  const gpsModeRaw = String(formData.get("gps_mode") ?? "");
-  const gpsMode: GpsModeKey = (GPS_MODE_KEYS as readonly string[]).includes(gpsModeRaw)
-    ? (gpsModeRaw as GpsModeKey)
-    : "off";
+  const logPosition = formData.get("log_position") === "on";
+  const logWeather = formData.get("log_weather") === "on";
+  const fillWater = formData.get("fill_water") === "on";
 
-  await sql`update users set gps_mode = ${gpsMode} where id = ${user.id}`;
+  await sql`
+    update users
+    set log_position = ${logPosition}, log_weather = ${logWeather}, fill_water = ${fillWater}
+    where id = ${user.id}
+  `;
 
   revalidatePath("/", "layout");
 }

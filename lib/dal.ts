@@ -3,7 +3,6 @@ import { cache } from "react";
 import { redirect } from "next/navigation";
 import sql from "./db";
 import { getSession } from "./session";
-import type { GpsModeKey } from "./constants";
 
 export type User = {
   id: number;
@@ -16,7 +15,9 @@ export type User = {
   quick_log_fields: string[] | null;
   visible_register_columns: string[] | null;
   share_card_fields: string[] | null;
-  gps_mode: GpsModeKey;
+  log_position: boolean;
+  log_weather: boolean;
+  fill_water: boolean;
   hidden_species: string[] | null;
   onboarding_completed_at: Date | null;
 };
@@ -26,7 +27,7 @@ export const getCurrentUser = cache(async (): Promise<User | null> => {
   if (!session) return null;
 
   const [user] = await sql<User[]>`
-    select id, email, name, team_id, show_bingo, show_species_collection, show_fiskepass, quick_log_fields, visible_register_columns, share_card_fields, gps_mode, hidden_species, onboarding_completed_at
+    select id, email, name, team_id, show_bingo, show_species_collection, show_fiskepass, quick_log_fields, visible_register_columns, share_card_fields, log_position, log_weather, fill_water, hidden_species, onboarding_completed_at
     from users where id = ${session.userId}
   `;
 

@@ -175,9 +175,9 @@ export async function addCatch(
   }
 
   // Position and weather are logged independently per catch (see the
-  // "Logga position"/"Logga väder" checkboxes in catch-form.tsx) — the
-  // account's gps_mode only controls their default checked state, not
-  // whether they're honored here.
+  // position/väder icon toggles in catch-form.tsx) — the account's
+  // log_position/log_weather settings only control their default checked
+  // state, not whether they're honored here.
   const logPosition = formData.get("logPosition") === "on";
   const logWeather = formData.get("logWeather") === "on";
   let persistedLatitude: number | null = null;

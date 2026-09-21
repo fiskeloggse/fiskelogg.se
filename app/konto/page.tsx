@@ -8,7 +8,7 @@ import {
   updateShowBingo,
   updateShowSpeciesCollection,
   updateShowFiskepass,
-  updateGpsMode,
+  updateLoggingIcons,
   updateQuickLogFields,
   updateShareCardFields,
 } from "@/app/actions/preferences";
@@ -17,7 +17,6 @@ import {
   QUICK_LOG_FIELD_KEYS,
   SHARE_CARD_FIELDS,
   SHARE_CARD_FIELD_KEYS,
-  GPS_MODES,
 } from "@/lib/constants";
 import ChangePasswordButton from "@/app/components/change-password-button";
 import InviteForm from "@/app/components/invite-form";
@@ -32,24 +31,30 @@ export const metadata: Metadata = {
   title: "Konto – Fisklogg",
 };
 
-// Same icons the per-catch logging toggles use (catch-form.tsx), so a GPS
-// mode here visibly maps to what it turns on by default there.
-const iconClassName = "h-3.5 w-3.5 text-zinc-400 dark:text-zinc-500";
-const GPS_MODE_ICONS: Record<string, React.ReactNode> = {
-  both: (
-    <>
-      <PositionIcon className={iconClassName} />
-      <WeatherIcon className="text-sm" />
-    </>
-  ),
-  weather: <WeatherIcon className="text-sm" />,
-  water: (
-    <>
-      <WaterIcon className={iconClassName} />
-      <WeatherIcon className="text-sm" />
-    </>
-  ),
-};
+// Same icons the per-catch logging toggles use (catch-form.tsx) and the
+// Starta fiskepass toggles (fiskepass-bar.tsx) -- checking one here just
+// sets the default state those start at, still adjustable in the moment.
+const iconClassName = "h-4 w-4 text-zinc-500 dark:text-zinc-400";
+const LOGGING_OPTIONS = [
+  {
+    key: "log_position",
+    label: "Position",
+    hint: "Sparar exakt position och visar fångsten på kartan.",
+    icon: <PositionIcon className={iconClassName} />,
+  },
+  {
+    key: "log_weather",
+    label: "Väder",
+    hint: "Hämtar och sparar väder vid loggningen.",
+    icon: <WeatherIcon className="text-base" />,
+  },
+  {
+    key: "fill_water",
+    label: "Vatten",
+    hint: "Fyller i vattnets namn automatiskt utifrån din position.",
+    icon: <WaterIcon className={iconClassName} />,
+  },
+] as const;
 
 export default async function KontoPage() {
   const user = await requireUser();
@@ -162,32 +167,25 @@ export default async function KontoPage() {
           Loggning
         </summary>
         <div className="mt-2 flex flex-col gap-4">
-          <form action={updateGpsMode} className="flex flex-col gap-3">
+          <form action={updateLoggingIcons} className="flex flex-col gap-3">
             <fieldset className="flex flex-col gap-2">
-              <legend className="text-sm font-medium">GPS</legend>
-              {GPS_MODES.map((mode) => (
-                <label key={mode.value} className="flex items-start gap-2 text-sm">
+              <legend className="text-sm font-medium">Logga automatiskt</legend>
+              {LOGGING_OPTIONS.map((option) => (
+                <label key={option.key} className="flex items-start gap-2 text-sm">
                   <input
-                    type="radio"
-                    name="gps_mode"
-                    value={mode.value}
-                    defaultChecked={user.gps_mode === mode.value}
+                    type="checkbox"
+                    name={option.key}
+                    defaultChecked={user[option.key]}
                     className="mt-0.5"
                   />
                   <span>
                     <span className="inline-flex items-center gap-1.5">
-                      {mode.label}
-                      {GPS_MODE_ICONS[mode.value] && (
-                        <span className="inline-flex items-center gap-1">
-                          {GPS_MODE_ICONS[mode.value]}
-                        </span>
-                      )}
+                      {option.label}
+                      {option.icon}
                     </span>
-                    {"hint" in mode && (
-                      <span className="block text-xs text-zinc-500 dark:text-zinc-400">
-                        {mode.hint}
-                      </span>
-                    )}
+                    <span className="block text-xs text-zinc-500 dark:text-zinc-400">
+                      {option.hint}
+                    </span>
                   </span>
                 </label>
               ))}
