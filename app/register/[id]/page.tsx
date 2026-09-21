@@ -17,8 +17,9 @@ export default async function CatchDetailPage(props: PageProps<"/register/[id]">
   const catchId = Number(id);
   if (!Number.isInteger(catchId)) notFound();
 
-  const item = await getCatchById(user.id, catchId);
+  const item = await getCatchById(user.id, user.team_id, catchId);
   if (!item) notFound();
+  const canEdit = item.user_id === user.id;
 
   const [previousBest, lakeSuggestions, locationSuggestions] = await Promise.all([
     item.species
@@ -38,6 +39,7 @@ export default async function CatchDetailPage(props: PageProps<"/register/[id]">
       <CatchDetail
         item={item}
         isPersonalBest={isPersonalBest}
+        canEdit={canEdit}
         defaultShareFields={user.share_card_fields}
         lakeSuggestions={lakeSuggestions}
         locationSuggestions={locationSuggestions}

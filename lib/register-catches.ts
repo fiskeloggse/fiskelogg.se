@@ -321,16 +321,22 @@ export async function getDistinctBaits(userId: number): Promise<string[]> {
   return rows.map((r) => r.bait);
 }
 
+// Own catch, or -- so a teammate's catch opened from a shared team
+// fiskepass doesn't 404 -- a teammate's. The caller decides what a
+// non-owner is allowed to do with it (view only, per CatchDetail).
 export async function getCatchById(
   userId: number,
+  teamId: number | null,
   id: number
 ): Promise<Catch | null> {
   const [row] = await sql<Catch[]>`
-    select id, user_id, species, length_cm, weight_kg, lake, location, method, bait, comment, water_temp_c, latitude, longitude, caught_at,
-      weather_temp_c, weather_description, weather_wind_kmh, weather_wind_dir_deg, weather_pressure_hpa, weather_cloud_pct,
-      photo_url
-    from catches
-    where id = ${id} and user_id = ${userId} and deleted_at is null
+    select c.id, c.user_id, c.species, c.length_cm, c.weight_kg, c.lake, c.location, c.method, c.bait, c.comment, c.water_temp_c, c.latitude, c.longitude, c.caught_at,
+      c.weather_temp_c, c.weather_description, c.weather_wind_kmh, c.weather_wind_dir_deg, c.weather_pressure_hpa, c.weather_cloud_pct,
+      c.photo_url, u.name as angler_name
+    from catches c
+    join users u on u.id = c.user_id
+    where c.id = ${id} and c.deleted_at is null
+      and (c.user_id = ${userId} or (${teamId}::int is not null and u.team_id = ${teamId}))
   `;
   return row ?? null;
 }

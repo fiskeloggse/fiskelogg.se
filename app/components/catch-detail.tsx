@@ -31,12 +31,14 @@ function formatSv(n: number): string {
 export default function CatchDetail({
   item,
   isPersonalBest,
+  canEdit,
   defaultShareFields,
   lakeSuggestions,
   locationSuggestions,
 }: {
   item: Catch;
   isPersonalBest: boolean;
+  canEdit: boolean;
   defaultShareFields: string[] | null;
   lakeSuggestions: LakeSuggestions;
   locationSuggestions: LocationSuggestions;
@@ -101,13 +103,15 @@ export default function CatchDetail({
             )}
             {isStorfisk && <StorfiskBadge size="md" />}
           </div>
-          <button
-            type="button"
-            onClick={() => setEditing(true)}
-            className="shrink-0 rounded-full border border-black/10 px-4 py-2 text-sm font-medium transition-colors hover:bg-black/5 dark:border-white/15 dark:hover:bg-white/10"
-          >
-            Redigera
-          </button>
+          {canEdit && (
+            <button
+              type="button"
+              onClick={() => setEditing(true)}
+              className="shrink-0 rounded-full border border-black/10 px-4 py-2 text-sm font-medium transition-colors hover:bg-black/5 dark:border-white/15 dark:hover:bg-white/10"
+            >
+              Redigera
+            </button>
+          )}
         </div>
         <p className="text-sm text-zinc-500 dark:text-zinc-400">
           {formatDateFull(item.caught_at)}
@@ -272,13 +276,15 @@ export default function CatchDetail({
           />
         </div>
 
-        <div className="mt-5 flex items-center gap-3">
-          <ConfirmDeleteButton
-            action={handleDelete}
-            id={item.id}
-            label="Ta bort fångst"
-          />
-        </div>
+        {canEdit && (
+          <div className="mt-5 flex items-center gap-3">
+            <ConfirmDeleteButton
+              action={handleDelete}
+              id={item.id}
+              label="Ta bort fångst"
+            />
+          </div>
+        )}
       </div>
     </div>
   );

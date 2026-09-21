@@ -34,7 +34,7 @@ export async function GET(
     return new Response("Fångsten kunde inte hittas.", { status: 404 });
   }
 
-  const item = await getCatchById(user.id, catchId);
+  const item = await getCatchById(user.id, user.team_id, catchId);
   if (!item) {
     return new Response("Fångsten kunde inte hittas.", { status: 404 });
   }
