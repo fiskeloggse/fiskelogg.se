@@ -125,6 +125,35 @@ export default function OnboardingGuide({
             </div>
 
             <fieldset className="flex flex-col gap-3">
+              <legend className="text-sm font-medium">Logga automatiskt</legend>
+              {LOGGING_OPTIONS.map((option) => (
+                <label key={option.key} className="flex items-start gap-2 text-sm">
+                  <input
+                    type="checkbox"
+                    name={option.key}
+                    defaultChecked={
+                      option.key === "log_position"
+                        ? logPosition
+                        : option.key === "log_weather"
+                          ? logWeather
+                          : fillWater
+                    }
+                    className="mt-0.5"
+                  />
+                  <span>
+                    <span className="inline-flex items-center gap-1.5">
+                      {option.label}
+                      {option.icon}
+                    </span>
+                    <span className="block text-xs text-zinc-500 dark:text-zinc-400">
+                      {option.hint}
+                    </span>
+                  </span>
+                </label>
+              ))}
+            </fieldset>
+
+            <fieldset className="flex flex-col gap-3 border-t border-black/10 pt-3 dark:border-white/15">
               <legend className="text-sm font-medium">Funktioner</legend>
               <label className="flex items-center gap-2 text-sm">
                 <input
@@ -153,35 +182,6 @@ export default function OnboardingGuide({
                 />
                 Visa Fiskepass
               </label>
-            </fieldset>
-
-            <fieldset className="flex flex-col gap-3 border-t border-black/10 pt-3 dark:border-white/15">
-              <legend className="text-sm font-medium">Logga automatiskt</legend>
-              {LOGGING_OPTIONS.map((option) => (
-                <label key={option.key} className="flex items-start gap-2 text-sm">
-                  <input
-                    type="checkbox"
-                    name={option.key}
-                    defaultChecked={
-                      option.key === "log_position"
-                        ? logPosition
-                        : option.key === "log_weather"
-                          ? logWeather
-                          : fillWater
-                    }
-                    className="mt-0.5"
-                  />
-                  <span>
-                    <span className="inline-flex items-center gap-1.5">
-                      {option.label}
-                      {option.icon}
-                    </span>
-                    <span className="block text-xs text-zinc-500 dark:text-zinc-400">
-                      {option.hint}
-                    </span>
-                  </span>
-                </label>
-              ))}
             </fieldset>
 
             <div className="flex items-center justify-between pt-2">
