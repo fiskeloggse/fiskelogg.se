@@ -68,7 +68,7 @@ export const LOGGING_OPTIONS = [
   {
     key: "fill_water",
     label: "Vatten",
-    hint: "Fyller i vattnets namn automatiskt utifrån din position, utan att spara själva positionen.",
+    hint: "Fyller i vattnets namn åt dig, baserat på var du står. Sparar inte din exakta position.",
     icon: <WaterIcon className={iconClassName} />,
   },
 ] as const;
