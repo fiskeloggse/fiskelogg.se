@@ -70,12 +70,12 @@ function TabIcon({ href, className }: { href: string; className?: string }) {
 }
 
 export default function CatchTabs({
-  showBingo = true,
+  showChallenges = true,
 }: {
-  showBingo?: boolean;
+  showChallenges?: boolean;
 }) {
   const pathname = usePathname();
-  const tabs = showBingo
+  const tabs = showChallenges
     ? ALL_TABS
     : ALL_TABS.filter((tab) => tab.href !== "/challenges");
 

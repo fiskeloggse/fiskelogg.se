@@ -93,7 +93,7 @@ export default async function KontoPage() {
                 name="show_bingo"
                 defaultChecked={user.show_bingo}
               />
-              Visa Utmaningar-fliken
+              Visa Bingo (under Utmaningar)
             </label>
             <label className="flex items-center gap-2 text-sm">
               <input
@@ -103,6 +103,9 @@ export default async function KontoPage() {
               />
               Visa Artjakten (under Utmaningar)
             </label>
+            <p className="text-xs text-zinc-400 dark:text-zinc-500">
+              Utmaningar-fliken visas så länge minst en av dessa två är på.
+            </p>
             <label className="flex items-center gap-2 text-sm">
               <input
                 type="checkbox"

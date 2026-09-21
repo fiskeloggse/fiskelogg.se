@@ -24,7 +24,9 @@ export default async function Header() {
 
         {user ? (
           <>
-            <CatchTabs showBingo={user.show_bingo} />
+            <CatchTabs
+              showChallenges={user.show_bingo || user.show_species_collection}
+            />
             <FeedbackButton />
           </>
         ) : (

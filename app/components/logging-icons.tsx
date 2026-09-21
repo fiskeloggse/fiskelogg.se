@@ -62,13 +62,13 @@ export const LOGGING_OPTIONS = [
   {
     key: "log_weather",
     label: "Väder",
-    hint: "Hämtar och sparar väder vid loggningen.",
+    hint: "Hämtar och sparar väder vid loggningen. Sparar inte din exakta position.",
     icon: <WeatherIcon className="text-base" />,
   },
   {
     key: "fill_water",
     label: "Vatten",
-    hint: "Fyller i vattnets namn automatiskt utifrån din position.",
+    hint: "Fyller i vattnets namn automatiskt utifrån din position, utan att spara själva positionen.",
     icon: <WaterIcon className={iconClassName} />,
   },
 ] as const;
