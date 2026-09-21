@@ -843,35 +843,46 @@ export default function CatchForm({
                       </div>
                     ),
                   },
+                  {
+                    key: "watertemp",
+                    show: showWaterTemp || openFiskepassWaterTempC != null,
+                    content:
+                      showWaterTemp || showMore ? (
+                        <div className="flex flex-col gap-1.5">
+                          <label htmlFor="waterTempC" className="text-sm font-medium">
+                            Vattentemperatur (°C)
+                          </label>
+                          <input
+                            id="waterTempC"
+                            name="waterTempC"
+                            type="number"
+                            inputMode="decimal"
+                            step="0.1"
+                            min={WATER_TEMP_MIN}
+                            max={WATER_TEMP_MAX}
+                            value={waterTempC}
+                            onChange={(e) => setWaterTempC(e.target.value)}
+                            className={inputClassName}
+                          />
+                        </div>
+                      ) : (
+                        // Only reachable when the block's own show flag is
+                        // true because an open pass set a value (the
+                        // showWaterTemp || showMore branch above covers
+                        // every other case) -- shown so it's clear the
+                        // value exists and will be logged, but not
+                        // editable until "Fler fält" is opened.
+                        <div className="flex flex-col gap-1">
+                          <span className="text-sm font-medium">Vattentemperatur</span>
+                          <p className="text-sm text-zinc-500 dark:text-zinc-400">
+                            {waterTempC.replace(".", ",")}°C loggas automatiskt från passet.
+                          </p>
+                          <input type="hidden" name="waterTempC" value={waterTempC} />
+                        </div>
+                      ),
+                  },
                 ]}
               />
-
-              {/* Rendered outside OrderedFields (like Längd/Vikt below) so
-                  it stays in the DOM and keeps submitting an open pass's
-                  auto-filled value even while configured hidden -- an
-                  OrderedFields block with show:false is removed from the
-                  DOM entirely once "Fler fält" isn't open. */}
-              <div
-                className={
-                  showWaterTemp || showMore ? "mt-3 flex flex-col gap-1.5" : "hidden"
-                }
-              >
-                <label htmlFor="waterTempC" className="text-sm font-medium">
-                  Vattentemperatur (°C)
-                </label>
-                <input
-                  id="waterTempC"
-                  name="waterTempC"
-                  type="number"
-                  inputMode="decimal"
-                  step="0.1"
-                  min={WATER_TEMP_MIN}
-                  max={WATER_TEMP_MAX}
-                  value={waterTempC}
-                  onChange={(e) => setWaterTempC(e.target.value)}
-                  className={inputClassName}
-                />
-              </div>
             </Section>
           )}
 
