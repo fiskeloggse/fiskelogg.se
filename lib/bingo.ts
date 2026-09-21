@@ -114,8 +114,8 @@ export async function findMatchingBingoCards(
     from bingo_cards bc
     where bc.species = ${species}
       and bc.archived_at is null
-      and bc.min_cm <= ${lengthCm}
-      and bc.max_cm >= ${lengthCm}
+      and bc.min_cm <= round(${lengthCm}::numeric)
+      and bc.max_cm >= round(${lengthCm}::numeric)
       and (bc.from_date is null or (${caughtAt}::timestamptz at time zone ${TIMEZONE})::date >= bc.from_date)
       and (bc.to_date is null or (${caughtAt}::timestamptz at time zone ${TIMEZONE})::date <= bc.to_date)
       and (
