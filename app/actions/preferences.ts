@@ -12,29 +12,19 @@ import {
   type ShareCardFieldKey,
 } from "@/lib/constants";
 
-export async function updateShowBingo(formData: FormData) {
+export async function updateFeatures(formData: FormData) {
   const user = await requireUser();
   const showBingo = formData.get("show_bingo") === "on";
-
-  await sql`update users set show_bingo = ${showBingo} where id = ${user.id}`;
-
-  revalidatePath("/", "layout");
-}
-
-export async function updateShowSpeciesCollection(formData: FormData) {
-  const user = await requireUser();
   const showSpeciesCollection = formData.get("show_species_collection") === "on";
-
-  await sql`update users set show_species_collection = ${showSpeciesCollection} where id = ${user.id}`;
-
-  revalidatePath("/challenges");
-}
-
-export async function updateShowFiskepass(formData: FormData) {
-  const user = await requireUser();
   const showFiskepass = formData.get("show_fiskepass") === "on";
 
-  await sql`update users set show_fiskepass = ${showFiskepass} where id = ${user.id}`;
+  await sql`
+    update users
+    set show_bingo = ${showBingo},
+        show_species_collection = ${showSpeciesCollection},
+        show_fiskepass = ${showFiskepass}
+    where id = ${user.id}
+  `;
 
   revalidatePath("/", "layout");
 }

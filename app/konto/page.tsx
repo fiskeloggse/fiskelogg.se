@@ -5,9 +5,7 @@ import { getOwnCatchCount } from "@/lib/catches";
 import { logout } from "@/app/actions/auth";
 import { leaveTeam } from "@/app/actions/team";
 import {
-  updateShowBingo,
-  updateShowSpeciesCollection,
-  updateShowFiskepass,
+  updateFeatures,
   updateLoggingIcons,
   updateQuickLogFields,
   updateShareCardFields,
@@ -110,7 +108,7 @@ export default async function KontoPage() {
           Funktioner
         </summary>
         <div className="mt-2 flex flex-col gap-2">
-          <form action={updateShowBingo} className="flex flex-col gap-3">
+          <form action={updateFeatures} className="flex flex-col gap-3">
             <label className="flex items-center gap-2 text-sm">
               <input
                 type="checkbox"
@@ -119,10 +117,6 @@ export default async function KontoPage() {
               />
               Visa Utmaningar-fliken
             </label>
-            <SaveButton />
-          </form>
-
-          <form action={updateShowSpeciesCollection} className="flex flex-col gap-3">
             <label className="flex items-center gap-2 text-sm">
               <input
                 type="checkbox"
@@ -131,10 +125,6 @@ export default async function KontoPage() {
               />
               Visa Artjakten (under Utmaningar)
             </label>
-            <SaveButton />
-          </form>
-
-          <form action={updateShowFiskepass} className="flex flex-col gap-3">
             <label className="flex items-center gap-2 text-sm">
               <input
                 type="checkbox"
