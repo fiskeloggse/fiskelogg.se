@@ -94,6 +94,14 @@ update catches set species = initcap(species) where species <> initcap(species);
 alter table catches alter column length_cm drop not null;
 alter table catches alter column weight_kg drop not null;
 
+-- Every code path that writes length_cm (createCatch, updateCatch, Excel
+-- import) already rejects decimals at the application layer -- length is
+-- always logged in whole cm. Enforce that at the column itself too rather
+-- than relying solely on app-level validation. round() in the USING clause
+-- is defensive (no existing row actually had a fractional value) so this
+-- can't fail if it's ever re-run against unexpected data.
+alter table catches alter column length_cm type integer using round(length_cm)::integer;
+
 create index if not exists catches_user_id_idx on catches (user_id);
 create index if not exists catches_deleted_at_idx on catches (deleted_at);
 -- Nearly every query filters on both together (user_id = ... and deleted_at
