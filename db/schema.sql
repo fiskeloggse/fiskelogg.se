@@ -126,6 +126,8 @@ update bingo_cards set species = initcap(species) where species <> initcap(speci
 create index if not exists bingo_cards_team_id_idx on bingo_cards (team_id);
 create index if not exists bingo_cards_created_by_idx on bingo_cards (created_by);
 
+-- Kept, but no longer read by the app -- Fiskepass is now always available
+-- rather than an opt-in feature.
 alter table users add column if not exists show_fiskepass boolean not null default false;
 
 -- A fishing session. Catches are never linked to a pass by id -- a catch

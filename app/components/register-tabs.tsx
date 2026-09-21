@@ -8,11 +8,8 @@ const TABS = [
   { href: "/register/fiskepass", label: "Fiskepass" },
 ] as const;
 
-export default function RegisterTabs({ showFiskepass }: { showFiskepass: boolean }) {
+export default function RegisterTabs() {
   const pathname = usePathname();
-
-  // Only worth showing as a choice once there's a second destination.
-  if (!showFiskepass) return null;
 
   return (
     <nav className="flex gap-2 border-b border-black/10 dark:border-white/15">

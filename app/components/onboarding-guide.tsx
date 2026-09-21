@@ -13,7 +13,6 @@ type Step = "welcome" | "features";
 export default function OnboardingGuide({
   showBingo,
   showSpeciesCollection,
-  showFiskepass,
   logPosition,
   logWeather,
   fillWater,
@@ -22,7 +21,6 @@ export default function OnboardingGuide({
 }: {
   showBingo: boolean;
   showSpeciesCollection: boolean;
-  showFiskepass: boolean;
   logPosition: boolean;
   logWeather: boolean;
   fillWater: boolean;
@@ -174,14 +172,6 @@ export default function OnboardingGuide({
               <p className="text-xs text-zinc-400 dark:text-zinc-500">
                 Utmaningar-fliken visas så länge minst en av dessa två är på.
               </p>
-              <label className="flex items-center gap-2 text-sm">
-                <input
-                  type="checkbox"
-                  name="show_fiskepass"
-                  defaultChecked={showFiskepass}
-                />
-                Visa Fiskepass
-              </label>
             </fieldset>
 
             <div className="flex items-center justify-between pt-2">

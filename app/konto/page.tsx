@@ -63,7 +63,6 @@ export default async function KontoPage() {
           <OnboardingGuide
             showBingo={user.show_bingo}
             showSpeciesCollection={user.show_species_collection}
-            showFiskepass={user.show_fiskepass}
             logPosition={user.log_position}
             logWeather={user.log_weather}
             fillWater={user.fill_water}
@@ -106,14 +105,6 @@ export default async function KontoPage() {
             <p className="text-xs text-zinc-400 dark:text-zinc-500">
               Utmaningar-fliken visas så länge minst en av dessa två är på.
             </p>
-            <label className="flex items-center gap-2 text-sm">
-              <input
-                type="checkbox"
-                name="show_fiskepass"
-                defaultChecked={user.show_fiskepass}
-              />
-              Visa Fiskepass
-            </label>
             <SaveButton />
           </form>
         </div>

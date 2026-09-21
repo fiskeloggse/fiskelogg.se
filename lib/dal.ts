@@ -11,7 +11,6 @@ export type User = {
   team_id: number | null;
   show_bingo: boolean;
   show_species_collection: boolean;
-  show_fiskepass: boolean;
   quick_log_fields: string[] | null;
   visible_register_columns: string[] | null;
   share_card_fields: string[] | null;
@@ -27,7 +26,7 @@ export const getCurrentUser = cache(async (): Promise<User | null> => {
   if (!session) return null;
 
   const [user] = await sql<User[]>`
-    select id, email, name, team_id, show_bingo, show_species_collection, show_fiskepass, quick_log_fields, visible_register_columns, share_card_fields, log_position, log_weather, fill_water, hidden_species, onboarding_completed_at
+    select id, email, name, team_id, show_bingo, show_species_collection, quick_log_fields, visible_register_columns, share_card_fields, log_position, log_weather, fill_water, hidden_species, onboarding_completed_at
     from users where id = ${session.userId}
   `;
 

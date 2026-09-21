@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { redirect } from "next/navigation";
 import { requireUser } from "@/lib/dal";
 import {
   getDistinctFiskepassYears,
@@ -26,7 +25,6 @@ export default async function RegisterFiskepassPage(
   props: PageProps<"/register/fiskepass">
 ) {
   const user = await requireUser();
-  if (!user.show_fiskepass) redirect("/register");
 
   const rawSearchParams = await props.searchParams;
   const params = toURLSearchParams(rawSearchParams);
@@ -51,7 +49,7 @@ export default async function RegisterFiskepassPage(
 
   return (
     <main className="mx-auto flex w-full max-w-4xl flex-1 flex-col gap-6 px-4 py-10 sm:px-6">
-      <RegisterTabs showFiskepass={user.show_fiskepass} />
+      <RegisterTabs />
       <div className="flex flex-col gap-4 rounded-xl border border-black/10 bg-white p-5 dark:border-white/15 dark:bg-white/5">
         <div className="flex flex-wrap items-center justify-between gap-4">
           <h2 className="text-lg font-semibold">{history.length} pass</h2>

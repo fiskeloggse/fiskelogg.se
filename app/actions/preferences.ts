@@ -16,13 +16,11 @@ export async function updateFeatures(formData: FormData) {
   const user = await requireUser();
   const showBingo = formData.get("show_bingo") === "on";
   const showSpeciesCollection = formData.get("show_species_collection") === "on";
-  const showFiskepass = formData.get("show_fiskepass") === "on";
 
   await sql`
     update users
     set show_bingo = ${showBingo},
-        show_species_collection = ${showSpeciesCollection},
-        show_fiskepass = ${showFiskepass}
+        show_species_collection = ${showSpeciesCollection}
     where id = ${user.id}
   `;
 
@@ -36,7 +34,6 @@ export async function completeOnboarding(formData: FormData) {
   const user = await requireUser();
   const showBingo = formData.get("show_bingo") === "on";
   const showSpeciesCollection = formData.get("show_species_collection") === "on";
-  const showFiskepass = formData.get("show_fiskepass") === "on";
   const logPosition = formData.get("log_position") === "on";
   const logWeather = formData.get("log_weather") === "on";
   const fillWater = formData.get("fill_water") === "on";
@@ -45,7 +42,6 @@ export async function completeOnboarding(formData: FormData) {
     update users
     set show_bingo = ${showBingo},
         show_species_collection = ${showSpeciesCollection},
-        show_fiskepass = ${showFiskepass},
         log_position = ${logPosition},
         log_weather = ${logWeather},
         fill_water = ${fillWater},

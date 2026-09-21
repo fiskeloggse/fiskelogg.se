@@ -64,8 +64,8 @@ export default async function Home(props: PageProps<"/">) {
     getTodaysLastLake(user.id, user.team_id),
     getTodaysLastBait(user.id, user.team_id),
     getTodaysLastMethod(user.id, user.team_id),
-    user.show_fiskepass ? getOpenFiskepass(user.id, user.team_id) : Promise.resolve(null),
-    user.show_fiskepass ? getRecentFiskepassTargetSpecies(user.id) : Promise.resolve([]),
+    getOpenFiskepass(user.id, user.team_id),
+    getRecentFiskepassTargetSpecies(user.id),
   ]);
 
   // While a pass is open, the two catch boxes below switch from "today" to
@@ -204,14 +204,13 @@ export default async function Home(props: PageProps<"/">) {
       <OnboardingGuide
         showBingo={user.show_bingo}
         showSpeciesCollection={user.show_species_collection}
-        showFiskepass={user.show_fiskepass}
         logPosition={user.log_position}
         logWeather={user.log_weather}
         fillWater={user.fill_water}
         autoOpen={!user.onboarding_completed_at}
       />
 
-      {user.show_fiskepass && <FiskepassStatus openPass={openFiskepass} />}
+      <FiskepassStatus openPass={openFiskepass} />
 
       <CatchForm
         suggestions={speciesSuggestions}
@@ -235,16 +234,14 @@ export default async function Home(props: PageProps<"/">) {
         openFiskepassLogWeather={openFiskepass?.log_weather ?? null}
         openFiskepassFillWater={openFiskepass?.fill_water ?? null}
         fiskepassButton={
-          user.show_fiskepass ? (
-            <FiskepassButton
-              openPass={openFiskepass}
-              hasTeam={user.team_id !== null}
-              recentTargetSpecies={recentFiskepassTargetSpecies}
-              defaultLogPosition={user.log_position}
-              defaultLogWeather={user.log_weather}
-              defaultFillWater={user.fill_water}
-            />
-          ) : null
+          <FiskepassButton
+            openPass={openFiskepass}
+            hasTeam={user.team_id !== null}
+            recentTargetSpecies={recentFiskepassTargetSpecies}
+            defaultLogPosition={user.log_position}
+            defaultLogWeather={user.log_weather}
+            defaultFillWater={user.fill_water}
+          />
         }
       />
 

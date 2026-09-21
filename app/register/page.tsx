@@ -55,7 +55,7 @@ export default async function RegisterPage(props: PageProps<"/register">) {
 
   return (
     <main className="mx-auto flex w-full max-w-4xl flex-1 flex-col gap-6 px-4 py-10 sm:px-6">
-      <RegisterTabs showFiskepass={user.show_fiskepass} />
+      <RegisterTabs />
       <div className="flex flex-col gap-4 rounded-xl border border-black/10 bg-white p-5 dark:border-white/15 dark:bg-white/5">
         <div className="flex flex-wrap items-center justify-between gap-4">
           <h2 className="text-lg font-semibold">

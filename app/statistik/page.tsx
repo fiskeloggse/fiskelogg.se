@@ -35,7 +35,7 @@ export default async function StatistikPage(props: PageProps<"/statistik">) {
       getFishingDaysByDate(user.id),
       getPersonalBests(user.id),
       getCatchesWithPosition(user.id),
-      user.show_fiskepass ? getFiskepassStats(user.id) : Promise.resolve(null),
+      getFiskepassStats(user.id),
     ]);
 
   return (
@@ -46,7 +46,7 @@ export default async function StatistikPage(props: PageProps<"/statistik">) {
         fishingDays={fishingDays}
         personalBests={personalBests}
         mappedCatches={mappedCatches}
-        fiskepassStats={user.show_fiskepass ? fiskepassStats : null}
+        fiskepassStats={fiskepassStats}
         initialExpanded={initialExpanded}
       />
     </main>
