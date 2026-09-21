@@ -59,12 +59,12 @@ const FEATURE_GROUPS: { label: string; features: Feature[] }[] = [
       {
         icon: "🏆",
         title: "Bingobrickor",
-        text: "Skapa brickor med eget storleks- och datumintervall, solo eller mot teamet. Arkivera säsongens bricka när den är klar och se hur det gick.",
+        text: "Skapa brickor med eget storleks- och datumintervall, solo eller med teamet. Arkivera säsongens bricka när den är klar och se hur det gick.",
       },
       {
         icon: "🎣",
         title: "Artjakten",
-        text: "Jaga alla svenska sötvattensarter och se din samling växa. Storfiskar jämförs automatiskt mot Sportfiskarnas Storfiskregister.",
+        text: "Jaga alla svenska fiskarter — inte bara sötvatten — och se din samling växa. Dölj arter du inte fiskar efter om du vill. Storfiskar jämförs automatiskt mot Sportfiskarnas Storfiskregister.",
       },
     ],
   },
