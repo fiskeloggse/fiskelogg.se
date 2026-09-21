@@ -117,7 +117,7 @@ export default function LandingPage() {
           </Link>
         </div>
         <p className="text-xs text-zinc-400 dark:text-zinc-500">
-          Gratis under betan — vi bygger vidare tillsammans med er som testar.
+          Vi bygger vidare tillsammans med er som testar.
         </p>
       </section>
 
@@ -150,8 +150,8 @@ export default function LandingPage() {
       <section className="flex flex-col items-center gap-4 rounded-xl border border-black/10 bg-white p-8 text-center dark:border-white/15 dark:bg-white/5">
         <h2 className="text-xl font-semibold">Redo att börja logga?</h2>
         <p className="max-w-md text-sm text-zinc-500 dark:text-zinc-400">
-          Gratis att komma igång. Ta med mobilen ut till vattnet och logga
-          första fångsten på under en minut.
+          Ta med mobilen ut till vattnet och logga första fångsten på under en
+          minut.
         </p>
         <Link
           href="/signup"
