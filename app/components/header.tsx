@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { getCurrentUser } from "@/lib/dal";
 import CatchTabs from "@/app/components/catch-tabs";
+import FeedbackButton from "@/app/components/feedback-button";
 
 export default async function Header() {
   const user = await getCurrentUser();
@@ -17,9 +18,15 @@ export default async function Header() {
           <img src="/logo-mark.png" alt="" className="h-6 w-6 sm:h-7 sm:w-7" />
           <span className="hidden sm:inline">Fisklogg</span>
         </Link>
+        <span className="shrink-0 rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-semibold tracking-wide text-amber-700 uppercase dark:bg-amber-950/40 dark:text-amber-400">
+          Beta
+        </span>
 
         {user ? (
-          <CatchTabs showBingo={user.show_bingo} />
+          <>
+            <CatchTabs showBingo={user.show_bingo} />
+            <FeedbackButton />
+          </>
         ) : (
           <nav className="ml-auto flex items-center gap-4 text-sm font-medium">
             <Link href="/login">Logga in</Link>

@@ -13,6 +13,38 @@ function getResend(): Resend {
   return new Resend(apiKey);
 }
 
+// Fixed inbox for the app's own owner -- feedback has nowhere else to go
+// yet (no in-app storage), so it's mailed straight there.
+const FEEDBACK_TO = "fastreg.se@gmail.com";
+
+// Free-text feedback (and, in principle, a user's own name) ends up
+// interpolated straight into an HTML email body -- escape it first so
+// neither can inject markup into what the owner's mail client renders.
+function escapeHtml(text: string): string {
+  return text
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
+}
+
+export async function sendFeedbackEmail(
+  from: { name: string; email: string },
+  message: string
+): Promise<void> {
+  await getResend().emails.send({
+    from: "Fisklogg <noreply@fisklogg.se>",
+    to: FEEDBACK_TO,
+    replyTo: from.email,
+    subject: `Feedback från ${from.name}`,
+    text: `${message}\n\n— ${from.name} (${from.email})`,
+    html: `
+      <p style="white-space: pre-wrap">${escapeHtml(message)}</p>
+      <p>— ${escapeHtml(from.name)} (${escapeHtml(from.email)})</p>
+    `,
+  });
+}
+
 export async function sendPasswordResetEmail(
   to: string,
   token: string
