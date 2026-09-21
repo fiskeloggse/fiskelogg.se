@@ -180,6 +180,7 @@ export async function updateFiskepass(
 
   revalidatePath("/");
   revalidatePath("/statistik");
+  revalidatePath("/register/fiskepass");
   return { success: true };
 }
 
