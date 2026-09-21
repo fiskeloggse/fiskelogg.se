@@ -21,6 +21,7 @@ import InviteForm from "@/app/components/invite-form";
 import { LOGGING_OPTIONS } from "@/app/components/logging-icons";
 import OnboardingGuide from "@/app/components/onboarding-guide";
 import SaveButton from "@/app/components/save-button";
+import SyncedCheckbox from "@/app/components/synced-checkbox";
 import TeamNameForm from "@/app/components/team-name-form";
 import ThemeToggle from "@/app/components/theme-toggle";
 import DeleteAllCatchesForm from "@/app/components/delete-all-catches-form";
@@ -87,18 +88,13 @@ export default async function KontoPage() {
         <div className="mt-2 flex flex-col gap-2">
           <form action={updateFeatures} className="flex flex-col gap-3">
             <label className="flex items-center gap-2 text-sm">
-              <input
-                type="checkbox"
-                name="show_bingo"
-                defaultChecked={user.show_bingo}
-              />
+              <SyncedCheckbox name="show_bingo" checked={user.show_bingo} />
               Visa Bingo (under Utmaningar)
             </label>
             <label className="flex items-center gap-2 text-sm">
-              <input
-                type="checkbox"
+              <SyncedCheckbox
                 name="show_species_collection"
-                defaultChecked={user.show_species_collection}
+                checked={user.show_species_collection}
               />
               Visa Artjakten (under Utmaningar)
             </label>
@@ -120,10 +116,9 @@ export default async function KontoPage() {
               <legend className="text-sm font-medium">Logga automatiskt</legend>
               {LOGGING_OPTIONS.map((option) => (
                 <label key={option.key} className="flex items-start gap-2 text-sm">
-                  <input
-                    type="checkbox"
+                  <SyncedCheckbox
                     name={option.key}
-                    defaultChecked={user[option.key]}
+                    checked={user[option.key]}
                     className="mt-0.5"
                   />
                   <span>
