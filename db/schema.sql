@@ -96,11 +96,18 @@ alter table catches alter column weight_kg drop not null;
 
 -- Every code path that writes length_cm (createCatch, updateCatch, Excel
 -- import) already rejects decimals at the application layer -- length is
--- always logged in whole cm. Enforce that at the column itself too rather
--- than relying solely on app-level validation. round() in the USING clause
--- is defensive (no existing row actually had a fractional value) so this
--- can't fail if it's ever re-run against unexpected data.
-alter table catches alter column length_cm type integer using round(length_cm)::integer;
+-- always logged in whole cm. This used to change the column itself to
+-- `integer`, but Postgres's implicit numeric-to-integer assignment cast
+-- *rounds* rather than rejecting -- a stray decimal (e.g. from a future
+-- bug bypassing app validation) would get silently coerced instead of
+-- failing loudly. A check constraint on a still-fractional-capable type
+-- gives the reject-don't-round guarantee actually wanted: any attempt to
+-- store a non-whole value raises a constraint violation instead of being
+-- rounded into looking valid.
+alter table catches alter column length_cm type real;
+alter table catches drop constraint if exists catches_length_cm_integer;
+alter table catches add constraint catches_length_cm_integer
+  check (length_cm is null or length_cm = round(length_cm));
 
 create index if not exists catches_user_id_idx on catches (user_id);
 create index if not exists catches_deleted_at_idx on catches (deleted_at);
