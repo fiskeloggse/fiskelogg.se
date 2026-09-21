@@ -98,9 +98,10 @@ export default function LandingPage() {
           Din digitala fiskedagbok
         </h1>
         <p className="max-w-xl text-balance text-zinc-500 dark:text-zinc-400">
-          Logga fångster på sekunder, med väder, månfas och plats ifyllda
-          automatiskt om du vill. Håll koll på statistik, samla arter, tävla
-          i bingo och fiska tillsammans med laget — allt byggt för mobilen.
+          Logga fångster på sekunder, med väder, månfas och plats sparade
+          automatiskt om du vill. Se över tid vilka vatten, väder och
+          månfaser som faktiskt ger fisk — och samla arter, tävla i bingo och
+          fiska med laget. Byggt för mobilen.
         </p>
         <div className="flex flex-wrap items-center justify-center gap-3">
           <Link
