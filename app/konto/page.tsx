@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { requireUser } from "@/lib/dal";
-import { getTeamMembers, getTeamName } from "@/lib/team";
+import { getTeamInviteToken, getTeamMembers, getTeamName } from "@/lib/team";
 import { getOwnCatchCount } from "@/lib/catches";
 import { logout } from "@/app/actions/auth";
 import { leaveTeam } from "@/app/actions/team";
@@ -18,6 +18,7 @@ import {
 } from "@/lib/constants";
 import ChangePasswordButton from "@/app/components/change-password-button";
 import InviteForm from "@/app/components/invite-form";
+import InviteLinkPanel from "@/app/components/invite-link-panel";
 import { LOGGING_OPTIONS } from "@/app/components/logging-icons";
 import OnboardingGuide from "@/app/components/onboarding-guide";
 import SaveButton from "@/app/components/save-button";
@@ -33,9 +34,10 @@ export const metadata: Metadata = {
 
 export default async function KontoPage() {
   const user = await requireUser();
-  const [teamMembers, teamName, catchCount] = await Promise.all([
+  const [teamMembers, teamName, inviteToken, catchCount] = await Promise.all([
     user.team_id ? getTeamMembers(user.team_id) : Promise.resolve([]),
     user.team_id ? getTeamName(user.team_id) : Promise.resolve(null),
+    user.team_id ? getTeamInviteToken(user.team_id) : Promise.resolve(null),
     getOwnCatchCount(user.id),
   ]);
 
@@ -256,6 +258,8 @@ export default async function KontoPage() {
                       </p>
                     </div>
 
+                    <InviteLinkPanel token={inviteToken} />
+
                     <form action={leaveTeam}>
                       <button
                         type="submit"
@@ -281,6 +285,8 @@ export default async function KontoPage() {
               <p className="text-xs text-zinc-500 dark:text-zinc-400">
                 Personen måste redan ha ett konto på Fisklogg.
               </p>
+
+              <InviteLinkPanel token={null} />
             </div>
           )}
         </div>

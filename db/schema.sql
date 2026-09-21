@@ -249,3 +249,8 @@ update users set log_weather = true, fill_water = true
 -- differing only by case (or a race between two concurrent signups) could
 -- still create two accounts for what a person considers one email address.
 create unique index if not exists users_email_lower_idx on users (lower(email));
+
+-- A shareable join link, as an alternative to inviting by exact email --
+-- lets someone join without already having an account. Regenerating
+-- (overwriting this) is how an existing link gets revoked.
+alter table teams add column if not exists invite_token text unique;

@@ -12,6 +12,7 @@ import {
   verifyPassword,
 } from "@/lib/password";
 import { createSession, deleteSession } from "@/lib/session";
+import { consumePendingTeamInvite } from "@/app/actions/team";
 
 export type AuthState = { error: string } | { success: true } | undefined;
 
@@ -55,6 +56,7 @@ export async function signup(
   `;
 
   await createSession(user.id);
+  await consumePendingTeamInvite(user.id);
   // "/" renders differently signed-in vs. signed-out. A server-side
   // redirect() here would hand the client a soft navigation, which can
   // reuse the router's cached signed-out payload for "/" and briefly show
@@ -93,6 +95,7 @@ export async function login(
   }
 
   await createSession(user.id);
+  await consumePendingTeamInvite(user.id);
   // See the comment in signup() above — same reasoning applies here.
   return { success: true };
 }

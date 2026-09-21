@@ -19,3 +19,19 @@ export async function getTeamName(teamId: number): Promise<string | null> {
   `;
   return row?.name ?? null;
 }
+
+export async function getTeamInviteToken(teamId: number): Promise<string | null> {
+  const [row] = await sql<{ invite_token: string | null }[]>`
+    select invite_token from teams where id = ${teamId}
+  `;
+  return row?.invite_token ?? null;
+}
+
+export async function getTeamByInviteToken(
+  token: string
+): Promise<{ id: number; name: string | null } | null> {
+  const [team] = await sql<{ id: number; name: string | null }[]>`
+    select id, name from teams where invite_token = ${token}
+  `;
+  return team ?? null;
+}
