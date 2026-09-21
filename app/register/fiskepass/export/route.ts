@@ -19,6 +19,7 @@ export async function GET(request: Request) {
     { header: "Stopp", key: "stop", width: 18 },
     { header: "Typ", key: "typ", width: 10 },
     { header: "Målart", key: "malart", width: 20 },
+    { header: "Vattentemperatur (°C)", key: "waterTempC", width: 18 },
     { header: "Antal fångster", key: "catchCount", width: 14 },
   ];
   sheet.getRow(1).font = { bold: true };
@@ -29,6 +30,7 @@ export async function GET(request: Request) {
       stop: pass.stop_time,
       typ: pass.team_id ? "Team" : "Ensam",
       malart: pass.target_species?.join(", ") ?? "",
+      waterTempC: pass.water_temp_c,
       catchCount: pass.catch_count,
     });
     row.getCell("start").numFmt = "yyyy-mm-dd hh:mm";

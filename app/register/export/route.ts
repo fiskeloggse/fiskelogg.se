@@ -1,6 +1,8 @@
 import ExcelJS from "exceljs";
 import { getCurrentUser } from "@/lib/dal";
 import { getFilteredCatches, parseRegisterFilters } from "@/lib/register-catches";
+import { windDirLabel } from "@/lib/constants";
+import { getMoonPhase } from "@/lib/moon-phase";
 
 export async function GET(request: Request) {
   const user = await getCurrentUser();
@@ -20,7 +22,18 @@ export async function GET(request: Request) {
     { header: "Vikt (kg)", key: "weightKg", width: 11 },
     { header: "Vatten", key: "lake", width: 16 },
     { header: "Plats", key: "location", width: 16 },
+    { header: "Fiskemetod", key: "method", width: 16 },
     { header: "Bete", key: "bait", width: 14 },
+    { header: "Vattentemperatur (°C)", key: "waterTempC", width: 18 },
+    { header: "Väder", key: "weatherDescription", width: 16 },
+    { header: "Lufttemperatur (°C)", key: "weatherTempC", width: 16 },
+    { header: "Vind (m/s)", key: "windMs", width: 11 },
+    { header: "Vindriktning", key: "windDir", width: 12 },
+    { header: "Lufttryck (hPa)", key: "pressure", width: 14 },
+    { header: "Molnighet (%)", key: "cloudPct", width: 13 },
+    { header: "Månfas", key: "moonPhase", width: 14 },
+    { header: "Latitud", key: "latitude", width: 12 },
+    { header: "Longitud", key: "longitude", width: 12 },
     { header: "Kommentar", key: "comment", width: 24 },
     { header: "Datum", key: "caughtAt", width: 18 },
   ];
@@ -33,7 +46,20 @@ export async function GET(request: Request) {
       weightKg: c.weight_kg,
       lake: c.lake,
       location: c.location,
+      method: c.method,
       bait: c.bait,
+      waterTempC: c.water_temp_c,
+      weatherDescription: c.weather_description,
+      weatherTempC: c.weather_temp_c,
+      windMs:
+        c.weather_wind_kmh != null ? Math.round(c.weather_wind_kmh / 3.6) : null,
+      windDir:
+        c.weather_wind_dir_deg != null ? windDirLabel(c.weather_wind_dir_deg) : null,
+      pressure: c.weather_pressure_hpa,
+      cloudPct: c.weather_cloud_pct,
+      moonPhase: getMoonPhase(c.caught_at).label,
+      latitude: c.latitude,
+      longitude: c.longitude,
       comment: c.comment,
       caughtAt: c.caught_at,
     });

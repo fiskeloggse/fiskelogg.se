@@ -267,7 +267,7 @@ export async function getFilteredCatches(
     SORT_OPTIONS[0].column;
 
   return sql<Catch[]>`
-    select id, user_id, species, length_cm, weight_kg, lake, location, method, bait, comment, latitude, longitude, caught_at,
+    select id, user_id, species, length_cm, weight_kg, lake, location, method, bait, comment, water_temp_c, latitude, longitude, caught_at,
       weather_temp_c, weather_description, weather_wind_kmh, weather_wind_dir_deg, weather_pressure_hpa, weather_cloud_pct,
       photo_url
     from catches
