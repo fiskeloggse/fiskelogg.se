@@ -205,6 +205,9 @@ export default async function Home(props: PageProps<"/">) {
         showBingo={user.show_bingo}
         showSpeciesCollection={user.show_species_collection}
         showFiskepass={user.show_fiskepass}
+        logPosition={user.log_position}
+        logWeather={user.log_weather}
+        fillWater={user.fill_water}
         autoOpen={!user.onboarding_completed_at}
       />
 

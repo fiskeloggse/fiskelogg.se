@@ -18,7 +18,7 @@ import {
 } from "@/lib/constants";
 import ChangePasswordButton from "@/app/components/change-password-button";
 import InviteForm from "@/app/components/invite-form";
-import { PositionIcon, WeatherIcon, WaterIcon } from "@/app/components/logging-icons";
+import { LOGGING_OPTIONS } from "@/app/components/logging-icons";
 import OnboardingGuide from "@/app/components/onboarding-guide";
 import SaveButton from "@/app/components/save-button";
 import TeamNameForm from "@/app/components/team-name-form";
@@ -29,31 +29,6 @@ import ImportCatchesToggle from "@/app/components/import-catches-toggle";
 export const metadata: Metadata = {
   title: "Konto – Fisklogg",
 };
-
-// Same icons the per-catch logging toggles use (catch-form.tsx) and the
-// Starta fiskepass toggles (fiskepass-bar.tsx) -- checking one here just
-// sets the default state those start at, still adjustable in the moment.
-const iconClassName = "h-4 w-4 text-zinc-500 dark:text-zinc-400";
-const LOGGING_OPTIONS = [
-  {
-    key: "log_position",
-    label: "Position",
-    hint: "Sparar exakt position och visar fångsten på kartan.",
-    icon: <PositionIcon className={iconClassName} />,
-  },
-  {
-    key: "log_weather",
-    label: "Väder",
-    hint: "Hämtar och sparar väder vid loggningen.",
-    icon: <WeatherIcon className="text-base" />,
-  },
-  {
-    key: "fill_water",
-    label: "Vatten",
-    hint: "Fyller i vattnets namn automatiskt utifrån din position.",
-    icon: <WaterIcon className={iconClassName} />,
-  },
-] as const;
 
 export default async function KontoPage() {
   const user = await requireUser();
@@ -89,6 +64,9 @@ export default async function KontoPage() {
             showBingo={user.show_bingo}
             showSpeciesCollection={user.show_species_collection}
             showFiskepass={user.show_fiskepass}
+            logPosition={user.log_position}
+            logWeather={user.log_weather}
+            fillWater={user.fill_water}
             withTrigger
           />
         </div>

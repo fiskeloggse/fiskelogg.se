@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState, useTransition } from "react";
 import { completeOnboarding, skipOnboarding } from "@/app/actions/preferences";
+import { LOGGING_OPTIONS } from "@/app/components/logging-icons";
 
 type Step = "welcome" | "features";
 
@@ -13,12 +14,18 @@ export default function OnboardingGuide({
   showBingo,
   showSpeciesCollection,
   showFiskepass,
+  logPosition,
+  logWeather,
+  fillWater,
   autoOpen = false,
   withTrigger = false,
 }: {
   showBingo: boolean;
   showSpeciesCollection: boolean;
   showFiskepass: boolean;
+  logPosition: boolean;
+  logWeather: boolean;
+  fillWater: boolean;
   autoOpen?: boolean;
   withTrigger?: boolean;
 }) {
@@ -106,15 +113,19 @@ export default function OnboardingGuide({
             </div>
           </div>
         ) : (
-          <form action={handleComplete} className="flex flex-col gap-4 p-5">
+          <form
+            action={handleComplete}
+            className="flex max-h-[85vh] flex-col gap-4 overflow-y-auto p-5"
+          >
             <div>
               <h2 className="text-lg font-semibold">Vilka funktioner vill du använda?</h2>
               <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
-                Du kan alltid ändra detta senare under Konto → Funktioner.
+                Du kan alltid ändra detta senare under Konto.
               </p>
             </div>
 
-            <div className="flex flex-col gap-3">
+            <fieldset className="flex flex-col gap-3">
+              <legend className="text-sm font-medium">Funktioner</legend>
               <label className="flex items-center gap-2 text-sm">
                 <input
                   type="checkbox"
@@ -139,7 +150,36 @@ export default function OnboardingGuide({
                 />
                 Visa Fiskepass
               </label>
-            </div>
+            </fieldset>
+
+            <fieldset className="flex flex-col gap-3 border-t border-black/10 pt-3 dark:border-white/15">
+              <legend className="text-sm font-medium">Logga automatiskt</legend>
+              {LOGGING_OPTIONS.map((option) => (
+                <label key={option.key} className="flex items-start gap-2 text-sm">
+                  <input
+                    type="checkbox"
+                    name={option.key}
+                    defaultChecked={
+                      option.key === "log_position"
+                        ? logPosition
+                        : option.key === "log_weather"
+                          ? logWeather
+                          : fillWater
+                    }
+                    className="mt-0.5"
+                  />
+                  <span>
+                    <span className="inline-flex items-center gap-1.5">
+                      {option.label}
+                      {option.icon}
+                    </span>
+                    <span className="block text-xs text-zinc-500 dark:text-zinc-400">
+                      {option.hint}
+                    </span>
+                  </span>
+                </label>
+              ))}
+            </fieldset>
 
             <div className="flex items-center justify-between pt-2">
               <button

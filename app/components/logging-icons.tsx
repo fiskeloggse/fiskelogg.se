@@ -46,3 +46,29 @@ export function WaterIcon({ className }: { className?: string }) {
     </svg>
   );
 }
+
+const iconClassName = "h-4 w-4 text-zinc-500 dark:text-zinc-400";
+
+// Shared between Konto → Loggning and the first-login onboarding guide, so
+// both pickers offer the exact same three logging choices with matching
+// icons and copy.
+export const LOGGING_OPTIONS = [
+  {
+    key: "log_position",
+    label: "Position",
+    hint: "Sparar exakt position och visar fångsten på kartan.",
+    icon: <PositionIcon className={iconClassName} />,
+  },
+  {
+    key: "log_weather",
+    label: "Väder",
+    hint: "Hämtar och sparar väder vid loggningen.",
+    icon: <WeatherIcon className="text-base" />,
+  },
+  {
+    key: "fill_water",
+    label: "Vatten",
+    hint: "Fyller i vattnets namn automatiskt utifrån din position.",
+    icon: <WaterIcon className={iconClassName} />,
+  },
+] as const;
