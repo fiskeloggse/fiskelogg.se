@@ -76,6 +76,14 @@ export default async function FiskepassDetailPage(
   const catches = await getFiskepassCatches(user.id, passId);
   const speciesSummaries = computeSpeciesSummaries(catches);
 
+  // Same order as the register list: the pass's own water first, then any
+  // other waters its catches were logged at.
+  const catchWaters = catches
+    .map((c) => c.lake)
+    .filter((w): w is string => Boolean(w))
+    .sort((a, b) => a.localeCompare(b, "sv"));
+  const waters = [...new Set([...(pass.lake ? [pass.lake] : []), ...catchWaters])];
+
   return (
     <main className="mx-auto flex w-full max-w-4xl flex-1 flex-col gap-6 px-4 py-10 sm:px-6">
       <Link
@@ -100,6 +108,7 @@ export default async function FiskepassDetailPage(
           {pass.target_species && pass.target_species.length > 0 && (
             <p>Målart: {pass.target_species.join(", ")}</p>
           )}
+          {waters.length > 0 && <p>Vatten: {waters.join(", ")}</p>}
           {pass.water_temp_c != null && <p>Vattentemperatur: {pass.water_temp_c}°C</p>}
           <p>
             {catches.length} {catches.length === 1 ? "fångst" : "fångster"}

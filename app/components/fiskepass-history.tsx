@@ -10,6 +10,7 @@ import type { MappedCatchRow } from "@/lib/stats";
 import { WEATHER_DESCRIPTION_ICONS } from "@/lib/constants";
 import { getMoonPhase } from "@/lib/moon-phase";
 import ConfirmDeleteButton from "./confirm-delete-button";
+import TextSuggestInput from "./text-suggest-input";
 import WatersMap from "./waters-map";
 
 const inputClassName =
@@ -205,8 +206,15 @@ function formatDuration(start: Date, stop: Date): string {
   return `${hours} h ${minutes} min`;
 }
 
-function FiskepassRow({ pass }: { pass: FiskepassWithCatchCount }) {
+function FiskepassRow({
+  pass,
+  lakeOptions,
+}: {
+  pass: FiskepassWithCatchCount;
+  lakeOptions: string[];
+}) {
   const [editing, setEditing] = useState(false);
+  const [lake, setLake] = useState(pass.lake ?? "");
   const [state, formAction, pending] = useActionState(updateFiskepass, undefined);
   const [startLocal, setStartLocal] = useState(toDatetimeLocalValue(pass.start_time));
   const [stopLocal, setStopLocal] = useState(
@@ -233,6 +241,21 @@ function FiskepassRow({ pass }: { pass: FiskepassWithCatchCount }) {
       <li className="rounded-xl border border-black/[0.06] bg-white p-4 shadow-sm dark:border-white/15 dark:bg-white/5">
         <form action={formAction} className="flex flex-col gap-3">
           <input type="hidden" name="id" value={pass.id} />
+          <div className="flex flex-col gap-1.5">
+            <label htmlFor={`fiskepass-lake-${pass.id}`} className="text-sm font-medium">
+              Vatten
+            </label>
+            <TextSuggestInput
+              id={`fiskepass-lake-${pass.id}`}
+              name="lake"
+              value={lake}
+              onChange={setLake}
+              options={lakeOptions}
+              showAllWhenEmpty
+              placeholder="t.ex. Vättern"
+              className={inputClassName}
+            />
+          </div>
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             <div className="flex flex-col gap-1.5">
               <label className="text-sm font-medium">Start</label>
@@ -360,9 +383,11 @@ function FiskepassRow({ pass }: { pass: FiskepassWithCatchCount }) {
 
 export default function FiskepassHistory({
   history,
+  lakeOptions,
   hasSearch = false,
 }: {
   history: FiskepassWithCatchCount[];
+  lakeOptions: string[];
   hasSearch?: boolean;
 }) {
   if (history.length === 0) {
@@ -376,7 +401,7 @@ export default function FiskepassHistory({
   return (
     <ul className="flex flex-col gap-2">
       {history.map((pass) => (
-        <FiskepassRow key={pass.id} pass={pass} />
+        <FiskepassRow key={pass.id} pass={pass} lakeOptions={lakeOptions} />
       ))}
     </ul>
   );

@@ -133,6 +133,7 @@ const UpdateFiskepassSchema = z
     startTime: z.iso.datetime({ offset: true, error: "Ange en giltig starttid." }),
     // Empty means "still open" -- only a completed pass has a stop time.
     stopTime: z.string(),
+    lake: z.string().trim().max(100, { error: "Vattnets namn är för långt." }),
   })
   .refine(
     (data) =>
@@ -155,18 +156,21 @@ export async function updateFiskepass(
     id: formData.get("id"),
     startTime: formData.get("startTime"),
     stopTime: formData.get("stopTime") ?? "",
+    lake: formData.get("lake") ?? "",
   });
 
   if (!parsed.success) {
     return { error: parsed.error.issues[0]?.message ?? "Ogiltiga uppgifter." };
   }
 
-  const { id, startTime, stopTime } = parsed.data;
+  const { id, startTime, stopTime, lake } = parsed.data;
 
   try {
     await sql`
       update fiskepass
-      set start_time = ${startTime}, stop_time = ${stopTime === "" ? null : stopTime}
+      set start_time = ${startTime},
+        stop_time = ${stopTime === "" ? null : stopTime},
+        lake = ${lake === "" ? null : lake}
       where id = ${id} and user_id = ${user.id} and deleted_at is null
     `;
   } catch (err) {
@@ -181,6 +185,7 @@ export async function updateFiskepass(
   revalidatePath("/");
   revalidatePath("/statistik");
   revalidatePath("/register/fiskepass");
+  revalidatePath(`/register/fiskepass/${id}`);
   return { success: true };
 }
 

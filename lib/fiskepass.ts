@@ -10,6 +10,7 @@ export type Fiskepass = {
   team_id: number | null;
   target_species: string[] | null;
   water_temp_c: number | null;
+  lake: string | null;
   log_position: boolean | null;
   log_weather: boolean | null;
   fill_water: boolean | null;
@@ -51,21 +52,26 @@ function catchCountSubquery() {
   )`;
 }
 
-// Distinct named waters among the pass's catches, same time-window and
-// team/solo scope as catchCountSubquery.
+// The pass's own water first (if set), then any other distinct waters among
+// its catches -- same time-window and team/solo scope as catchCountSubquery.
 function watersSubquery() {
   return sql`array(
-    select distinct c.lake from catches c
-    join users u on u.id = c.user_id
-    where c.deleted_at is null
-      and c.lake is not null and c.lake <> ''
-      and c.caught_at >= fp.start_time
-      and (fp.stop_time is null or c.caught_at <= fp.stop_time)
-      and (
-        (fp.team_id is not null and u.team_id = fp.team_id)
-        or (fp.team_id is null and c.user_id = fp.user_id)
-      )
-    order by c.lake
+    select w from (
+      select fp.lake as w, 0 as rank
+      union
+      select c.lake, 1 from catches c
+      join users u on u.id = c.user_id
+      where c.deleted_at is null
+        and c.caught_at >= fp.start_time
+        and (fp.stop_time is null or c.caught_at <= fp.stop_time)
+        and (
+          (fp.team_id is not null and u.team_id = fp.team_id)
+          or (fp.team_id is null and c.user_id = fp.user_id)
+        )
+    ) waters
+    where w is not null and w <> ''
+    group by w
+    order by min(rank), w
   )`;
 }
 
@@ -105,7 +111,7 @@ export async function getFiskepassById(
   passId: number
 ): Promise<Fiskepass | null> {
   const [pass] = await sql<Fiskepass[]>`
-    select id, user_id, team_id, target_species, water_temp_c, log_position, log_weather, fill_water, start_time, stop_time, created_at
+    select id, user_id, team_id, target_species, water_temp_c, lake, log_position, log_weather, fill_water, start_time, stop_time, created_at
     from fiskepass
     where id = ${passId} and user_id = ${userId} and deleted_at is null
   `;
@@ -119,7 +125,7 @@ export async function getOpenFiskepass(
   teamId: number | null
 ): Promise<Fiskepass | null> {
   const [pass] = await sql<Fiskepass[]>`
-    select id, user_id, team_id, target_species, water_temp_c, log_position, log_weather, fill_water, start_time, stop_time, created_at
+    select id, user_id, team_id, target_species, water_temp_c, lake, log_position, log_weather, fill_water, start_time, stop_time, created_at
     from fiskepass
     where stop_time is null
       and deleted_at is null
@@ -230,6 +236,7 @@ function fiskepassSearchCondition(q: string) {
         select 1 from unnest(coalesce(fp.target_species, '{}'::text[])) t
         where t ilike ${pattern}
       )
+      or fp.lake ilike ${pattern}
       or exists (
         select 1 from catches c
         join users u on u.id = c.user_id
@@ -286,7 +293,7 @@ export async function getFiskepassHistory(
     FISKEPASS_SORT_OPTIONS[0].column;
 
   return sql<FiskepassWithCatchCount[]>`
-    select fp.id, fp.user_id, fp.team_id, fp.target_species, fp.water_temp_c, fp.log_position, fp.log_weather, fp.fill_water, fp.start_time, fp.stop_time, fp.created_at,
+    select fp.id, fp.user_id, fp.team_id, fp.target_species, fp.water_temp_c, fp.lake, fp.log_position, fp.log_weather, fp.fill_water, fp.start_time, fp.stop_time, fp.created_at,
       ${catchCountSubquery()} as catch_count,
       ${watersSubquery()} as waters
     from fiskepass fp
@@ -299,7 +306,7 @@ export async function getFiskepassHistory(
 
 export async function getTrashedFiskepass(userId: number): Promise<TrashedFiskepass[]> {
   return sql<TrashedFiskepass[]>`
-    select fp.id, fp.user_id, fp.team_id, fp.target_species, fp.water_temp_c, fp.log_position, fp.log_weather, fp.fill_water, fp.start_time, fp.stop_time, fp.created_at,
+    select fp.id, fp.user_id, fp.team_id, fp.target_species, fp.water_temp_c, fp.lake, fp.log_position, fp.log_weather, fp.fill_water, fp.start_time, fp.stop_time, fp.created_at,
       fp.deleted_at,
       ${catchCountSubquery()} as catch_count,
       ${watersSubquery()} as waters

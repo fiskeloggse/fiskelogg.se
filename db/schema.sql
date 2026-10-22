@@ -254,3 +254,8 @@ create unique index if not exists users_email_lower_idx on users (lower(email));
 -- lets someone join without already having an account. Regenerating
 -- (overwriting this) is how an existing link gets revoked.
 alter table teams add column if not exists invite_token text unique;
+
+-- The pass's own water, editable on the pass itself -- so a pass with no
+-- catches (or catches without a lake) can still say where it was fished.
+-- Shown together with the distinct waters of its catches.
+alter table fiskepass add column if not exists lake text;

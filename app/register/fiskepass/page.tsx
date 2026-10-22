@@ -10,6 +10,7 @@ import {
   parseFiskepassFilters,
 } from "@/lib/fiskepass";
 import { parsePagination, toURLSearchParams } from "@/lib/register-catches";
+import { getLakeSuggestions } from "@/lib/lake-suggestions";
 import FiskepassFilterBar from "@/app/components/fiskepass-filter-bar";
 import FiskepassHistory from "@/app/components/fiskepass-history";
 import RegisterMapToggle from "@/app/components/register-map-toggle";
@@ -32,12 +33,14 @@ export default async function RegisterFiskepassPage(
   const hasFilters = hasActiveFiskepassFilters(filters);
   const { page: requestedPage, pageSize } = parsePagination(params);
 
-  const [history, targetSpeciesOptions, yearOptions, mapCatches] = await Promise.all([
-    getFiskepassHistory(user.id, filters),
-    getDistinctTargetSpecies(user.id),
-    getDistinctFiskepassYears(user.id),
-    getFiskepassMapCatches(user.id, filters),
-  ]);
+  const [history, targetSpeciesOptions, yearOptions, mapCatches, lakeSuggestions] =
+    await Promise.all([
+      getFiskepassHistory(user.id, filters),
+      getDistinctTargetSpecies(user.id),
+      getDistinctFiskepassYears(user.id),
+      getFiskepassMapCatches(user.id, filters),
+      getLakeSuggestions(user.id),
+    ]);
 
   const exportHref = `/register/fiskepass/export?${params.toString()}`;
 
@@ -82,7 +85,11 @@ export default async function RegisterFiskepassPage(
         <RegisterMapToggle catches={mapCatches} />
       </div>
 
-      <FiskepassHistory history={pageHistory} hasSearch={hasFilters} />
+      <FiskepassHistory
+        history={pageHistory}
+        lakeOptions={lakeSuggestions.all}
+        hasSearch={hasFilters}
+      />
 
       <RegisterPagination
         basePath="/register/fiskepass"
