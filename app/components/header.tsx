@@ -6,8 +6,13 @@ import FeedbackButton from "@/app/components/feedback-button";
 export default async function Header() {
   const user = await getCurrentUser();
 
+  // Sticky with a solid background so iOS Safari extends the header's color
+  // up into the status bar area -- without a fixed/sticky top element,
+  // Safari 26 instead softly blurs whatever content sits right under the
+  // status bar, which smeared the top edge of the logo, Beta badge and
+  // Feedback button.
   return (
-    <header className="border-b border-black/10 dark:border-white/10">
+    <header className="sticky top-0 z-40 border-b border-black/10 bg-background dark:border-white/10">
       <div className="mx-auto flex max-w-4xl items-center gap-4 px-4 py-2.5 sm:py-4 sm:px-6">
         <Link
           href="/"

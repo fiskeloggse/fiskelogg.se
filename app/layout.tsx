@@ -23,6 +23,12 @@ export const viewport: Viewport = {
   initialScale: 1,
   maximumScale: 1,
   userScalable: false,
+  // Matches --background, so the browser chrome / status bar blends into
+  // the page instead of showing a contrasting band.
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#f6f7f9" },
+    { media: "(prefers-color-scheme: dark)", color: "#090b10" },
+  ],
 };
 
 const THEME_INIT_SCRIPT = `

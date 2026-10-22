@@ -7,8 +7,8 @@ export default function manifest(): MetadataRoute.Manifest {
     description: "Logga dina fångster – art, längd, vikt och tid.",
     start_url: "/",
     display: "standalone",
-    background_color: "#ffffff",
-    theme_color: "#0a0a0a",
+    background_color: "#f6f7f9",
+    theme_color: "#f6f7f9",
     icons: [
       {
         src: "/icon.png",
