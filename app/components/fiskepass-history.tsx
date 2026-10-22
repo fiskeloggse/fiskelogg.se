@@ -178,8 +178,31 @@ function toDatetimeLocalValue(date: Date) {
   return local.toISOString().slice(0, 16);
 }
 
-function formatDateTime(date: Date) {
-  return date.toLocaleString("sv-SE", { dateStyle: "medium", timeStyle: "short" });
+function formatDay(date: Date) {
+  return date.toLocaleDateString("sv-SE", { dateStyle: "medium" });
+}
+
+// Dates only -- clock times live on the pass's own page. A pass running
+// past midnight shows both days.
+function formatPassDates(start: Date, stop: Date | null) {
+  const startDay = formatDay(start);
+  if (!stop) return startDay;
+  const stopDay = formatDay(stop);
+  if (stopDay === startDay) return startDay;
+  const sameYear = start.getFullYear() === stop.getFullYear();
+  const startLabel = sameYear
+    ? start.toLocaleDateString("sv-SE", { day: "numeric", month: "short" })
+    : startDay;
+  return `${startLabel} – ${stopDay}`;
+}
+
+function formatDuration(start: Date, stop: Date): string {
+  const totalMinutes = Math.max(0, Math.round((stop.getTime() - start.getTime()) / 60000));
+  const hours = Math.floor(totalMinutes / 60);
+  const minutes = totalMinutes % 60;
+  if (hours === 0) return `${minutes} min`;
+  if (minutes === 0) return `${hours} h`;
+  return `${hours} h ${minutes} min`;
 }
 
 function FiskepassRow({ pass }: { pass: FiskepassWithCatchCount }) {
@@ -207,7 +230,7 @@ function FiskepassRow({ pass }: { pass: FiskepassWithCatchCount }) {
 
   if (editing) {
     return (
-      <li className="rounded-xl border border-black/10 p-4 dark:border-white/15">
+      <li className="rounded-xl border border-black/[0.06] bg-white p-4 shadow-sm dark:border-white/15 dark:bg-white/5">
         <form action={formAction} className="flex flex-col gap-3">
           <input type="hidden" name="id" value={pass.id} />
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
@@ -273,17 +296,22 @@ function FiskepassRow({ pass }: { pass: FiskepassWithCatchCount }) {
     <li>
       <details
         name="fiskepass-row"
-        className="rounded-xl border border-black/10 dark:border-white/15"
+        className="rounded-xl border border-black/[0.06] bg-white shadow-sm dark:border-white/15 dark:bg-white/5"
         onToggle={handleToggle}
       >
         <summary className="flex cursor-pointer list-none items-center justify-between gap-3 px-4 py-3 text-sm">
           <div>
             <p className="font-medium">
-              {formatDateTime(pass.start_time)}
-              {pass.stop_time ? ` – ${formatDateTime(pass.stop_time)}` : " – pågår"}
+              {formatPassDates(pass.start_time, pass.stop_time)}
               <span className="ml-2 rounded-full bg-black/10 px-2 py-0.5 text-xs font-normal text-slate-500 dark:bg-white/10 dark:text-slate-400">
                 {pass.team_id ? "Team" : "Ensam"}
               </span>
+            </p>
+            <p className="text-slate-700 dark:text-slate-300">
+              <span className="tabular-nums">
+                {pass.stop_time ? formatDuration(pass.start_time, pass.stop_time) : "Pågår"}
+              </span>
+              {pass.waters.length > 0 && ` · ${pass.waters.join(", ")}`}
             </p>
             <p className="text-slate-500 dark:text-slate-400">
               {pass.target_species && pass.target_species.length > 0

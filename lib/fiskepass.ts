@@ -18,7 +18,7 @@ export type Fiskepass = {
   created_at: Date;
 };
 
-export type FiskepassWithCatchCount = Fiskepass & { catch_count: number };
+export type FiskepassWithCatchCount = Fiskepass & { catch_count: number; waters: string[] };
 
 export type TrashedFiskepass = FiskepassWithCatchCount & { deleted_at: Date };
 
@@ -48,6 +48,24 @@ function catchCountSubquery() {
         (fp.team_id is not null and u.team_id = fp.team_id)
         or (fp.team_id is null and c.user_id = fp.user_id)
       )
+  )`;
+}
+
+// Distinct named waters among the pass's catches, same time-window and
+// team/solo scope as catchCountSubquery.
+function watersSubquery() {
+  return sql`array(
+    select distinct c.lake from catches c
+    join users u on u.id = c.user_id
+    where c.deleted_at is null
+      and c.lake is not null and c.lake <> ''
+      and c.caught_at >= fp.start_time
+      and (fp.stop_time is null or c.caught_at <= fp.stop_time)
+      and (
+        (fp.team_id is not null and u.team_id = fp.team_id)
+        or (fp.team_id is null and c.user_id = fp.user_id)
+      )
+    order by c.lake
   )`;
 }
 
@@ -269,7 +287,8 @@ export async function getFiskepassHistory(
 
   return sql<FiskepassWithCatchCount[]>`
     select fp.id, fp.user_id, fp.team_id, fp.target_species, fp.water_temp_c, fp.log_position, fp.log_weather, fp.fill_water, fp.start_time, fp.stop_time, fp.created_at,
-      ${catchCountSubquery()} as catch_count
+      ${catchCountSubquery()} as catch_count,
+      ${watersSubquery()} as waters
     from fiskepass fp
     where fp.user_id = ${userId}
       and fp.deleted_at is null
@@ -282,7 +301,8 @@ export async function getTrashedFiskepass(userId: number): Promise<TrashedFiskep
   return sql<TrashedFiskepass[]>`
     select fp.id, fp.user_id, fp.team_id, fp.target_species, fp.water_temp_c, fp.log_position, fp.log_weather, fp.fill_water, fp.start_time, fp.stop_time, fp.created_at,
       fp.deleted_at,
-      ${catchCountSubquery()} as catch_count
+      ${catchCountSubquery()} as catch_count,
+      ${watersSubquery()} as waters
     from fiskepass fp
     where fp.user_id = ${userId} and fp.deleted_at is not null
     order by fp.deleted_at desc
