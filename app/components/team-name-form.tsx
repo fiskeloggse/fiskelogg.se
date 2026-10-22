@@ -28,7 +28,7 @@ export default function TeamNameForm({
         <button
           type="submit"
           disabled={pending}
-          className="shrink-0 rounded-full bg-foreground px-4 py-2 text-sm font-medium text-background disabled:opacity-60"
+          className="shrink-0 rounded-full bg-accent hover:bg-accent-hover px-4 py-2 text-sm font-medium text-white disabled:opacity-60"
         >
           {pending ? "Sparar…" : "Spara"}
         </button>

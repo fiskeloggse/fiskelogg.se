@@ -67,7 +67,7 @@ export default function OnboardingGuide({
         <button
           type="button"
           onClick={() => setOpen(true)}
-          className="self-start rounded-full border border-black/10 px-4 py-2 text-sm font-medium transition-colors hover:bg-black/5 dark:border-white/15 dark:hover:bg-white/10"
+          className="self-start rounded-full border border-black/10 bg-white px-4 py-2 text-sm font-medium transition-colors hover:bg-black/5 dark:border-white/15 dark:bg-white/5 dark:hover:bg-white/10"
         >
           Visa guiden
         </button>
@@ -82,12 +82,12 @@ export default function OnboardingGuide({
         onClick={(e) => {
           if (e.target === dialogRef.current) handleSkip();
         }}
-        className="m-auto w-[min(90vw,28rem)] rounded-xl border border-black/10 bg-white p-0 backdrop:bg-black/40 dark:border-white/15 dark:bg-zinc-900"
+        className="m-auto w-[min(90vw,28rem)] rounded-xl border border-black/[0.06] bg-white shadow-2xl p-0 backdrop:bg-black/40 dark:border-white/15 dark:bg-slate-900"
       >
         {step === "welcome" ? (
           <div className="flex flex-col gap-4 p-5">
             <h2 className="text-lg font-semibold">Välkommen till Fisklogg!</h2>
-            <p className="text-sm text-zinc-500 dark:text-zinc-400">
+            <p className="text-sm text-slate-500 dark:text-slate-400">
               Logga fångster på sekunder, håll koll på statistik över tid och
               tävla i egna utmaningar — solo eller med ditt fiskelag. Låt oss
               snabbt välja vilka delar av appen du vill ha framme.
@@ -97,14 +97,14 @@ export default function OnboardingGuide({
                 type="button"
                 onClick={handleSkip}
                 disabled={pending}
-                className="text-sm text-zinc-500 hover:text-foreground disabled:opacity-60 dark:text-zinc-400"
+                className="text-sm text-slate-500 hover:text-foreground disabled:opacity-60 dark:text-slate-400"
               >
                 Hoppa över
               </button>
               <button
                 type="button"
                 onClick={() => setStep("features")}
-                className="rounded-full bg-foreground px-4 py-2 text-sm font-medium text-background"
+                className="rounded-full bg-accent hover:bg-accent-hover px-4 py-2 text-sm font-medium text-white"
               >
                 Nästa
               </button>
@@ -117,7 +117,7 @@ export default function OnboardingGuide({
           >
             <div>
               <h2 className="text-lg font-semibold">Vilka funktioner vill du använda?</h2>
-              <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
+              <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
                 Du kan alltid ändra detta senare under Konto.
               </p>
             </div>
@@ -143,7 +143,7 @@ export default function OnboardingGuide({
                       {option.label}
                       {option.icon}
                     </span>
-                    <span className="block text-xs text-zinc-500 dark:text-zinc-400">
+                    <span className="block text-xs text-slate-500 dark:text-slate-400">
                       {option.hint}
                     </span>
                   </span>
@@ -169,7 +169,7 @@ export default function OnboardingGuide({
                 />
                 Visa Artjakten (under Utmaningar)
               </label>
-              <p className="text-xs text-zinc-400 dark:text-zinc-500">
+              <p className="text-xs text-slate-400 dark:text-slate-500">
                 Utmaningar-fliken visas så länge minst en av dessa två är på.
               </p>
             </fieldset>
@@ -179,14 +179,14 @@ export default function OnboardingGuide({
                 type="button"
                 onClick={() => setStep("welcome")}
                 disabled={pending}
-                className="text-sm text-zinc-500 hover:text-foreground disabled:opacity-60 dark:text-zinc-400"
+                className="text-sm text-slate-500 hover:text-foreground disabled:opacity-60 dark:text-slate-400"
               >
                 Tillbaka
               </button>
               <button
                 type="submit"
                 disabled={pending}
-                className="rounded-full bg-foreground px-4 py-2 text-sm font-medium text-background disabled:opacity-60"
+                className="rounded-full bg-accent hover:bg-accent-hover px-4 py-2 text-sm font-medium text-white disabled:opacity-60"
               >
                 {pending ? "Sparar…" : "Klar"}
               </button>

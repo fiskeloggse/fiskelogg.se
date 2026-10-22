@@ -196,7 +196,7 @@ export default function WatersMap({
             permanent: true,
             direction: "top",
             offset: [0, -30],
-            className: "!rounded-full !border-none !bg-foreground !px-2 !py-0.5 !text-background !text-xs !font-medium",
+            className: "!rounded-full !border-none !bg-accent hover:bg-accent-hover !px-2 !py-0.5 !text-white !text-xs !font-medium",
           });
           marker.on("click", () => setExpandedLake(group.lake));
           marker.addTo(layer);
@@ -240,7 +240,7 @@ export default function WatersMap({
         <button
           type="button"
           onClick={() => setExpandedLake(null)}
-          className="absolute left-2 top-2 z-[1000] rounded-lg border border-black/10 bg-white px-2 py-1 text-xs font-medium shadow dark:border-white/15 dark:bg-zinc-900"
+          className="absolute left-2 top-2 z-[1000] rounded-full border border-black/10 bg-white px-2 py-1 text-xs font-medium shadow dark:border-white/15 dark:bg-slate-900"
         >
           ← Alla vatten
         </button>
@@ -248,14 +248,14 @@ export default function WatersMap({
       <button
         type="button"
         onClick={() => setFullscreen((v) => !v)}
-        className="absolute right-2 top-2 z-[1000] rounded-lg border border-black/10 bg-white px-2 py-1 text-xs font-medium shadow dark:border-white/15 dark:bg-zinc-900"
+        className="absolute right-2 top-2 z-[1000] rounded-full border border-black/10 bg-white px-2 py-1 text-xs font-medium shadow dark:border-white/15 dark:bg-slate-900"
       >
         {fullscreen ? "Stäng" : "Fullskärm"}
       </button>
       <button
         type="button"
         onClick={() => setTileType((t) => (t === "street" ? "satellite" : "street"))}
-        className="absolute left-2 bottom-2 z-[1000] rounded-lg border border-black/10 bg-white px-2 py-1 text-xs font-medium shadow dark:border-white/15 dark:bg-zinc-900"
+        className="absolute left-2 bottom-2 z-[1000] rounded-full border border-black/10 bg-white px-2 py-1 text-xs font-medium shadow dark:border-white/15 dark:bg-slate-900"
       >
         {tileType === "street" ? "Satellit" : "Karta"}
       </button>

@@ -19,7 +19,7 @@ import {
 import DualRangeSlider from "./dual-range-slider";
 
 const inputClassName =
-  "rounded-lg border border-black/10 bg-white px-2 py-1.5 text-sm dark:border-white/15 dark:bg-transparent";
+  "w-full rounded-lg border border-black/10 bg-white px-2 py-1.5 text-sm dark:border-white/15 dark:bg-transparent";
 
 const POPOVER_WIDTH = 224; // matches w-56
 
@@ -120,7 +120,7 @@ export function HeaderPopover({
           <div
             ref={panelRef}
             style={{ top: coords.top, left: coords.left, width: POPOVER_WIDTH }}
-            className="fixed z-50 rounded-lg border border-black/10 bg-white p-3 text-sm font-normal normal-case shadow-lg dark:border-white/15 dark:bg-zinc-900"
+            className="fixed z-50 rounded-lg border border-black/10 bg-white p-3 text-sm font-normal normal-case shadow-lg dark:border-white/15 dark:bg-slate-900"
           >
             {children(() => setOpen(false))}
           </div>,
@@ -171,7 +171,7 @@ export function SelectColumnFilter({
   function optionClassName(selected: boolean) {
     return (
       "rounded px-2 py-1.5 text-left transition-colors hover:bg-black/5 dark:hover:bg-white/10 " +
-      (selected ? "font-medium text-foreground" : "text-zinc-500 dark:text-zinc-400")
+      (selected ? "font-medium text-foreground" : "text-slate-500 dark:text-slate-400")
     );
   }
 
@@ -252,7 +252,7 @@ export function SortToggle({
         "text-xs underline hover:text-foreground " +
         (isActive
           ? "text-foreground"
-          : "text-zinc-500 dark:text-zinc-400")
+          : "text-slate-500 dark:text-slate-400")
       }
     >
       {label}: {isAsc ? descLabel : ascLabel}
@@ -345,7 +345,7 @@ export function MeasurementColumnFilter() {
               });
               close();
             }}
-            className="self-start rounded-full bg-foreground px-3 py-1.5 text-xs font-medium text-background"
+            className="self-start rounded-full bg-accent hover:bg-accent-hover px-3 py-1.5 text-xs font-medium text-white"
           >
             Filtrera
           </button>
@@ -494,7 +494,7 @@ export function WeatherColumnFilter() {
               });
               close();
             }}
-            className="self-start rounded-full bg-foreground px-3 py-1.5 text-xs font-medium text-background"
+            className="self-start rounded-full bg-accent hover:bg-accent-hover px-3 py-1.5 text-xs font-medium text-white"
           >
             Filtrera
           </button>
@@ -618,7 +618,7 @@ export function DateColumnFilter({
                 key={p.value}
                 type="button"
                 onClick={() => applyRange(presetRange(p.value), close)}
-                className="rounded-lg border border-black/10 px-1.5 py-1 text-xs transition-colors hover:bg-black/5 dark:border-white/15 dark:hover:bg-white/10"
+                className="rounded-full border border-black/10 bg-white px-1.5 py-1 text-xs transition-colors hover:bg-black/5 dark:border-white/15 dark:bg-white/5 dark:hover:bg-white/10"
               >
                 {p.label}
               </button>
@@ -651,7 +651,7 @@ export function DateColumnFilter({
             </select>
           )}
 
-          <p className="mt-1 text-xs font-medium text-zinc-500 dark:text-zinc-400">
+          <p className="mt-1 text-xs font-medium text-slate-500 dark:text-slate-400">
             Eget intervall
           </p>
           <label className="flex flex-col gap-1">
@@ -674,7 +674,7 @@ export function DateColumnFilter({
           </label>
           {showMonthFilter && (
             <>
-              <p className="mt-1 text-xs font-medium text-zinc-500 dark:text-zinc-400">
+              <p className="mt-1 text-xs font-medium text-slate-500 dark:text-slate-400">
                 Fångstmånad (oavsett år)
               </p>
               <div className="flex flex-wrap gap-1">
@@ -695,7 +695,7 @@ export function DateColumnFilter({
                         }
                         className="peer sr-only"
                       />
-                      <span className="block rounded-full border border-black/10 px-2 py-0.5 text-xs transition-colors peer-checked:border-foreground peer-checked:bg-foreground peer-checked:text-background dark:border-white/15">
+                      <span className="block rounded-full border border-black/10 bg-white px-2 py-0.5 text-xs transition-colors peer-checked:border-accent peer-checked:bg-accent hover:bg-accent-hover peer-checked:text-white dark:border-white/15 dark:bg-white/5">
                         {m.label.slice(0, 3)}
                       </span>
                     </label>
@@ -720,7 +720,7 @@ export function DateColumnFilter({
                 });
                 close();
               }}
-              className="rounded-full bg-foreground px-3 py-1.5 text-xs font-medium text-background"
+              className="rounded-full bg-accent hover:bg-accent-hover px-3 py-1.5 text-xs font-medium text-white"
             >
               Filtrera
             </button>
@@ -731,7 +731,7 @@ export function DateColumnFilter({
                   params.set("sort", isDateAsc ? "date-desc" : "date-asc");
                 })
               }
-              className="text-xs text-zinc-500 underline hover:text-foreground dark:text-zinc-400"
+              className="text-xs text-slate-500 underline hover:text-foreground dark:text-slate-400"
             >
               {isDateAsc ? "Nyast först" : "Äldst först"}
             </button>

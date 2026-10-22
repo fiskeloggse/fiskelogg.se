@@ -25,8 +25,8 @@ export default function ConfirmDeleteButton({
         aria-label={label}
         className={
           compact
-            ? "shrink-0 px-1 text-lg leading-none text-zinc-400 transition-colors hover:text-red-600 dark:text-zinc-500 dark:hover:text-red-400"
-            : "shrink-0 rounded-full px-3 py-1.5 text-sm text-zinc-500 transition-colors hover:bg-red-50 hover:text-red-600 dark:text-zinc-400 dark:hover:bg-red-950/40 dark:hover:text-red-400"
+            ? "shrink-0 px-1 text-lg leading-none text-slate-400 transition-colors hover:text-red-600 dark:text-slate-500 dark:hover:text-red-400"
+            : "shrink-0 rounded-full px-3 py-1.5 text-sm text-slate-500 transition-colors hover:bg-red-50 hover:text-red-600 dark:text-slate-400 dark:hover:bg-red-950/40 dark:hover:text-red-400"
         }
       >
         {compact ? "×" : label}

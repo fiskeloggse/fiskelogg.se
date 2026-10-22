@@ -1,3 +1,5 @@
+import { CloudSunIcon } from "./icons";
+
 // Shared between the per-catch logging toggles (catch-form.tsx) and the
 // account-level GPS mode picker (Konto → Loggning), so the same three
 // glyphs visually tie a Konto choice to what it turns on when logging.
@@ -19,12 +21,8 @@ export function PositionIcon({ className }: { className?: string }) {
   );
 }
 
-export function WeatherIcon({ className }: { className?: string }) {
-  return (
-    <span className={className} role="img" aria-label="Väder">
-      🌤️
-    </span>
-  );
+export function WeatherIcon({ className = "h-4 w-4" }: { className?: string }) {
+  return <CloudSunIcon className={className} />;
 }
 
 // A wave glyph rather than a droplet -- a droplet reads as rain/precipitation
@@ -47,7 +45,7 @@ export function WaterIcon({ className }: { className?: string }) {
   );
 }
 
-const iconClassName = "h-4 w-4 text-zinc-500 dark:text-zinc-400";
+const iconClassName = "h-4 w-4 text-slate-500 dark:text-slate-400";
 
 // Shared between Konto → Loggning and the first-login onboarding guide, so
 // both pickers offer the exact same three logging choices with matching
@@ -63,7 +61,7 @@ export const LOGGING_OPTIONS = [
     key: "log_weather",
     label: "Väder",
     hint: "Hämtar och sparar väder vid loggningen. Sparar inte din exakta position.",
-    icon: <WeatherIcon className="text-base" />,
+    icon: <WeatherIcon className={iconClassName} />,
   },
   {
     key: "fill_water",

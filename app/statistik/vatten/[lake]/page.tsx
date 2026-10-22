@@ -53,21 +53,21 @@ export default async function LakeStatsPage(
     <main className="mx-auto flex w-full max-w-4xl flex-1 flex-col gap-6 px-4 py-10 sm:px-6">
       <Link
         href="/statistik?expand=lakes"
-        className="self-start text-sm text-zinc-500 underline hover:text-foreground dark:text-zinc-400"
+        className="self-start text-sm text-slate-500 underline hover:text-foreground dark:text-slate-400"
       >
         ← Tillbaka till Statistik
       </Link>
 
       <div>
         <h1 className="text-xl font-semibold">{lake}</h1>
-        <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
+        <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
           {visitStats.days} {visitStats.days === 1 ? "fiskedag" : "fiskedagar"} ·{" "}
           {visitStats.fishCount} {visitStats.fishCount === 1 ? "fisk" : "fiskar"}
         </p>
       </div>
 
       {groups.length === 0 ? (
-        <p className="rounded-xl border border-dashed border-black/15 p-6 text-center text-sm text-zinc-500 dark:border-white/15 dark:text-zinc-400">
+        <p className="rounded-xl border border-dashed border-black/15 p-6 text-center text-sm text-slate-500 dark:border-white/15 dark:text-slate-400">
           Inga uppmätta fångster i det här vattnet än.
         </p>
       ) : (
@@ -78,7 +78,7 @@ export default async function LakeStatsPage(
               <ul className="mt-3 flex flex-col gap-2">
                 {group.catches.map((c) => {
                   const rowClassName =
-                    "flex items-center justify-between gap-3 rounded-xl border border-black/10 bg-white px-4 py-3 dark:border-white/15 dark:bg-white/5";
+                    "flex items-center justify-between gap-3 rounded-xl border border-black/[0.06] bg-white shadow-sm px-4 py-3 dark:border-white/15 dark:bg-white/5";
                   const content = (
                     <>
                       <span className="text-lg font-medium">
@@ -89,7 +89,7 @@ export default async function LakeStatsPage(
                           .filter(Boolean)
                           .join(" · ")}
                       </span>
-                      <span className="text-right text-sm text-zinc-500 dark:text-zinc-400">
+                      <span className="text-right text-sm text-slate-500 dark:text-slate-400">
                         {c.angler_name}
                         <br />
                         <span className="text-xs">{formatDate(c.caught_at)}</span>

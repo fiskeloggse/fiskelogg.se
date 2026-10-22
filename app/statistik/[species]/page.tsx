@@ -5,6 +5,7 @@ import { getTopCatchesForSpecies } from "@/app/actions/stats";
 import { getPersonalBests } from "@/lib/personal-bests";
 import { getStorfiskPercent } from "@/lib/storfisk";
 import StorfiskBadge from "@/app/components/storfisk-badge";
+import { TrophyIcon } from "@/app/components/icons";
 
 function formatDate(date: Date) {
   return date.toLocaleDateString("sv-SE", { dateStyle: "medium" });
@@ -37,7 +38,7 @@ export default async function SpeciesStatsPage(
     <main className="mx-auto flex w-full max-w-4xl flex-1 flex-col gap-6 px-4 py-10 sm:px-6">
       <Link
         href="/statistik?expand=species"
-        className="self-start text-sm text-zinc-500 underline hover:text-foreground dark:text-zinc-400"
+        className="self-start text-sm text-slate-500 underline hover:text-foreground dark:text-slate-400"
       >
         ← Tillbaka till Statistik
       </Link>
@@ -45,7 +46,7 @@ export default async function SpeciesStatsPage(
       <h1 className="text-xl font-semibold">Största {species}</h1>
 
       {catches.length === 0 ? (
-        <p className="rounded-xl border border-dashed border-black/15 p-6 text-center text-sm text-zinc-500 dark:border-white/15 dark:text-zinc-400">
+        <p className="rounded-xl border border-dashed border-black/15 p-6 text-center text-sm text-slate-500 dark:border-white/15 dark:text-slate-400">
           Inga fångster av arten än.
         </p>
       ) : (
@@ -57,7 +58,7 @@ export default async function SpeciesStatsPage(
               c.weight_kg != null &&
               (getStorfiskPercent(species, c.weight_kg) ?? 0) >= 100;
             const rowClassName =
-              "flex items-center justify-between gap-3 rounded-xl border border-black/10 bg-white px-4 py-3 dark:border-white/15 dark:bg-white/5";
+              "flex items-center justify-between gap-3 rounded-xl border border-black/[0.06] bg-white shadow-sm px-4 py-3 dark:border-white/15 dark:bg-white/5";
             const content = (
               <>
                 <span className="flex items-center gap-2">
@@ -70,8 +71,8 @@ export default async function SpeciesStatsPage(
                       .join(" · ")}
                   </span>
                   {(isLongestPb || isHeaviestPb) && (
-                    <span className="inline-flex items-center gap-1 rounded-full bg-yellow-400 px-2 py-0.5 text-xs font-bold text-zinc-900">
-                      🏆{" "}
+                    <span className="inline-flex items-center gap-1 rounded-full bg-amber-400 px-2 py-0.5 text-xs font-bold text-slate-900">
+                      <TrophyIcon className="h-3.5 w-3.5" />
                       {isLongestPb && isHeaviestPb
                         ? "Personbästa"
                         : isLongestPb
@@ -81,7 +82,7 @@ export default async function SpeciesStatsPage(
                   )}
                   {isStorfisk && <StorfiskBadge />}
                 </span>
-                <span className="text-right text-sm text-zinc-500 dark:text-zinc-400">
+                <span className="text-right text-sm text-slate-500 dark:text-slate-400">
                   {c.angler_name}
                   <br />
                   <span className="text-xs">{formatDate(c.caught_at)}</span>

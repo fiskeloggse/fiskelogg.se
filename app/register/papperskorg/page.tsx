@@ -24,11 +24,11 @@ export default async function TrashPage(
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
           <h2 className="text-lg font-semibold">Papperskorg</h2>
-          <p className="text-sm text-zinc-500 dark:text-zinc-400">
+          <p className="text-sm text-slate-500 dark:text-slate-400">
             Raderade fångster. Återställ dem eller radera permanent.
           </p>
         </div>
-        <Link href={backHref} className="text-sm text-zinc-500 underline dark:text-zinc-400">
+        <Link href={backHref} className="text-sm text-slate-500 underline dark:text-slate-400">
           ← Tillbaka till Register
         </Link>
       </div>

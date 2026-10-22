@@ -19,6 +19,7 @@ import {
   getStorfiskStatus,
   STORFISKREGISTRET_URL,
 } from "@/lib/storfisk";
+import { TrophyIcon } from "./icons";
 
 function formatDateFull(date: Date) {
   return date.toLocaleString("sv-SE", { dateStyle: "full", timeStyle: "short" });
@@ -69,7 +70,7 @@ export default function CatchDetail({
       <div className="flex flex-col gap-4">
         <Link
           href={backHref}
-          className="self-start text-sm text-zinc-500 underline hover:text-foreground dark:text-zinc-400"
+          className="self-start text-sm text-slate-500 underline hover:text-foreground dark:text-slate-400"
         >
           ← Tillbaka till Register
         </Link>
@@ -87,18 +88,19 @@ export default function CatchDetail({
     <div className="flex flex-col gap-4">
       <Link
         href={backHref}
-        className="self-start text-sm text-zinc-500 underline hover:text-foreground dark:text-zinc-400"
+        className="self-start text-sm text-slate-500 underline hover:text-foreground dark:text-slate-400"
       >
         ← Tillbaka till Register
       </Link>
 
-      <div className="rounded-xl border border-black/10 bg-white p-5 dark:border-white/15 dark:bg-white/5">
+      <div className="rounded-xl border border-black/[0.06] bg-white shadow-sm p-5 dark:border-white/15 dark:bg-white/5">
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div className="flex flex-wrap items-center gap-3">
             <h2 className="text-2xl font-semibold">{item.species || "Okänd art"}</h2>
             {isPersonalBest && (
-              <span className="inline-flex items-center gap-1.5 rounded-full bg-yellow-400 px-3 py-1 text-xs font-bold text-zinc-900">
-                🏆 Personbästa
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-amber-400 px-3 py-1 text-xs font-bold text-slate-900">
+                <TrophyIcon className="h-3.5 w-3.5" />
+                Personbästa
               </span>
             )}
             {isStorfisk && <StorfiskBadge size="md" />}
@@ -107,13 +109,13 @@ export default function CatchDetail({
             <button
               type="button"
               onClick={() => setEditing(true)}
-              className="shrink-0 rounded-full border border-black/10 px-4 py-2 text-sm font-medium transition-colors hover:bg-black/5 dark:border-white/15 dark:hover:bg-white/10"
+              className="shrink-0 rounded-full border border-black/10 bg-white px-4 py-2 text-sm font-medium transition-colors hover:bg-black/5 dark:border-white/15 dark:bg-white/5 dark:hover:bg-white/10"
             >
               Redigera
             </button>
           )}
         </div>
-        <p className="text-sm text-zinc-500 dark:text-zinc-400">
+        <p className="text-sm text-slate-500 dark:text-slate-400">
           {formatDateFull(item.caught_at)}
           {item.angler_name && ` · ${item.angler_name}`}
         </p>
@@ -142,12 +144,12 @@ export default function CatchDetail({
 
         <div className="mt-4 grid grid-cols-2 gap-3 text-sm">
           <div>
-            <p className="text-zinc-500 dark:text-zinc-400">Längd</p>
+            <p className="text-slate-500 dark:text-slate-400">Längd</p>
             <p className="text-lg font-medium">
               {item.length_cm != null ? `${item.length_cm} cm` : "–"}
             </p>
             {item.length_cm != null && storfiskStatus?.kind === "length" && (
-              <p className="mt-0.5 text-xs text-zinc-400 dark:text-zinc-500">
+              <p className="mt-0.5 text-xs text-slate-400 dark:text-slate-500">
                 <a
                   href={STORFISKREGISTRET_URL}
                   target="_blank"
@@ -160,7 +162,7 @@ export default function CatchDetail({
             )}
           </div>
           <div>
-            <p className="text-zinc-500 dark:text-zinc-400">Vikt</p>
+            <p className="text-slate-500 dark:text-slate-400">Vikt</p>
             <p className="text-lg font-medium">
               {item.weight_kg != null ? `${item.weight_kg} kg` : "–"}
             </p>
@@ -170,7 +172,7 @@ export default function CatchDetail({
                   "mt-0.5 text-xs " +
                   (isStorfisk
                     ? "font-semibold text-blue-600 dark:text-blue-400"
-                    : "text-zinc-400 dark:text-zinc-500")
+                    : "text-slate-400 dark:text-slate-500")
                 }
               >
                 {formatSv(storfiskPercent)}% av{" "}
@@ -186,30 +188,30 @@ export default function CatchDetail({
             )}
           </div>
           <div>
-            <p className="text-zinc-500 dark:text-zinc-400">Vatten</p>
+            <p className="text-slate-500 dark:text-slate-400">Vatten</p>
             <p className="text-lg font-medium">{item.lake || "–"}</p>
           </div>
           <div>
-            <p className="text-zinc-500 dark:text-zinc-400">Plats</p>
+            <p className="text-slate-500 dark:text-slate-400">Plats</p>
             <p className="text-lg font-medium">{item.location || "–"}</p>
           </div>
           <div>
-            <p className="text-zinc-500 dark:text-zinc-400">Fiskemetod</p>
+            <p className="text-slate-500 dark:text-slate-400">Fiskemetod</p>
             <p className="text-lg font-medium">{item.method || "–"}</p>
           </div>
           <div>
-            <p className="text-zinc-500 dark:text-zinc-400">Bete</p>
+            <p className="text-slate-500 dark:text-slate-400">Bete</p>
             <p className="text-lg font-medium">{item.bait || "–"}</p>
           </div>
           {item.water_temp_c != null && (
             <div>
-              <p className="text-zinc-500 dark:text-zinc-400">Vattentemperatur</p>
+              <p className="text-slate-500 dark:text-slate-400">Vattentemperatur</p>
               <p className="text-lg font-medium">{item.water_temp_c}°C</p>
             </div>
           )}
           {item.comment && (
             <div className="col-span-2">
-              <p className="text-zinc-500 dark:text-zinc-400">Kommentar</p>
+              <p className="text-slate-500 dark:text-slate-400">Kommentar</p>
               <p className="text-lg font-medium whitespace-pre-wrap">
                 {item.comment}
               </p>
@@ -217,12 +219,12 @@ export default function CatchDetail({
           )}
           {item.weather_description && (
             <div className="col-span-2">
-              <p className="text-zinc-500 dark:text-zinc-400">Väder</p>
+              <p className="text-slate-500 dark:text-slate-400">Väder</p>
               <p className="text-lg font-medium">
                 {item.weather_description}
                 {item.weather_temp_c != null && `, ${Math.round(item.weather_temp_c)}°`}
               </p>
-              <p className="text-sm text-zinc-500 dark:text-zinc-400">
+              <p className="text-sm text-slate-500 dark:text-slate-400">
                 {[
                   item.weather_wind_kmh != null &&
                     `${Math.round(item.weather_wind_kmh / 3.6)} m/s${
@@ -240,7 +242,7 @@ export default function CatchDetail({
             </div>
           )}
           <div className="col-span-2">
-            <p className="text-zinc-500 dark:text-zinc-400">Månfas</p>
+            <p className="text-slate-500 dark:text-slate-400">Månfas</p>
             <p className="text-lg font-medium">
               {moonPhase.icon} {moonPhase.label}
             </p>
@@ -249,7 +251,7 @@ export default function CatchDetail({
 
         {item.latitude != null && item.longitude != null && (
           <div className="mt-4">
-            <p className="mb-1.5 text-sm text-zinc-500 dark:text-zinc-400">
+            <p className="mb-1.5 text-sm text-slate-500 dark:text-slate-400">
               Position
             </p>
             <CatchesMap

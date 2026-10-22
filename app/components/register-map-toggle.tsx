@@ -15,13 +15,13 @@ export default function RegisterMapToggle({
       <button
         type="button"
         onClick={() => setShow((v) => !v)}
-        className="self-start text-sm text-zinc-500 underline hover:text-foreground dark:text-zinc-400"
+        className="self-start text-sm text-slate-500 underline hover:text-foreground dark:text-slate-400"
       >
         {show ? "Dölj karta" : "Visa karta"}
       </button>
       {show &&
         (catches.length === 0 ? (
-          <p className="text-sm text-zinc-500 dark:text-zinc-400">
+          <p className="text-sm text-slate-500 dark:text-slate-400">
             Inga fångster med sparad position i det filtrerade urvalet.
           </p>
         ) : (

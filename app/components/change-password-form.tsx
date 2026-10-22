@@ -4,7 +4,7 @@ import { useActionState } from "react";
 import { updatePassword } from "@/app/actions/auth";
 
 const inputClassName =
-  "rounded-lg border border-black/10 bg-white px-3 py-2 text-sm dark:border-white/15 dark:bg-transparent";
+  "w-full rounded-lg border border-black/10 bg-white px-3 py-2 text-sm dark:border-white/15 dark:bg-transparent";
 
 export default function ChangePasswordForm() {
   const [state, formAction, pending] = useActionState(updatePassword, undefined);
@@ -72,7 +72,7 @@ export default function ChangePasswordForm() {
       <button
         type="submit"
         disabled={pending}
-        className="self-start rounded-full bg-foreground px-4 py-2 text-sm font-medium text-background disabled:opacity-60"
+        className="self-start rounded-full bg-accent hover:bg-accent-hover px-4 py-2 text-sm font-medium text-white disabled:opacity-60"
       >
         {pending ? "Sparar…" : "Byt lösenord"}
       </button>

@@ -77,7 +77,7 @@ export default function FishingDaysExplorer({
     <button
       type="button"
       onClick={goBack}
-      className="self-start text-sm text-zinc-500 underline hover:text-foreground dark:text-zinc-400"
+      className="self-start text-sm text-slate-500 underline hover:text-foreground dark:text-slate-400"
     >
       ← Tillbaka
     </button>
@@ -87,7 +87,7 @@ export default function FishingDaysExplorer({
     return (
       <div className="flex flex-col gap-3">
         {backButton}
-        <p className="text-sm text-zinc-500 dark:text-zinc-400">
+        <p className="text-sm text-slate-500 dark:text-slate-400">
           Inga fiskedagar loggade än.
         </p>
       </div>
@@ -105,7 +105,7 @@ export default function FishingDaysExplorer({
         </p>
         <div className="grid grid-cols-7 gap-1 text-center text-xs">
           {WEEKDAY_LABELS.map((label) => (
-            <div key={label} className="text-zinc-500 dark:text-zinc-400">
+            <div key={label} className="text-slate-500 dark:text-slate-400">
               {label}
             </div>
           ))}
@@ -130,8 +130,8 @@ export default function FishingDaysExplorer({
                   className={
                     "flex aspect-square flex-col items-center justify-center rounded-lg text-xs " +
                     (fished
-                      ? "bg-foreground text-background font-medium"
-                      : "bg-black/5 text-zinc-400 dark:bg-white/10 dark:text-zinc-500")
+                      ? "bg-accent hover:bg-accent-hover text-white font-medium"
+                      : "bg-black/5 text-slate-400 dark:bg-white/10 dark:text-slate-500")
                   }
                 >
                   <span>{day}</span>
@@ -163,7 +163,7 @@ export default function FishingDaysExplorer({
       <div className="flex flex-col gap-3">
         {backButton}
         <p className="text-sm font-medium">Fiskedagar {selectedYear}</p>
-        <p className="text-xs text-zinc-500 dark:text-zinc-400">
+        <p className="text-xs text-slate-500 dark:text-slate-400">
           Klicka på en månad för att se kalendervyn.
         </p>
         <div className="flex h-32 items-end gap-1.5 sm:gap-2">
@@ -175,7 +175,7 @@ export default function FishingDaysExplorer({
               onClick={() => setSelectedMonth(d.month)}
               className="flex flex-1 flex-col items-center gap-1 disabled:cursor-default"
             >
-              <span className="text-xs font-medium text-zinc-500 dark:text-zinc-400">
+              <span className="text-xs font-medium text-slate-500 dark:text-slate-400">
                 {d.days > 0 ? d.days : ""}
               </span>
               <div className="flex h-20 w-full items-end">
@@ -183,14 +183,14 @@ export default function FishingDaysExplorer({
                   className={
                     "w-full rounded-t " +
                     (d.days > 0
-                      ? "bg-foreground/70 transition-colors hover:bg-foreground"
+                      ? "bg-accent/70 transition-colors hover:bg-accent"
                       : "bg-black/5 dark:bg-white/10")
                   }
                   style={{ height: `${(d.days / max) * 100}%` }}
                   title={`${d.days} dagar`}
                 />
               </div>
-              <span className="text-[10px] text-zinc-500 dark:text-zinc-400">
+              <span className="text-[10px] text-slate-500 dark:text-slate-400">
                 {MONTH_LABELS[d.month - 1]}
               </span>
             </button>
@@ -211,7 +211,7 @@ export default function FishingDaysExplorer({
     <div className="flex flex-col gap-3">
       {backButton}
       <p className="text-sm font-medium">Fiskedagar per år</p>
-      <p className="text-xs text-zinc-500 dark:text-zinc-400">
+      <p className="text-xs text-slate-500 dark:text-slate-400">
         Klicka på ett år för att se per månad.
       </p>
       <div className="flex flex-col gap-2">
@@ -222,16 +222,16 @@ export default function FishingDaysExplorer({
             onClick={() => setSelectedYear(d.year)}
             className="flex w-full items-center gap-3 text-sm hover:opacity-80"
           >
-            <span className="w-12 shrink-0 text-left text-zinc-500 dark:text-zinc-400">
+            <span className="w-12 shrink-0 text-left text-slate-500 dark:text-slate-400">
               {d.year}
             </span>
             <div className="h-2 flex-1 rounded-full bg-black/5 dark:bg-white/10">
               <div
-                className="h-2 rounded-full bg-foreground/70"
+                className="h-2 rounded-full bg-accent/70"
                 style={{ width: `${(d.days / max) * 100}%` }}
               />
             </div>
-            <span className="w-6 shrink-0 text-right text-zinc-500 dark:text-zinc-400">
+            <span className="w-6 shrink-0 text-right text-slate-500 dark:text-slate-400">
               {d.days}
             </span>
           </button>

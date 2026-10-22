@@ -19,7 +19,7 @@ export default async function JoinTeamPage(props: PageProps<"/join/[token]">) {
     return (
       <main className="mx-auto flex w-full max-w-sm flex-1 flex-col justify-center gap-4 px-4 py-16 text-center">
         <h1 className="text-xl font-semibold">Länken fungerar inte</h1>
-        <p className="text-sm text-zinc-500 dark:text-zinc-400">
+        <p className="text-sm text-slate-500 dark:text-slate-400">
           Den här inbjudningslänken är ogiltig eller har ersatts av en ny. Be
           personen som bjöd in dig om en aktuell länk.
         </p>
@@ -36,7 +36,7 @@ export default async function JoinTeamPage(props: PageProps<"/join/[token]">) {
     return (
       <main className="mx-auto flex w-full max-w-sm flex-1 flex-col justify-center gap-4 px-4 py-16">
         <h1 className="text-xl font-semibold">Gå med i {teamLabel} på Fisklogg</h1>
-        <p className="text-sm text-zinc-500 dark:text-zinc-400">
+        <p className="text-sm text-slate-500 dark:text-slate-400">
           Skapa ett konto eller logga in för att gå med — du hamnar i teamet
           direkt efteråt.
         </p>
@@ -45,7 +45,7 @@ export default async function JoinTeamPage(props: PageProps<"/join/[token]">) {
           <input type="hidden" name="dest" value="signup" />
           <button
             type="submit"
-            className="w-full rounded-full bg-foreground px-4 py-2 text-sm font-medium text-background"
+            className="w-full rounded-full bg-accent hover:bg-accent-hover px-4 py-2 text-sm font-medium text-white"
           >
             Skapa konto
           </button>
@@ -55,7 +55,7 @@ export default async function JoinTeamPage(props: PageProps<"/join/[token]">) {
           <input type="hidden" name="dest" value="login" />
           <button
             type="submit"
-            className="w-full rounded-full border border-black/10 px-4 py-2 text-sm font-medium transition-colors hover:bg-black/5 dark:border-white/15 dark:hover:bg-white/10"
+            className="w-full rounded-full border border-black/10 bg-white px-4 py-2 text-sm font-medium transition-colors hover:bg-black/5 dark:border-white/15 dark:bg-white/5 dark:hover:bg-white/10"
           >
             Jag har redan ett konto
           </button>
@@ -68,7 +68,7 @@ export default async function JoinTeamPage(props: PageProps<"/join/[token]">) {
     return (
       <main className="mx-auto flex w-full max-w-sm flex-1 flex-col justify-center gap-4 px-4 py-16 text-center">
         <h1 className="text-xl font-semibold">Du är redan med</h1>
-        <p className="text-sm text-zinc-500 dark:text-zinc-400">
+        <p className="text-sm text-slate-500 dark:text-slate-400">
           Du är redan medlem i {teamLabel}.
         </p>
         <Link href="/konto" className="text-sm underline">
@@ -82,12 +82,12 @@ export default async function JoinTeamPage(props: PageProps<"/join/[token]">) {
     <main className="mx-auto flex w-full max-w-sm flex-1 flex-col justify-center gap-4 px-4 py-16">
       <h1 className="text-xl font-semibold">Gå med i {teamLabel}?</h1>
       {user.team_id ? (
-        <p className="text-sm text-zinc-500 dark:text-zinc-400">
+        <p className="text-sm text-slate-500 dark:text-slate-400">
           Du är redan med i ett annat team. Går du med här lämnar du det
           automatiskt.
         </p>
       ) : (
-        <p className="text-sm text-zinc-500 dark:text-zinc-400">
+        <p className="text-sm text-slate-500 dark:text-slate-400">
           Ni kommer se varandras fångster på startsidan och kan tävla
           tillsammans i Utmaningar.
         </p>
@@ -96,14 +96,14 @@ export default async function JoinTeamPage(props: PageProps<"/join/[token]">) {
         <input type="hidden" name="token" value={token} />
         <button
           type="submit"
-          className="w-full rounded-full bg-foreground px-4 py-2 text-sm font-medium text-background"
+          className="w-full rounded-full bg-accent hover:bg-accent-hover px-4 py-2 text-sm font-medium text-white"
         >
           Gå med i {teamLabel}
         </button>
       </form>
       <Link
         href="/konto"
-        className="text-center text-sm text-zinc-500 underline dark:text-zinc-400"
+        className="text-center text-sm text-slate-500 underline dark:text-slate-400"
       >
         Avbryt
       </Link>

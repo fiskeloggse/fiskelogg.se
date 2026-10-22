@@ -9,6 +9,7 @@ import {
   getStorfiskStatus,
   STORFISKREGISTRET_SPECIES,
 } from "@/lib/storfisk";
+import { MedalIcon } from "./icons";
 
 function formatSv(n: number): string {
   return (Math.round(n * 100) / 100).toString().replace(".", ",");
@@ -68,7 +69,7 @@ export default function SpeciesCollection({
   return (
     <>
       <div className="mb-3 flex items-center justify-between gap-3">
-        <p className="text-xs text-zinc-500 dark:text-zinc-400">
+        <p className="text-xs text-slate-500 dark:text-slate-400">
           {hidden.size > 0
             ? `${hidden.size} art${hidden.size === 1 ? "" : "er"} dold${hidden.size === 1 ? "" : "a"}`
             : editMode
@@ -78,7 +79,7 @@ export default function SpeciesCollection({
         <button
           type="button"
           onClick={() => setEditMode((e) => !e)}
-          className="shrink-0 text-sm text-zinc-500 underline underline-offset-2 hover:text-foreground dark:text-zinc-400"
+          className="shrink-0 text-sm text-slate-500 underline underline-offset-2 hover:text-foreground dark:text-slate-400"
         >
           {editMode ? "Klar" : "Redigera"}
         </button>
@@ -100,10 +101,10 @@ export default function SpeciesCollection({
                 className={
                   "flex cursor-pointer items-center gap-1.5 rounded-lg border px-2.5 py-1.5 text-sm transition-colors " +
                   (isHidden
-                    ? "border-dashed border-black/10 text-zinc-400 dark:border-white/10 dark:text-zinc-600"
+                    ? "border-dashed border-black/10 text-slate-400 dark:border-white/10 dark:text-slate-600"
                     : isCaught
-                      ? "border-foreground/30 bg-foreground/5 font-medium"
-                      : "border-dashed border-black/10 text-zinc-500 dark:border-white/10 dark:text-zinc-400")
+                      ? "border-foreground/30 bg-accent/5 font-medium"
+                      : "border-dashed border-black/10 text-slate-500 dark:border-white/10 dark:text-slate-400")
                 }
               >
                 <input
@@ -123,7 +124,7 @@ export default function SpeciesCollection({
                 key={species}
                 type="button"
                 onClick={() => setSelected(species)}
-                className="rounded-lg border border-dashed border-black/10 px-2.5 py-1.5 text-left text-sm text-zinc-400 transition-colors hover:border-black/20 dark:border-white/10 dark:text-zinc-600 dark:hover:border-white/20"
+                className="rounded-lg border border-dashed border-black/10 px-2.5 py-1.5 text-left text-sm text-slate-400 transition-colors hover:border-black/20 dark:border-white/10 dark:text-slate-600 dark:hover:border-white/20"
               >
                 {species}
               </button>
@@ -134,12 +135,12 @@ export default function SpeciesCollection({
               key={species}
               type="button"
               onClick={() => setSelected(species)}
-              className="rounded-lg border border-foreground/30 bg-foreground/5 px-2.5 py-1.5 text-left text-sm font-medium transition-colors hover:bg-foreground/10"
+              className="rounded-lg border border-foreground/30 bg-accent/5 px-2.5 py-1.5 text-left text-sm font-medium transition-colors hover:bg-accent/10"
             >
               {species}
               {isStorfisk && (
-                <span className="ml-1" title="Storfisk">
-                  🏅
+                <span className="ml-1 inline-flex align-[-2px] text-accent" title="Storfisk">
+                  <MedalIcon className="h-3.5 w-3.5" />
                 </span>
               )}
             </button>
@@ -156,7 +157,7 @@ export default function SpeciesCollection({
         onClick={(e) => {
           if (e.target === dialogRef.current) setSelected(null);
         }}
-        className="m-auto rounded-xl border border-black/10 bg-white p-0 backdrop:bg-black/40 dark:border-white/15 dark:bg-zinc-900"
+        className="m-auto rounded-xl border border-black/[0.06] bg-white shadow-2xl p-0 backdrop:bg-black/40 dark:border-white/15 dark:bg-slate-900"
       >
         {selected && (
           <div className="flex w-[min(90vw,20rem)] flex-col gap-2 p-5">
@@ -195,7 +196,7 @@ export default function SpeciesCollection({
               </p>
             )}
             {selectedStatus?.kind === "length" && (
-              <p className="text-sm text-zinc-500 dark:text-zinc-400">
+              <p className="text-sm text-slate-500 dark:text-slate-400">
                 Mäts i längd hos Sportfiskarna (ingen minimilängd angiven).
               </p>
             )}
@@ -208,7 +209,7 @@ export default function SpeciesCollection({
             <button
               type="button"
               onClick={() => setSelected(null)}
-              className="mt-2 self-end text-sm text-zinc-500 hover:text-foreground dark:text-zinc-400"
+              className="mt-2 self-end text-sm text-slate-500 hover:text-foreground dark:text-slate-400"
             >
               Stäng
             </button>

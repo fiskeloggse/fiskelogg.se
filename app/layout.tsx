@@ -43,7 +43,7 @@ const THEME_INIT_SCRIPT = `
       // warm cache where CSS resolves instantly this avoids any dependency
       // on stylesheet application order for at least the background color.
       document.documentElement.style.backgroundColor =
-        theme === "dark" ? "#0a0a0a" : "#ffffff";
+        theme === "dark" ? "#090b10" : "#f6f7f9";
     }
     apply();
     // Without an explicit Ljust/Mörkt choice, "System" should track the
@@ -75,7 +75,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         // fallback from showing at all (see the Next.js docs on loading.js
         // and runtime data in layouts). Harmless extra whitespace at the
         // bottom of the signed-out landing page is a fair trade for that.
-        className="min-h-full flex flex-col bg-zinc-50 pb-20 dark:bg-black sm:pb-0"
+        className="min-h-full flex flex-col pb-20 sm:pb-0"
       >
         <Header />
         {children}

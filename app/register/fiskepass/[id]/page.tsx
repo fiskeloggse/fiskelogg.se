@@ -80,23 +80,23 @@ export default async function FiskepassDetailPage(
     <main className="mx-auto flex w-full max-w-4xl flex-1 flex-col gap-6 px-4 py-10 sm:px-6">
       <Link
         href="/register/fiskepass"
-        className="text-sm text-zinc-500 hover:text-foreground dark:text-zinc-400"
+        className="text-sm text-slate-500 hover:text-foreground dark:text-slate-400"
       >
         ← Tillbaka till Fiskepass
       </Link>
 
-      <div className="rounded-xl border border-black/10 bg-white p-5 dark:border-white/15 dark:bg-white/5">
+      <div className="rounded-xl border border-black/[0.06] bg-white shadow-sm p-5 dark:border-white/15 dark:bg-white/5">
         <h1 className="text-lg font-semibold">
           Fiskepass
-          <span className="ml-2 rounded-full bg-black/10 px-2 py-0.5 text-xs font-normal text-zinc-500 dark:bg-white/10 dark:text-zinc-400">
+          <span className="ml-2 rounded-full bg-black/10 px-2 py-0.5 text-xs font-normal text-slate-500 dark:bg-white/10 dark:text-slate-400">
             {pass.team_id ? "Team" : "Ensam"}
           </span>
         </h1>
-        <p className="text-sm text-zinc-500 dark:text-zinc-400">
+        <p className="text-sm text-slate-500 dark:text-slate-400">
           {formatDateTime(pass.start_time)}
           {pass.stop_time ? ` – ${formatDateTime(pass.stop_time)}` : " – pågår"}
         </p>
-        <div className="mt-3 flex flex-wrap gap-x-6 gap-y-1 text-sm text-zinc-500 dark:text-zinc-400">
+        <div className="mt-3 flex flex-wrap gap-x-6 gap-y-1 text-sm text-slate-500 dark:text-slate-400">
           {pass.target_species && pass.target_species.length > 0 && (
             <p>Målart: {pass.target_species.join(", ")}</p>
           )}
@@ -108,13 +108,13 @@ export default async function FiskepassDetailPage(
       </div>
 
       {speciesSummaries.length > 0 && (
-        <div className="rounded-xl border border-black/10 bg-white p-5 dark:border-white/15 dark:bg-white/5">
+        <div className="rounded-xl border border-black/[0.06] bg-white shadow-sm p-5 dark:border-white/15 dark:bg-white/5">
           <h2 className="text-lg font-semibold">Sammanfattning per art</h2>
           <ul className="mt-3 flex flex-col gap-3">
             {speciesSummaries.map((s) => (
               <li key={s.species} className="flex items-baseline justify-between gap-3">
                 <span className="font-medium">{s.species}</span>
-                <span className="text-right text-sm text-zinc-500 dark:text-zinc-400">
+                <span className="text-right text-sm text-slate-500 dark:text-slate-400">
                   {s.topCount} st · {formatSv(s.topSumCm)} cm totalt
                   {s.topCount < s.totalCount && ` (topp ${s.topCount})`}
                   <br />
@@ -127,7 +127,7 @@ export default async function FiskepassDetailPage(
         </div>
       )}
 
-      <div className="rounded-xl border border-black/10 bg-white dark:border-white/15 dark:bg-white/5">
+      <div className="rounded-xl border border-black/[0.06] bg-white shadow-sm dark:border-white/15 dark:bg-white/5">
         <PassCatchList catches={catches} isTeam={pass.team_id != null} />
       </div>
     </main>

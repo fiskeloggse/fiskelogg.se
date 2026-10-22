@@ -15,9 +15,10 @@ import { compressImage, replaceInputFile } from "@/lib/compress-image";
 import TextSuggestInput from "./text-suggest-input";
 import MapPositionPicker from "./map-position-picker";
 import { PositionIcon, WeatherIcon, WaterIcon } from "./logging-icons";
+import { CameraIcon, TargetIcon, TrophyIcon } from "./icons";
 
 const inputClassName =
-  "rounded-lg border border-black/10 bg-white px-3 py-2 text-sm dark:border-white/15 dark:bg-transparent";
+  "w-full rounded-lg border border-black/10 bg-white px-3 py-2 text-sm dark:border-white/15 dark:bg-transparent";
 
 function Chips({
   options,
@@ -42,7 +43,7 @@ function Chips({
           className={
             "rounded-full border px-3 py-1 text-sm transition-colors " +
             (selected === s
-              ? "border-foreground bg-foreground text-background"
+              ? "border-accent bg-accent hover:bg-accent-hover text-white"
               : "border-black/10 hover:bg-black/5 dark:border-white/15 dark:hover:bg-white/10")
           }
         >
@@ -62,7 +63,7 @@ function Section({
 }) {
   return (
     <div className="flex flex-col gap-3 border-t border-black/10 pt-4 dark:border-white/15">
-      <h3 className="text-xs font-semibold tracking-wide text-zinc-400 uppercase dark:text-zinc-500">
+      <h3 className="text-xs font-semibold tracking-wide text-slate-400 uppercase dark:text-slate-500">
         {title}
       </h3>
       {children}
@@ -469,19 +470,22 @@ export default function CatchForm({
     <>
       <div className="fixed inset-x-4 bottom-20 z-50 mx-auto flex max-w-sm flex-col gap-2 sm:bottom-4">
         {bingoNotice && (
-          <div className="flex items-center justify-between gap-4 rounded-xl border border-black/10 bg-white p-4 shadow-lg dark:border-white/15 dark:bg-zinc-900">
-            <p className="text-sm">
-              🎯 Bingo! {bingoNotice.cm} cm {bingoNotice.species} bockade av en
-              ruta på {bingoNotice.cardNames.join(", ")}.{" "}
-              <Link href="/challenges" className="underline">
-                Visa bingobricka
-              </Link>
+          <div className="flex items-center justify-between gap-4 rounded-xl border border-black/[0.06] bg-white p-4 shadow-lg dark:border-white/15 dark:bg-slate-900">
+            <p className="flex items-start gap-2 text-sm">
+              <TargetIcon className="mt-0.5 h-4 w-4 shrink-0 text-accent" />
+              <span>
+                Bingo! {bingoNotice.cm} cm {bingoNotice.species} bockade av en
+                ruta på {bingoNotice.cardNames.join(", ")}.{" "}
+                <Link href="/challenges" className="underline">
+                  Visa bingobricka
+                </Link>
+              </span>
             </p>
             <button
               type="button"
               onClick={() => setBingoNotice(null)}
               aria-label="Stäng"
-              className="text-zinc-500 hover:text-foreground dark:text-zinc-400"
+              className="text-slate-500 hover:text-foreground dark:text-slate-400"
             >
               ×
             </button>
@@ -489,18 +493,21 @@ export default function CatchForm({
         )}
 
         {personalBestNotice && (
-          <div className="flex items-center justify-between gap-4 rounded-xl border border-black/10 bg-white p-4 shadow-lg dark:border-white/15 dark:bg-zinc-900">
-            <p className="text-sm">
-              🏆 Nytt personbästa! {personalBestText(personalBestNotice)}.{" "}
-              <Link href="/statistik?expand=personalbests" className="underline">
-                Visa personbästa
-              </Link>
+          <div className="flex items-center justify-between gap-4 rounded-xl border border-black/[0.06] bg-white p-4 shadow-lg dark:border-white/15 dark:bg-slate-900">
+            <p className="flex items-start gap-2 text-sm">
+              <TrophyIcon className="mt-0.5 h-4 w-4 shrink-0 text-amber-500" />
+              <span>
+                Nytt personbästa! {personalBestText(personalBestNotice)}.{" "}
+                <Link href="/statistik?expand=personalbests" className="underline">
+                  Visa personbästa
+                </Link>
+              </span>
             </p>
             <button
               type="button"
               onClick={() => setPersonalBestNotice(null)}
               aria-label="Stäng"
-              className="text-zinc-500 hover:text-foreground dark:text-zinc-400"
+              className="text-slate-500 hover:text-foreground dark:text-slate-400"
             >
               ×
             </button>
@@ -512,14 +519,14 @@ export default function CatchForm({
         <button
           type="button"
           onClick={() => setMode("now")}
-          className="rounded-full bg-foreground px-4 py-2 text-sm font-medium text-background"
+          className="rounded-full bg-accent hover:bg-accent-hover px-4 py-2 text-sm font-medium text-white"
         >
           + Logga fisk
         </button>
         <button
           type="button"
           onClick={() => setMode("past")}
-          className="rounded-full border border-black/10 px-4 py-2 text-sm font-medium transition-colors hover:bg-black/5 dark:border-white/15 dark:hover:bg-white/10"
+          className="rounded-full border border-black/10 bg-white px-4 py-2 text-sm font-medium transition-colors hover:bg-black/5 dark:border-white/15 dark:bg-white/5 dark:hover:bg-white/10"
         >
           + Logga tidigare fisk
         </button>
@@ -535,7 +542,7 @@ export default function CatchForm({
         onClick={(e) => {
           if (e.target === dialogRef.current) setMode("closed");
         }}
-        className="m-auto max-h-[90vh] w-[min(90vw,32rem)] overflow-y-auto rounded-xl border border-black/10 bg-white p-0 backdrop:bg-black/40 dark:border-white/15 dark:bg-zinc-900"
+        className="m-auto max-h-[90vh] w-[min(90vw,32rem)] overflow-y-auto rounded-xl border border-black/[0.06] bg-white shadow-2xl p-0 backdrop:bg-black/40 dark:border-white/15 dark:bg-slate-900"
       >
         <form
           action={formAction}
@@ -548,7 +555,7 @@ export default function CatchForm({
             <button
               type="button"
               onClick={() => setMode("closed")}
-              className="text-sm text-zinc-500 hover:text-foreground dark:text-zinc-400"
+              className="text-sm text-slate-500 hover:text-foreground dark:text-slate-400"
             >
               Avbryt
             </button>
@@ -611,12 +618,13 @@ export default function CatchForm({
                   type="button"
                   onClick={() => photoInputRef.current?.click()}
                   disabled={compressingPhoto}
-                  className="flex items-center gap-1.5 rounded-full border border-black/10 px-4 py-2 text-sm font-medium transition-colors hover:bg-black/5 disabled:opacity-60 dark:border-white/15 dark:hover:bg-white/10"
+                  className="flex items-center gap-1.5 rounded-full border border-black/10 bg-white px-4 py-2 text-sm font-medium transition-colors hover:bg-black/5 disabled:opacity-60 dark:border-white/15 dark:bg-white/5 dark:hover:bg-white/10"
                 >
-                  📷 {photoPreview ? "Byt foto" : "Lägg till foto"}
+                  <CameraIcon className="h-4 w-4" />
+                  {photoPreview ? "Byt foto" : "Lägg till foto"}
                 </button>
                 {compressingPhoto && (
-                  <p className="text-xs text-zinc-500 dark:text-zinc-400">
+                  <p className="text-xs text-slate-500 dark:text-slate-400">
                     Bearbetar bild…
                   </p>
                 )}
@@ -624,7 +632,7 @@ export default function CatchForm({
                   <button
                     type="button"
                     onClick={clearPhoto}
-                    className="text-sm text-zinc-500 underline hover:text-foreground dark:text-zinc-400"
+                    className="text-sm text-slate-500 underline hover:text-foreground dark:text-slate-400"
                   >
                     Ta bort bild
                   </button>
@@ -661,8 +669,8 @@ export default function CatchForm({
                               className={
                                 "flex h-9 w-9 items-center justify-center rounded-full border text-base transition-colors " +
                                 (useGps
-                                  ? "border-foreground bg-foreground text-background"
-                                  : "border-black/10 text-zinc-400 hover:bg-black/5 dark:border-white/15 dark:text-zinc-500 dark:hover:bg-white/10")
+                                  ? "border-accent bg-accent hover:bg-accent-hover text-white"
+                                  : "border-black/10 text-slate-400 hover:bg-black/5 dark:border-white/15 dark:text-slate-500 dark:hover:bg-white/10")
                               }
                             >
                               <PositionIcon className="h-4 w-4" />
@@ -683,8 +691,8 @@ export default function CatchForm({
                               className={
                                 "flex h-9 w-9 items-center justify-center rounded-full border text-base transition-colors " +
                                 (logWeather
-                                  ? "border-foreground bg-foreground text-background"
-                                  : "border-black/10 text-zinc-400 hover:bg-black/5 dark:border-white/15 dark:text-zinc-500 dark:hover:bg-white/10")
+                                  ? "border-accent bg-accent hover:bg-accent-hover text-white"
+                                  : "border-black/10 text-slate-400 hover:bg-black/5 dark:border-white/15 dark:text-slate-500 dark:hover:bg-white/10")
                               }
                             >
                               <WeatherIcon />
@@ -705,20 +713,20 @@ export default function CatchForm({
                               className={
                                 "flex h-9 w-9 items-center justify-center rounded-full border text-base transition-colors " +
                                 (autoFillWater
-                                  ? "border-foreground bg-foreground text-background"
-                                  : "border-black/10 text-zinc-400 hover:bg-black/5 dark:border-white/15 dark:text-zinc-500 dark:hover:bg-white/10")
+                                  ? "border-accent bg-accent hover:bg-accent-hover text-white"
+                                  : "border-black/10 text-slate-400 hover:bg-black/5 dark:border-white/15 dark:text-slate-500 dark:hover:bg-white/10")
                               }
                             >
                               <WaterIcon className="h-4 w-4" />
                             </button>
                           </div>
                           {gpsStatus === "loading" && (
-                            <p className="text-xs text-zinc-500 dark:text-zinc-400">
+                            <p className="text-xs text-slate-500 dark:text-slate-400">
                               Hämtar position…
                             </p>
                           )}
                           {gpsStatus === "success" && (
-                            <p className="text-xs text-zinc-500 dark:text-zinc-400">
+                            <p className="text-xs text-slate-500 dark:text-slate-400">
                               ✓ Position hämtad.{" "}
                               {waterLookupPending
                                 ? "Söker vatten…"
@@ -754,7 +762,7 @@ export default function CatchForm({
                             <button
                               type="button"
                               onClick={() => setShowPastMap((v) => !v)}
-                              className="text-sm text-zinc-500 underline hover:text-foreground dark:text-zinc-400"
+                              className="text-sm text-slate-500 underline hover:text-foreground dark:text-slate-400"
                             >
                               {showPastMap
                                 ? "Dölj karta"
@@ -874,7 +882,7 @@ export default function CatchForm({
                         // editable until "Fler fält" is opened.
                         <div className="flex flex-col gap-1">
                           <span className="text-sm font-medium">Vattentemperatur</span>
-                          <p className="text-sm text-zinc-500 dark:text-zinc-400">
+                          <p className="text-sm text-slate-500 dark:text-slate-400">
                             {waterTempC.replace(".", ",")}°C loggas automatiskt från passet.
                           </p>
                           <input type="hidden" name="waterTempC" value={waterTempC} />
@@ -1038,7 +1046,7 @@ export default function CatchForm({
             <button
               type="button"
               onClick={() => setShowMore((v) => !v)}
-              className="self-start text-sm text-zinc-500 underline hover:text-foreground dark:text-zinc-400"
+              className="self-start text-sm text-slate-500 underline hover:text-foreground dark:text-slate-400"
             >
               {showMore ? "Färre fält" : "Fler fält"}
             </button>
@@ -1066,7 +1074,7 @@ export default function CatchForm({
             </div>
           )}
 
-          <p className="text-xs text-zinc-500 dark:text-zinc-400">
+          <p className="text-xs text-slate-500 dark:text-slate-400">
             {mode === "past"
               ? "Välj datum och tid för fångsten ovan."
               : "Tidpunkten sätts automatiskt till nu."}
@@ -1081,7 +1089,7 @@ export default function CatchForm({
           <button
             type="submit"
             disabled={pending || compressingPhoto}
-            className="rounded-full bg-foreground px-4 py-2 text-sm font-medium text-background disabled:opacity-60"
+            className="rounded-full bg-accent hover:bg-accent-hover px-4 py-2 text-sm font-medium text-white disabled:opacity-60"
           >
             {pending ? "Loggar…" : "Logga fisk"}
           </button>

@@ -86,7 +86,7 @@ export default function CatchTabs({
           the home-indicator area, centered so icons stay clear of the
           screen's rounded corners near the sides. */}
       <nav
-        className="fixed inset-x-3 bottom-[calc(0.75rem_+_env(safe-area-inset-bottom))] z-40 flex justify-center gap-4 rounded-2xl border border-black/10 bg-white px-4 shadow-lg sm:hidden dark:border-white/15 dark:bg-zinc-950"
+        className="fixed inset-x-3 bottom-[calc(0.75rem_+_env(safe-area-inset-bottom))] z-40 flex justify-center gap-4 rounded-2xl border border-black/[0.06] bg-white px-4 shadow-lg sm:hidden dark:border-white/15 dark:bg-slate-950"
         aria-label="Huvudmeny"
       >
         {tabs.map((tab) => {
@@ -98,8 +98,8 @@ export default function CatchTabs({
               className={
                 "flex flex-col items-center gap-1 py-2.5 text-xs leading-tight font-medium " +
                 (active
-                  ? "text-foreground"
-                  : "text-zinc-500 dark:text-zinc-400")
+                  ? "text-accent"
+                  : "text-slate-500 dark:text-slate-400")
               }
             >
               <TabIcon href={tab.href} className="h-5 w-5" />
@@ -119,8 +119,8 @@ export default function CatchTabs({
             className={
               "-mb-px whitespace-nowrap border-b-2 px-4 py-2 text-sm font-medium " +
               (isActive(pathname, tab.href)
-                ? "border-foreground text-foreground"
-                : "border-transparent text-zinc-500 hover:text-foreground dark:text-zinc-400")
+                ? "border-accent text-accent"
+                : "border-transparent text-slate-500 hover:text-foreground dark:text-slate-400")
             }
           >
             {tab.label}

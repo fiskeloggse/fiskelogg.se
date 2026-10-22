@@ -70,7 +70,7 @@ export default function TextSuggestInput({
         className={className}
       />
       {open && matches.length > 0 && (
-        <ul className="absolute z-10 mt-1 w-full overflow-hidden rounded-lg border border-black/10 bg-white shadow-lg dark:border-white/15 dark:bg-zinc-900">
+        <ul className="absolute z-10 mt-1 w-full overflow-hidden rounded-lg border border-black/10 bg-white shadow-lg dark:border-white/15 dark:bg-slate-900">
           {matches.map((match) => (
             <li key={match}>
               <button

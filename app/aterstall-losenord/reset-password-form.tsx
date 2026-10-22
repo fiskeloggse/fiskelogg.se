@@ -20,7 +20,7 @@ export default function ResetPasswordForm({ token }: { token: string }) {
         </p>
         <Link
           href="/login"
-          className="self-start rounded-full bg-foreground px-4 py-2 text-sm font-medium text-background"
+          className="self-start rounded-full bg-accent hover:bg-accent-hover px-4 py-2 text-sm font-medium text-white"
         >
           Till inloggning
         </Link>
@@ -75,7 +75,7 @@ export default function ResetPasswordForm({ token }: { token: string }) {
       <button
         type="submit"
         disabled={pending}
-        className="mt-2 rounded-full bg-foreground px-4 py-2 text-sm font-medium text-background disabled:opacity-60"
+        className="mt-2 rounded-full bg-accent hover:bg-accent-hover px-4 py-2 text-sm font-medium text-white disabled:opacity-60"
       >
         {pending ? "Sparar…" : "Byt lösenord"}
       </button>

@@ -48,7 +48,7 @@ export default function ThemeToggle() {
           className={
             "rounded-full border px-3 py-1.5 text-sm transition-colors " +
             (selected === option.value
-              ? "border-foreground bg-foreground text-background"
+              ? "border-accent bg-accent hover:bg-accent-hover text-white"
               : "border-black/10 hover:bg-black/5 dark:border-white/15 dark:hover:bg-white/10")
           }
         >

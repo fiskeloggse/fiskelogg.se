@@ -21,7 +21,7 @@ function buildFields(item: Catch, isPersonalBest: boolean) {
       applicable: Boolean(item.weather_description),
     },
     { key: "manfas" as const, label: "Månfas", applicable: true },
-    { key: "pb" as const, label: "🏆 Personbästa-badge", applicable: isPersonalBest },
+    { key: "pb" as const, label: "Personbästa-badge", applicable: isPersonalBest },
   ].filter((f) => f.applicable);
 }
 
@@ -49,7 +49,7 @@ export default function ShareCardPanel({
   const cardUrl = `/register/${item.id}/card?${params.toString()}`;
 
   return (
-    <details className="rounded-xl border border-black/10 bg-white p-4 dark:border-white/15 dark:bg-white/5">
+    <details className="rounded-xl border border-black/[0.06] bg-white shadow-sm p-4 dark:border-white/15 dark:bg-white/5">
       <summary className="cursor-pointer text-sm font-semibold">
         Dela kort
       </summary>
@@ -83,7 +83,7 @@ export default function ShareCardPanel({
         <a
           href={cardUrl}
           download={`fisklogg-fangst-${item.id}.png`}
-          className="self-start rounded-full bg-foreground px-4 py-2 text-sm font-medium text-background"
+          className="self-start rounded-full bg-accent hover:bg-accent-hover px-4 py-2 text-sm font-medium text-white"
         >
           Ladda ner kort
         </a>

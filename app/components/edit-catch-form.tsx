@@ -10,9 +10,10 @@ import type { LakeSuggestions } from "@/lib/lake-suggestions";
 import type { LocationSuggestions } from "@/lib/location-suggestions";
 import MapPositionPicker from "./map-position-picker";
 import TextSuggestInput from "./text-suggest-input";
+import { CameraIcon } from "./icons";
 
 const inputClassName =
-  "rounded-lg border border-black/10 bg-white px-3 py-2 text-sm dark:border-white/15 dark:bg-transparent";
+  "w-full rounded-lg border border-black/10 bg-white px-3 py-2 text-sm dark:border-white/15 dark:bg-transparent";
 
 function toDatetimeLocalValue(date: Date) {
   const local = new Date(date);
@@ -134,7 +135,7 @@ export default function EditCatchForm({
   return (
     <form
       action={formAction}
-      className="flex flex-col gap-3 rounded-xl border border-black/10 bg-white p-4 dark:border-white/15 dark:bg-white/5"
+      className="flex flex-col gap-3 rounded-xl border border-black/[0.06] bg-white shadow-sm p-4 dark:border-white/15 dark:bg-white/5"
     >
       <input type="hidden" name="id" value={item.id} />
 
@@ -143,7 +144,7 @@ export default function EditCatchForm({
         <button
           type="button"
           onClick={onClose}
-          className="text-sm text-zinc-500 hover:text-foreground dark:text-zinc-400"
+          className="text-sm text-slate-500 hover:text-foreground dark:text-slate-400"
         >
           Avbryt
         </button>
@@ -189,12 +190,13 @@ export default function EditCatchForm({
               type="button"
               onClick={() => photoInputRef.current?.click()}
               disabled={compressingPhoto}
-              className="flex items-center gap-1.5 rounded-full border border-black/10 px-4 py-2 text-sm font-medium transition-colors hover:bg-black/5 disabled:opacity-60 dark:border-white/15 dark:hover:bg-white/10"
+              className="flex items-center gap-1.5 rounded-full border border-black/10 bg-white px-4 py-2 text-sm font-medium transition-colors hover:bg-black/5 disabled:opacity-60 dark:border-white/15 dark:bg-white/5 dark:hover:bg-white/10"
             >
-              📷 {photoPreview ? "Byt foto" : "Lägg till foto"}
+              <CameraIcon className="h-4 w-4" />
+              {photoPreview ? "Byt foto" : "Lägg till foto"}
             </button>
             {compressingPhoto && (
-              <p className="text-xs text-zinc-500 dark:text-zinc-400">
+              <p className="text-xs text-slate-500 dark:text-slate-400">
                 Bearbetar bild…
               </p>
             )}
@@ -202,7 +204,7 @@ export default function EditCatchForm({
               <button
                 type="button"
                 onClick={handleRemovePhoto}
-                className="text-sm text-zinc-500 underline hover:text-foreground dark:text-zinc-400"
+                className="text-sm text-slate-500 underline hover:text-foreground dark:text-slate-400"
               >
                 Ta bort bild
               </button>
@@ -256,7 +258,7 @@ export default function EditCatchForm({
                 type="button"
                 onClick={handleAutoWater}
                 disabled={autoWaterPending}
-                className="text-xs text-zinc-500 underline hover:text-foreground disabled:opacity-60 dark:text-zinc-400"
+                className="text-xs text-slate-500 underline hover:text-foreground disabled:opacity-60 dark:text-slate-400"
               >
                 {autoWaterPending ? "Slår upp…" : "Auto vatten"}
               </button>
@@ -276,12 +278,12 @@ export default function EditCatchForm({
             className={inputClassName}
           />
           {waterAutoFilled && (
-            <p className="text-xs text-zinc-500 dark:text-zinc-400">
+            <p className="text-xs text-slate-500 dark:text-slate-400">
               ✓ Vatten ifyllt automatiskt.
             </p>
           )}
           {autoWaterError && (
-            <p className="text-xs text-zinc-500 dark:text-zinc-400">
+            <p className="text-xs text-slate-500 dark:text-slate-400">
               Hittade inget namngivet vatten nära positionen.
             </p>
           )}
@@ -348,13 +350,13 @@ export default function EditCatchForm({
           <button
             type="button"
             onClick={() => setShowMap((v) => !v)}
-            className="text-sm text-zinc-500 underline hover:text-foreground dark:text-zinc-400"
+            className="text-sm text-slate-500 underline hover:text-foreground dark:text-slate-400"
           >
             {showMap ? "Dölj karta" : hasPosition ? "Ändra position" : "Lägg till position"}
           </button>
         </div>
         {hasPosition && !showMap && (
-          <p className="text-sm text-zinc-500 dark:text-zinc-400">
+          <p className="text-sm text-slate-500 dark:text-slate-400">
             Position sparad.{" "}
             <a
               href={`https://www.google.com/maps?q=${latitude},${longitude}`}
@@ -421,7 +423,7 @@ export default function EditCatchForm({
       <button
         type="submit"
         disabled={pending || compressingPhoto}
-        className="self-start rounded-full bg-foreground px-4 py-2 text-sm font-medium text-background disabled:opacity-60"
+        className="self-start rounded-full bg-accent hover:bg-accent-hover px-4 py-2 text-sm font-medium text-white disabled:opacity-60"
       >
         {pending ? "Sparar…" : "Spara"}
       </button>

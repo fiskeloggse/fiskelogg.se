@@ -18,7 +18,7 @@ export default async function ResetPasswordPage(
       {token ? (
         <ResetPasswordForm token={token} />
       ) : (
-        <p className="text-sm text-zinc-500 dark:text-zinc-400">
+        <p className="text-sm text-slate-500 dark:text-slate-400">
           Länken saknar en giltig kod.{" "}
           <Link href="/glomt-losenord" className="font-medium text-foreground">
             Begär en ny länk

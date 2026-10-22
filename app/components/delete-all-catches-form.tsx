@@ -22,7 +22,7 @@ export default function DeleteAllCatchesForm({
 
   return (
     <div className="flex flex-col gap-3">
-      <p className="text-sm text-zinc-500 dark:text-zinc-400">
+      <p className="text-sm text-slate-500 dark:text-slate-400">
         Flyttar alla dina {catchCount}{" "}
         {catchCount === 1 ? "loggade fångst" : "loggade fångster"} till
         papperskorgen.

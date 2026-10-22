@@ -43,19 +43,19 @@ export default async function KontoPage() {
 
   return (
     <main className="mx-auto flex w-full max-w-4xl flex-1 flex-col gap-3 px-4 py-6 sm:px-6">
-      <details className="rounded-xl border border-black/10 bg-white p-3 dark:border-white/15 dark:bg-white/5">
+      <details className="rounded-xl border border-black/[0.06] bg-white shadow-sm p-3 dark:border-white/15 dark:bg-white/5">
         <summary className="cursor-pointer text-lg font-semibold">
           Kontouppgifter
         </summary>
         <div className="mt-2 flex flex-col gap-2">
-          <p className="text-sm text-zinc-500 dark:text-zinc-400">
+          <p className="text-sm text-slate-500 dark:text-slate-400">
             {user.name} · {user.email}
           </p>
 
           <form action={logout}>
             <button
               type="submit"
-              className="rounded-full border border-black/10 px-4 py-2 text-sm font-medium transition-colors hover:bg-black/5 dark:border-white/15 dark:hover:bg-white/10"
+              className="rounded-full border border-black/10 bg-white px-4 py-2 text-sm font-medium transition-colors hover:bg-black/5 dark:border-white/15 dark:bg-white/5 dark:hover:bg-white/10"
             >
               Logga ut
             </button>
@@ -74,7 +74,7 @@ export default async function KontoPage() {
         </div>
       </details>
 
-      <details className="rounded-xl border border-black/10 bg-white p-3 dark:border-white/15 dark:bg-white/5">
+      <details className="rounded-xl border border-black/[0.06] bg-white shadow-sm p-3 dark:border-white/15 dark:bg-white/5">
         <summary className="cursor-pointer text-lg font-semibold">
           Tema
         </summary>
@@ -83,7 +83,7 @@ export default async function KontoPage() {
         </div>
       </details>
 
-      <details className="rounded-xl border border-black/10 bg-white p-3 dark:border-white/15 dark:bg-white/5">
+      <details className="rounded-xl border border-black/[0.06] bg-white shadow-sm p-3 dark:border-white/15 dark:bg-white/5">
         <summary className="cursor-pointer text-lg font-semibold">
           Funktioner
         </summary>
@@ -100,7 +100,7 @@ export default async function KontoPage() {
               />
               Visa Artjakten (under Utmaningar)
             </label>
-            <p className="text-xs text-zinc-400 dark:text-zinc-500">
+            <p className="text-xs text-slate-400 dark:text-slate-500">
               Utmaningar-fliken visas så länge minst en av dessa två är på.
             </p>
             <SaveButton />
@@ -108,7 +108,7 @@ export default async function KontoPage() {
         </div>
       </details>
 
-      <details className="rounded-xl border border-black/10 bg-white p-3 dark:border-white/15 dark:bg-white/5">
+      <details className="rounded-xl border border-black/[0.06] bg-white shadow-sm p-3 dark:border-white/15 dark:bg-white/5">
         <summary className="cursor-pointer text-lg font-semibold">
           Loggning
         </summary>
@@ -128,7 +128,7 @@ export default async function KontoPage() {
                       {option.label}
                       {option.icon}
                     </span>
-                    <span className="block text-xs text-zinc-500 dark:text-zinc-400">
+                    <span className="block text-xs text-slate-500 dark:text-slate-400">
                       {option.hint}
                     </span>
                   </span>
@@ -141,7 +141,7 @@ export default async function KontoPage() {
           <div className="flex flex-col gap-3 border-t border-black/10 pt-2 dark:border-white/15">
             <div>
               <p className="text-sm font-medium">Snabbloggning</p>
-              <p className="text-sm text-zinc-500 dark:text-zinc-400">
+              <p className="text-sm text-slate-500 dark:text-slate-400">
                 Art syns alltid. Välj vilka övriga fält som alltid ska synas
                 när du loggar en fångst — resten hittar du bakom &quot;Fler
                 fält&quot;.
@@ -174,7 +174,7 @@ export default async function KontoPage() {
           <div className="flex flex-col gap-3 border-t border-black/10 pt-2 dark:border-white/15">
             <div>
               <p className="text-sm font-medium">Dela fångst</p>
-              <p className="text-sm text-zinc-500 dark:text-zinc-400">
+              <p className="text-sm text-slate-500 dark:text-slate-400">
                 Välj vilka fält som ska vara förbockade när du delar ett kort
                 för en fångst — du kan alltid bocka ur eller i innan du laddar
                 ner.
@@ -204,12 +204,12 @@ export default async function KontoPage() {
         </div>
       </details>
 
-      <details className="rounded-xl border border-black/10 bg-white p-3 dark:border-white/15 dark:bg-white/5">
+      <details className="rounded-xl border border-black/[0.06] bg-white shadow-sm p-3 dark:border-white/15 dark:bg-white/5">
         <summary className="cursor-pointer text-lg font-semibold">
           Importera från Excel
         </summary>
         <div className="mt-2 flex flex-col gap-2">
-          <p className="text-sm text-zinc-500 dark:text-zinc-400">
+          <p className="text-sm text-slate-500 dark:text-slate-400">
             Ladda ner mallen, fyll i dina fångster och ladda upp filen för
             att logga flera fångster på en gång.
           </p>
@@ -217,7 +217,7 @@ export default async function KontoPage() {
         </div>
       </details>
 
-      <details className="rounded-xl border border-black/10 bg-white p-3 dark:border-white/15 dark:bg-white/5">
+      <details className="rounded-xl border border-black/[0.06] bg-white shadow-sm p-3 dark:border-white/15 dark:bg-white/5">
         <summary className="cursor-pointer text-lg font-semibold">
           Team
         </summary>
@@ -239,7 +239,7 @@ export default async function KontoPage() {
                           <li key={member.id}>
                             {member.name}
                             {member.id === user.id && " (du)"}
-                            <span className="text-zinc-500 dark:text-zinc-400">
+                            <span className="text-slate-500 dark:text-slate-400">
                               {" "}
                               · {member.email}
                             </span>
@@ -253,7 +253,7 @@ export default async function KontoPage() {
                         Bjud in ett konto
                       </label>
                       <InviteForm />
-                      <p className="text-xs text-zinc-500 dark:text-zinc-400">
+                      <p className="text-xs text-slate-500 dark:text-slate-400">
                         Personen måste redan ha ett konto på Fisklogg.
                       </p>
                     </div>
@@ -274,7 +274,7 @@ export default async function KontoPage() {
             </ul>
           ) : (
             <div className="flex flex-col gap-1.5">
-              <p className="text-sm text-zinc-500 dark:text-zinc-400">
+              <p className="text-sm text-slate-500 dark:text-slate-400">
                 Du har inget team än. Bjud in någon nedan för att dela
                 fångster.
               </p>
@@ -282,7 +282,7 @@ export default async function KontoPage() {
                 Bjud in ett konto
               </label>
               <InviteForm />
-              <p className="text-xs text-zinc-500 dark:text-zinc-400">
+              <p className="text-xs text-slate-500 dark:text-slate-400">
                 Personen måste redan ha ett konto på Fisklogg.
               </p>
 

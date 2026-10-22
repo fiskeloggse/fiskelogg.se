@@ -30,7 +30,7 @@ export default function FeedbackButton() {
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className="shrink-0 rounded-full border border-black/10 px-3 py-1.5 text-sm font-medium transition-colors hover:bg-black/5 dark:border-white/15 dark:hover:bg-white/10"
+        className="shrink-0 rounded-full border border-black/10 bg-white px-3 py-1.5 text-sm font-medium transition-colors hover:bg-black/5 dark:border-white/15 dark:bg-white/5 dark:hover:bg-white/10"
       >
         Feedback
       </button>
@@ -44,7 +44,7 @@ export default function FeedbackButton() {
         onClick={(e) => {
           if (e.target === dialogRef.current) setOpen(false);
         }}
-        className="m-auto w-[min(90vw,28rem)] rounded-xl border border-black/10 bg-white p-0 backdrop:bg-black/40 dark:border-white/15 dark:bg-zinc-900"
+        className="m-auto w-[min(90vw,28rem)] rounded-xl border border-black/[0.06] bg-white shadow-2xl p-0 backdrop:bg-black/40 dark:border-white/15 dark:bg-slate-900"
       >
         <form action={formAction} className="flex flex-col gap-4 p-5">
           <div className="flex items-center justify-between">
@@ -52,13 +52,13 @@ export default function FeedbackButton() {
             <button
               type="button"
               onClick={() => setOpen(false)}
-              className="text-sm text-zinc-500 hover:text-foreground dark:text-zinc-400"
+              className="text-sm text-slate-500 hover:text-foreground dark:text-slate-400"
             >
               Avbryt
             </button>
           </div>
 
-          <p className="text-sm text-zinc-500 dark:text-zinc-400">
+          <p className="text-sm text-slate-500 dark:text-slate-400">
             Fisklogg är i beta — hittat en bugg eller har en idé? Skriv den
             här, så går den direkt till mig.
           </p>
@@ -93,7 +93,7 @@ export default function FeedbackButton() {
           <button
             type="submit"
             disabled={pending || !message.trim()}
-            className="self-start rounded-full bg-foreground px-4 py-2 text-sm font-medium text-background disabled:opacity-60"
+            className="self-start rounded-full bg-accent hover:bg-accent-hover px-4 py-2 text-sm font-medium text-white disabled:opacity-60"
           >
             {pending ? "Skickar…" : "Skicka"}
           </button>

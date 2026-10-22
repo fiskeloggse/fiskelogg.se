@@ -46,7 +46,7 @@ export default async function ChallengesPage() {
 
   return (
     <main className="mx-auto flex w-full max-w-4xl flex-1 flex-col gap-8 px-4 py-10 sm:px-6">
-      <div className="rounded-xl border border-black/10 bg-white p-2 sm:p-5 dark:border-white/15 dark:bg-white/5">
+      <div className="rounded-xl border border-black/[0.06] bg-white shadow-sm p-2 sm:p-5 dark:border-white/15 dark:bg-white/5">
         <div className="flex items-center justify-between gap-3">
           <h2 className="text-lg font-semibold">Bingo</h2>
           <CreateBingoCardButton hasTeam={user.team_id !== null} />
@@ -54,7 +54,7 @@ export default async function ChallengesPage() {
 
         <div className="mt-4 flex flex-col gap-6">
           {cards.length === 0 ? (
-            <p className="rounded-xl border border-dashed border-black/15 p-6 text-center text-sm text-zinc-500 dark:border-white/15 dark:text-zinc-400">
+            <p className="rounded-xl border border-dashed border-black/15 p-6 text-center text-sm text-slate-500 dark:border-white/15 dark:text-slate-400">
               Inga bingobrickor än. Skapa den första ovan!
             </p>
           ) : (
@@ -73,7 +73,7 @@ export default async function ChallengesPage() {
       </div>
 
       {archivedCards.length > 0 && (
-        <details className="rounded-xl border border-black/10 bg-white p-2 sm:p-5 dark:border-white/15 dark:bg-white/5">
+        <details className="rounded-xl border border-black/[0.06] bg-white shadow-sm p-2 sm:p-5 dark:border-white/15 dark:bg-white/5">
           <summary className="cursor-pointer text-lg font-semibold">
             Arkiverade brickor
           </summary>
@@ -91,13 +91,13 @@ export default async function ChallengesPage() {
       )}
 
       {user.show_species_collection && (
-        <details className="rounded-xl border border-black/10 bg-white p-5 dark:border-white/15 dark:bg-white/5">
+        <details className="rounded-xl border border-black/[0.06] bg-white shadow-sm p-5 dark:border-white/15 dark:bg-white/5">
           <summary className="cursor-pointer">
             <span className="text-lg font-semibold">Artjakten</span>
-            <p className="text-sm text-zinc-500 dark:text-zinc-400">
+            <p className="text-sm text-slate-500 dark:text-slate-400">
               {caughtSpecies.size}/{trackedSpecies.length} fångade
               {storfiskCount > 0 &&
-                ` · ${storfiskCount} 🏅 storfisk${storfiskCount === 1 ? "" : "ar"} (${storfiskSpecies.size} art${storfiskSpecies.size === 1 ? "" : "er"})`}
+                ` · ${storfiskCount} storfisk${storfiskCount === 1 ? "" : "ar"} (${storfiskSpecies.size} art${storfiskSpecies.size === 1 ? "" : "er"})`}
             </p>
           </summary>
 

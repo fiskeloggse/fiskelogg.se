@@ -44,12 +44,12 @@ export default function ConfirmDialog({
       onClick={(e) => {
         if (e.target === ref.current) onCancel();
       }}
-      className="m-auto rounded-xl border border-black/10 bg-white p-0 backdrop:bg-black/40 dark:border-white/15 dark:bg-zinc-900"
+      className="m-auto rounded-xl border border-black/[0.06] bg-white shadow-2xl p-0 backdrop:bg-black/40 dark:border-white/15 dark:bg-slate-900"
     >
       <div className="flex w-[min(90vw,24rem)] flex-col gap-3 p-5">
         <p className="font-semibold">{title}</p>
         {description && (
-          <p className="text-sm text-zinc-500 dark:text-zinc-400">
+          <p className="text-sm text-slate-500 dark:text-slate-400">
             {description}
           </p>
         )}
@@ -58,7 +58,7 @@ export default function ConfirmDialog({
           <button
             type="button"
             onClick={onCancel}
-            className="text-sm text-zinc-500 hover:text-foreground dark:text-zinc-400"
+            className="text-sm text-slate-500 hover:text-foreground dark:text-slate-400"
           >
             {cancelLabel}
           </button>

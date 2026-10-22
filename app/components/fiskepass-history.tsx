@@ -13,7 +13,7 @@ import ConfirmDeleteButton from "./confirm-delete-button";
 import WatersMap from "./waters-map";
 
 const inputClassName =
-  "rounded-lg border border-black/10 bg-white px-3 py-2 text-sm dark:border-white/15 dark:bg-transparent";
+  "w-full rounded-lg border border-black/10 bg-white px-3 py-2 text-sm dark:border-white/15 dark:bg-transparent";
 
 function roundTo2(n: number) {
   return Math.round(n * 100) / 100;
@@ -52,7 +52,7 @@ export function PassCatchList({ catches, isTeam }: { catches: Catch[]; isTeam: b
 
   if (catches.length === 0) {
     return (
-      <p className="px-4 py-3 text-sm text-zinc-500 dark:text-zinc-400">
+      <p className="px-4 py-3 text-sm text-slate-500 dark:text-slate-400">
         Inga fångster i detta pass.
       </p>
     );
@@ -69,7 +69,7 @@ export function PassCatchList({ catches, isTeam }: { catches: Catch[]; isTeam: b
       <div className="overflow-x-auto">
         <table className="w-full border-collapse text-left text-sm">
           <thead>
-            <tr className="border-b border-black/10 text-xs text-zinc-500 dark:border-white/15 dark:text-zinc-400">
+            <tr className="border-b border-black/10 text-xs text-slate-500 dark:border-white/15 dark:text-slate-400">
               <th className="px-2 py-1.5 font-medium">Datum</th>
               <th className="px-2 py-1.5 font-medium">Art</th>
               <th className="px-2 py-1.5 font-medium">Plats</th>
@@ -94,13 +94,13 @@ export function PassCatchList({ catches, isTeam }: { catches: Catch[]; isTeam: b
                   <td className="px-2 py-1.5">
                     {item.species || "Okänd art"}
                     {isTeam && item.angler_name && (
-                      <span className="text-zinc-400 dark:text-zinc-500">
+                      <span className="text-slate-400 dark:text-slate-500">
                         {" "}
                         · {item.angler_name}
                       </span>
                     )}
                   </td>
-                  <td className="px-2 py-1.5 text-zinc-500 dark:text-zinc-400">
+                  <td className="px-2 py-1.5 text-slate-500 dark:text-slate-400">
                     {item.lake || item.location ? (
                       <div className="flex items-start gap-1.5">
                         {item.latitude != null && item.longitude != null && (
@@ -111,7 +111,7 @@ export function PassCatchList({ catches, isTeam }: { catches: Catch[]; isTeam: b
                             strokeWidth="1.75"
                             strokeLinecap="round"
                             strokeLinejoin="round"
-                            className="mt-0.5 h-3.5 w-3.5 shrink-0 text-zinc-400 dark:text-zinc-500"
+                            className="mt-0.5 h-3.5 w-3.5 shrink-0 text-slate-400 dark:text-slate-500"
                           >
                             <title>GPS-position sparad</title>
                             <path d="M12 21s-7-6.05-7-11a7 7 0 0 1 14 0c0 4.95-7 11-7 11Z" />
@@ -127,16 +127,16 @@ export function PassCatchList({ catches, isTeam }: { catches: Catch[]; isTeam: b
                   <td className="px-2 py-1.5 text-right whitespace-nowrap">
                     {item.length_cm != null ? `${item.length_cm} cm` : "–"}
                     <br />
-                    <span className="text-xs text-zinc-400 dark:text-zinc-500">
+                    <span className="text-xs text-slate-400 dark:text-slate-500">
                       {item.weight_kg != null ? `${formatSv(item.weight_kg)} kg` : "–"}
                     </span>
                   </td>
-                  <td className="px-2 py-1.5 text-zinc-500 dark:text-zinc-400">
+                  <td className="px-2 py-1.5 text-slate-500 dark:text-slate-400">
                     {item.method || item.bait ? (
                       <>
                         {item.method && <div>{item.method}</div>}
                         {item.bait && (
-                          <div className="text-xs text-zinc-400 dark:text-zinc-500">
+                          <div className="text-xs text-slate-400 dark:text-slate-500">
                             {item.bait}
                           </div>
                         )}
@@ -145,7 +145,7 @@ export function PassCatchList({ catches, isTeam }: { catches: Catch[]; isTeam: b
                       "–"
                     )}
                   </td>
-                  <td className="px-2 py-1.5 whitespace-nowrap text-zinc-500 dark:text-zinc-400">
+                  <td className="px-2 py-1.5 whitespace-nowrap text-slate-500 dark:text-slate-400">
                     {item.weather_description ? (
                       <>
                         <span title={item.weather_description}>
@@ -252,14 +252,14 @@ function FiskepassRow({ pass }: { pass: FiskepassWithCatchCount }) {
             <button
               type="submit"
               disabled={pending}
-              className="rounded-full bg-foreground px-4 py-2 text-sm font-medium text-background disabled:opacity-60"
+              className="rounded-full bg-accent hover:bg-accent-hover px-4 py-2 text-sm font-medium text-white disabled:opacity-60"
             >
               {pending ? "Sparar…" : "Spara"}
             </button>
             <button
               type="button"
               onClick={() => setEditing(false)}
-              className="rounded-full px-4 py-2 text-sm text-zinc-500 hover:text-foreground dark:text-zinc-400"
+              className="rounded-full px-4 py-2 text-sm text-slate-500 hover:text-foreground dark:text-slate-400"
             >
               Avbryt
             </button>
@@ -281,11 +281,11 @@ function FiskepassRow({ pass }: { pass: FiskepassWithCatchCount }) {
             <p className="font-medium">
               {formatDateTime(pass.start_time)}
               {pass.stop_time ? ` – ${formatDateTime(pass.stop_time)}` : " – pågår"}
-              <span className="ml-2 rounded-full bg-black/10 px-2 py-0.5 text-xs font-normal text-zinc-500 dark:bg-white/10 dark:text-zinc-400">
+              <span className="ml-2 rounded-full bg-black/10 px-2 py-0.5 text-xs font-normal text-slate-500 dark:bg-white/10 dark:text-slate-400">
                 {pass.team_id ? "Team" : "Ensam"}
               </span>
             </p>
-            <p className="text-zinc-500 dark:text-zinc-400">
+            <p className="text-slate-500 dark:text-slate-400">
               {pass.target_species && pass.target_species.length > 0
                 ? pass.target_species.join(", ") + " · "
                 : ""}
@@ -301,14 +301,14 @@ function FiskepassRow({ pass }: { pass: FiskepassWithCatchCount }) {
           >
             <Link
               href={`/register/fiskepass/${pass.id}`}
-              className="text-sm text-zinc-500 underline hover:text-foreground dark:text-zinc-400"
+              className="text-sm text-slate-500 underline hover:text-foreground dark:text-slate-400"
             >
               Öppna
             </Link>
             <button
               type="button"
               onClick={() => setEditing(true)}
-              className="text-sm text-zinc-500 underline hover:text-foreground dark:text-zinc-400"
+              className="text-sm text-slate-500 underline hover:text-foreground dark:text-slate-400"
             >
               Redigera
             </button>
@@ -318,7 +318,7 @@ function FiskepassRow({ pass }: { pass: FiskepassWithCatchCount }) {
 
         <div className="border-t border-black/10 dark:border-white/15">
           {loading ? (
-            <p className="px-4 py-3 text-sm text-zinc-500 dark:text-zinc-400">
+            <p className="px-4 py-3 text-sm text-slate-500 dark:text-slate-400">
               Laddar…
             </p>
           ) : (
@@ -339,7 +339,7 @@ export default function FiskepassHistory({
 }) {
   if (history.length === 0) {
     return (
-      <p className="rounded-xl border border-dashed border-black/15 p-6 text-center text-sm text-zinc-500 dark:border-white/15 dark:text-zinc-400">
+      <p className="rounded-xl border border-dashed border-black/15 p-6 text-center text-sm text-slate-500 dark:border-white/15 dark:text-slate-400">
         {hasSearch ? "Inga fiskepass matchar sökningen." : "Inga fiskepass loggade än."}
       </p>
     );

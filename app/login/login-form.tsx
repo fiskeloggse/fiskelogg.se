@@ -64,7 +64,7 @@ export default function LoginForm() {
 
       <Link
         href="/glomt-losenord"
-        className="-mt-2 self-end text-sm text-zinc-500 underline dark:text-zinc-400"
+        className="-mt-2 self-end text-sm text-slate-500 underline dark:text-slate-400"
       >
         Glömt lösenord?
       </Link>
@@ -72,12 +72,12 @@ export default function LoginForm() {
       <button
         type="submit"
         disabled={pending}
-        className="rounded-full bg-foreground px-4 py-2 text-sm font-medium text-background disabled:opacity-60"
+        className="rounded-full bg-accent hover:bg-accent-hover px-4 py-2 text-sm font-medium text-white disabled:opacity-60"
       >
         {pending ? "Loggar in…" : "Logga in"}
       </button>
 
-      <p className="text-center text-sm text-zinc-500 dark:text-zinc-400">
+      <p className="text-center text-sm text-slate-500 dark:text-slate-400">
         Inget konto?{" "}
         <Link href="/signup" className="font-medium text-foreground">
           Skapa ett här

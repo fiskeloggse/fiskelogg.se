@@ -181,14 +181,14 @@ export default function CatchesMap({ catches }: { catches: MapCatch[] }) {
       <button
         type="button"
         onClick={() => setTileType((t) => (t === "street" ? "satellite" : "street"))}
-        className="absolute bottom-2 left-2 z-[1000] rounded-lg border border-black/10 bg-white px-2 py-1 text-xs font-medium shadow dark:border-white/15 dark:bg-zinc-900"
+        className="absolute bottom-2 left-2 z-[1000] rounded-full border border-black/10 bg-white px-2 py-1 text-xs font-medium shadow dark:border-white/15 dark:bg-slate-900"
       >
         {tileType === "street" ? "Satellit" : "Karta"}
       </button>
       <button
         type="button"
         onClick={() => setFullscreen((v) => !v)}
-        className="absolute right-2 top-2 z-[1000] rounded-lg border border-black/10 bg-white px-2 py-1 text-xs font-medium shadow dark:border-white/15 dark:bg-zinc-900"
+        className="absolute right-2 top-2 z-[1000] rounded-full border border-black/10 bg-white px-2 py-1 text-xs font-medium shadow dark:border-white/15 dark:bg-slate-900"
       >
         {fullscreen ? "Stäng" : "Fullskärm"}
       </button>

@@ -4,7 +4,7 @@ import { useActionState, useEffect } from "react";
 import { updateBingoCard } from "@/app/actions/bingo";
 
 const inputClassName =
-  "rounded-lg border border-black/10 bg-white px-3 py-2 text-sm dark:border-white/15 dark:bg-transparent";
+  "w-full rounded-lg border border-black/10 bg-white px-3 py-2 text-sm dark:border-white/15 dark:bg-transparent";
 
 function toDateInputValue(date: Date | null): string {
   if (!date) return "";
@@ -58,7 +58,7 @@ export default function BingoCardEditForm({
       <div className="grid grid-cols-2 gap-3">
         <div className="flex flex-col gap-1.5">
           <label htmlFor={`bingo-from-${cardId}`} className="text-sm font-medium">
-            Fångster från <span className="font-normal text-zinc-400">(valfritt)</span>
+            Fångster från <span className="font-normal text-slate-400">(valfritt)</span>
           </label>
           <input
             id={`bingo-from-${cardId}`}
@@ -70,7 +70,7 @@ export default function BingoCardEditForm({
         </div>
         <div className="flex flex-col gap-1.5">
           <label htmlFor={`bingo-to-${cardId}`} className="text-sm font-medium">
-            Fångster till <span className="font-normal text-zinc-400">(valfritt)</span>
+            Fångster till <span className="font-normal text-slate-400">(valfritt)</span>
           </label>
           <input
             id={`bingo-to-${cardId}`}
@@ -91,7 +91,7 @@ export default function BingoCardEditForm({
       <button
         type="submit"
         disabled={pending}
-        className="self-start rounded-full bg-foreground px-4 py-2 text-sm font-medium text-background disabled:opacity-60"
+        className="self-start rounded-full bg-accent hover:bg-accent-hover px-4 py-2 text-sm font-medium text-white disabled:opacity-60"
       >
         {pending ? "Sparar…" : "Spara"}
       </button>

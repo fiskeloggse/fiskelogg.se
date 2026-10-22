@@ -19,27 +19,27 @@ export default function ImportCatchesForm({
   return (
     <form
       action={formAction}
-      className="flex flex-col gap-4 rounded-xl border border-black/10 bg-white p-5 dark:border-white/15 dark:bg-white/5"
+      className="flex flex-col gap-4 rounded-xl border border-black/[0.06] bg-white shadow-sm p-5 dark:border-white/15 dark:bg-white/5"
     >
       <div className="flex items-center justify-between">
         <h2 className="text-lg font-semibold">Importera från Excel</h2>
         <button
           type="button"
           onClick={onClose}
-          className="text-sm text-zinc-500 hover:text-foreground dark:text-zinc-400"
+          className="text-sm text-slate-500 hover:text-foreground dark:text-slate-400"
         >
           Avbryt
         </button>
       </div>
 
-      <p className="text-sm text-zinc-500 dark:text-zinc-400">
+      <p className="text-sm text-slate-500 dark:text-slate-400">
         Ladda ner mallen, fyll i dina fångster och ladda sedan upp filen.
       </p>
 
       <a
         href="/fangst-mall.xlsx"
         download
-        className="self-start rounded-full border border-black/10 px-4 py-2 text-sm font-medium transition-colors hover:bg-black/5 dark:border-white/15 dark:hover:bg-white/10"
+        className="self-start rounded-full border border-black/10 bg-white px-4 py-2 text-sm font-medium transition-colors hover:bg-black/5 dark:border-white/15 dark:bg-white/5 dark:hover:bg-white/10"
       >
         Ladda ner mall
       </a>
@@ -91,7 +91,7 @@ export default function ImportCatchesForm({
       <button
         type="submit"
         disabled={pending}
-        className="self-start rounded-full bg-foreground px-4 py-2 text-sm font-medium text-background disabled:opacity-60"
+        className="self-start rounded-full bg-accent hover:bg-accent-hover px-4 py-2 text-sm font-medium text-white disabled:opacity-60"
       >
         {pending ? "Importerar…" : "Importera"}
       </button>

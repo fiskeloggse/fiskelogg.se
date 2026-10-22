@@ -25,7 +25,7 @@ export default function DualRangeSlider({
     <div className="flex flex-col gap-2">
       <div className="flex items-baseline justify-between">
         <span className="text-sm font-medium">{label}</span>
-        <span className="text-xs text-zinc-500 dark:text-zinc-400">
+        <span className="text-xs text-slate-500 dark:text-slate-400">
           {minVal} – {maxVal >= max ? `${max}+` : maxVal} {unit}
         </span>
       </div>
@@ -33,7 +33,7 @@ export default function DualRangeSlider({
       <div className="relative h-7">
         <div className="absolute top-1/2 h-1 w-full -translate-y-1/2 rounded-full bg-black/10 dark:bg-white/15" />
         <div
-          className="absolute top-1/2 h-1 -translate-y-1/2 rounded-full bg-foreground"
+          className="absolute top-1/2 h-1 -translate-y-1/2 rounded-full bg-accent"
           style={{ left: `${minPercent}%`, right: `${100 - maxPercent}%` }}
         />
         <input

@@ -145,7 +145,7 @@ export default function CatchTable({
             <button
               type="button"
               onClick={toggleAll}
-              className="text-sm text-zinc-500 underline hover:text-foreground dark:text-zinc-400"
+              className="text-sm text-slate-500 underline hover:text-foreground dark:text-slate-400"
             >
               {allSelected ? "Avmarkera alla" : "Markera alla"}
             </button>
@@ -155,7 +155,7 @@ export default function CatchTable({
           <button
             type="button"
             onClick={toggleSelectMode}
-            className="text-sm text-zinc-500 underline hover:text-foreground dark:text-zinc-400"
+            className="text-sm text-slate-500 underline hover:text-foreground dark:text-slate-400"
           >
             {selectMode ? "Klar" : "Markera"}
           </button>
@@ -198,7 +198,7 @@ export default function CatchTable({
           >
           <table className="w-full text-left text-sm">
             <thead>
-              <tr className="border-b border-black/10 text-zinc-500 dark:border-white/15 dark:text-zinc-400">
+              <tr className="border-b border-black/10 text-slate-500 dark:border-white/15 dark:text-slate-400">
                 {selectMode && <th className="w-8 px-1 py-2" />}
                 {showDatum && (
                   <th className="px-1 py-2 font-medium">
@@ -266,7 +266,7 @@ export default function CatchTable({
                 <tr>
                   <td
                     colSpan={totalColumns}
-                    className="px-2 py-6 text-center text-zinc-500 dark:text-zinc-400"
+                    className="px-2 py-6 text-center text-slate-500 dark:text-slate-400"
                   >
                     Inga fångster matchar filtret.
                   </td>
@@ -315,7 +315,7 @@ export default function CatchTable({
                         >
                           {formatDate(item.caught_at)}
                           <br />
-                          <span className="text-xs text-zinc-400 dark:text-zinc-500">
+                          <span className="text-xs text-slate-400 dark:text-slate-500">
                             {item.caught_at.getFullYear()}
                           </span>
                         </td>
@@ -326,7 +326,7 @@ export default function CatchTable({
                             <span>
                               {item.species || "Okänd art"}
                               {item.angler_name && (
-                                <span className="text-zinc-400 dark:text-zinc-500">
+                                <span className="text-slate-400 dark:text-slate-500">
                                   {" "}
                                   · {item.angler_name}
                                 </span>
@@ -340,7 +340,7 @@ export default function CatchTable({
                                 strokeWidth="1.75"
                                 strokeLinecap="round"
                                 strokeLinejoin="round"
-                                className="mt-0.5 h-3.5 w-3.5 shrink-0 text-zinc-400 dark:text-zinc-500"
+                                className="mt-0.5 h-3.5 w-3.5 shrink-0 text-slate-400 dark:text-slate-500"
                               >
                                 <title>Har foto</title>
                                 <rect x="3" y="7" width="18" height="13" rx="2" />
@@ -352,7 +352,7 @@ export default function CatchTable({
                         </td>
                       )}
                       {showPlats && (
-                        <td className="px-1 py-2 text-zinc-500 dark:text-zinc-400">
+                        <td className="px-1 py-2 text-slate-500 dark:text-slate-400">
                           {item.lake || item.location ? (
                             <div className="flex items-start gap-1.5">
                               {item.latitude != null && item.longitude != null && (
@@ -363,7 +363,7 @@ export default function CatchTable({
                                   strokeWidth="1.75"
                                   strokeLinecap="round"
                                   strokeLinejoin="round"
-                                  className="mt-0.5 h-3.5 w-3.5 shrink-0 text-zinc-400 dark:text-zinc-500"
+                                  className="mt-0.5 h-3.5 w-3.5 shrink-0 text-slate-400 dark:text-slate-500"
                                 >
                                   <title>GPS-position sparad</title>
                                   <path d="M12 21s-7-6.05-7-11a7 7 0 0 1 14 0c0 4.95-7 11-7 11Z" />
@@ -373,7 +373,7 @@ export default function CatchTable({
                               <div>
                                 {item.lake && <div>{item.lake}</div>}
                                 {item.location && (
-                                  <div className="text-xs text-zinc-400 dark:text-zinc-500">
+                                  <div className="text-xs text-slate-400 dark:text-slate-500">
                                     {item.location}
                                   </div>
                                 )}
@@ -388,7 +388,7 @@ export default function CatchTable({
                         <td className="px-1 py-2 text-right whitespace-nowrap">
                           {item.length_cm != null ? `${item.length_cm} cm` : "–"}
                           <br />
-                          <span className="text-xs text-zinc-400 dark:text-zinc-500">
+                          <span className="text-xs text-slate-400 dark:text-slate-500">
                             {item.weight_kg != null
                               ? `${formatSv(item.weight_kg)} kg`
                               : "–"}
@@ -396,12 +396,12 @@ export default function CatchTable({
                         </td>
                       )}
                       {showBete && (
-                        <td className="px-1 py-2 text-zinc-500 dark:text-zinc-400">
+                        <td className="px-1 py-2 text-slate-500 dark:text-slate-400">
                           {item.method || item.bait ? (
                             <>
                               {item.method && <div>{item.method}</div>}
                               {item.bait && (
-                                <div className="text-xs text-zinc-400 dark:text-zinc-500">
+                                <div className="text-xs text-slate-400 dark:text-slate-500">
                                   {item.bait}
                                 </div>
                               )}
@@ -412,7 +412,7 @@ export default function CatchTable({
                         </td>
                       )}
                       {showVader && (
-                        <td className="px-1 py-2 whitespace-nowrap text-zinc-500 dark:text-zinc-400">
+                        <td className="px-1 py-2 whitespace-nowrap text-slate-500 dark:text-slate-400">
                           {item.weather_description ? (
                             <>
                               <div title={item.weather_description}>
@@ -422,12 +422,12 @@ export default function CatchTable({
                                   ` ${Math.round(item.weather_temp_c)}°`}
                               </div>
                               {item.weather_wind_kmh != null && (
-                                <div className="text-xs text-zinc-400 dark:text-zinc-500">
+                                <div className="text-xs text-slate-400 dark:text-slate-500">
                                   {Math.round(item.weather_wind_kmh / 3.6)} m/s
                                 </div>
                               )}
                               {item.weather_pressure_hpa != null && (
-                                <div className="text-xs text-zinc-400 dark:text-zinc-500">
+                                <div className="text-xs text-slate-400 dark:text-slate-500">
                                   {Math.round(item.weather_pressure_hpa)} hPa
                                 </div>
                               )}
@@ -464,11 +464,11 @@ export default function CatchTable({
                   <td className="px-1 py-2 text-right whitespace-nowrap">
                     {roundTo2(totalLength)} cm
                     <br />
-                    <span className="text-xs font-normal text-zinc-400 dark:text-zinc-500">
+                    <span className="text-xs font-normal text-slate-400 dark:text-slate-500">
                       ({formatSv(totalLength / 100)} m)
                     </span>
                     <br />
-                    <span className="text-xs font-normal text-zinc-400 dark:text-zinc-500">
+                    <span className="text-xs font-normal text-slate-400 dark:text-slate-500">
                       {formatSv(totalWeight)} kg
                     </span>
                   </td>
@@ -478,10 +478,10 @@ export default function CatchTable({
           </table>
           </div>
           {canScrollLeft && (
-            <div className="pointer-events-none absolute inset-y-0 left-0 w-8 rounded-l-xl bg-gradient-to-r from-zinc-50 to-transparent dark:from-black" />
+            <div className="pointer-events-none absolute inset-y-0 left-0 w-8 rounded-l-xl bg-gradient-to-r from-slate-50 to-transparent dark:from-black" />
           )}
           {canScrollRight && (
-            <div className="pointer-events-none absolute inset-y-0 right-0 w-8 rounded-r-xl bg-gradient-to-l from-zinc-50 to-transparent dark:from-black" />
+            <div className="pointer-events-none absolute inset-y-0 right-0 w-8 rounded-r-xl bg-gradient-to-l from-slate-50 to-transparent dark:from-black" />
           )}
         </div>
       </div>

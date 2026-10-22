@@ -16,6 +16,7 @@ import FishingDaysExplorer from "./fishing-days-explorer";
 import FiskepassStats from "./fiskepass-stats";
 import PersonalBests from "./personal-bests";
 import WatersMap from "./waters-map";
+import { MedalIcon } from "./icons";
 
 function StatCard({
   label,
@@ -37,14 +38,14 @@ function StatCard({
       className={
         "rounded-xl border p-5 text-left transition-colors " +
         (active
-          ? "border-foreground bg-black/5 dark:bg-white/10"
-          : "border-black/10 bg-white hover:bg-black/5 dark:border-white/15 dark:bg-white/5 dark:hover:bg-white/10")
+          ? "border-accent bg-accent/5 shadow-sm dark:bg-accent/10"
+          : "border-black/[0.06] bg-white shadow-sm hover:bg-black/[0.02] dark:border-white/15 dark:bg-white/5 dark:hover:bg-white/10")
       }
     >
-      <p className="text-2xl font-semibold">{value}</p>
-      <p className="text-sm text-zinc-500 dark:text-zinc-400">{label}</p>
+      <p className="text-2xl font-semibold tabular-nums">{value}</p>
+      <p className="text-sm text-slate-500 dark:text-slate-400">{label}</p>
       {caption && (
-        <p className="mt-0.5 text-xs text-zinc-400 dark:text-zinc-500">
+        <p className="mt-0.5 text-xs text-slate-400 dark:text-slate-500">
           {caption}
         </p>
       )}
@@ -77,18 +78,18 @@ function DualStatCard({
       className={
         "rounded-xl border p-5 text-left transition-colors " +
         (active
-          ? "border-foreground bg-black/5 dark:bg-white/10"
-          : "border-black/10 bg-white hover:bg-black/5 dark:border-white/15 dark:bg-white/5 dark:hover:bg-white/10")
+          ? "border-accent bg-accent/5 shadow-sm dark:bg-accent/10"
+          : "border-black/[0.06] bg-white shadow-sm hover:bg-black/[0.02] dark:border-white/15 dark:bg-white/5 dark:hover:bg-white/10")
       }
     >
       <div className="flex items-baseline gap-5">
         <div>
           <p className="text-2xl font-semibold">{primaryValue}</p>
-          <p className="text-sm text-zinc-500 dark:text-zinc-400">{primaryLabel}</p>
+          <p className="text-sm text-slate-500 dark:text-slate-400">{primaryLabel}</p>
         </div>
         <div className="border-l border-black/10 pl-5 dark:border-white/15">
           <p className="text-2xl font-semibold">{secondaryValue}</p>
-          <p className="text-sm text-zinc-500 dark:text-zinc-400">{secondaryLabel}</p>
+          <p className="text-sm text-slate-500 dark:text-slate-400">{secondaryLabel}</p>
         </div>
       </div>
     </button>
@@ -96,7 +97,7 @@ function DualStatCard({
 }
 
 function Empty({ children }: { children: React.ReactNode }) {
-  return <p className="text-sm text-zinc-500 dark:text-zinc-400">{children}</p>;
+  return <p className="text-sm text-slate-500 dark:text-slate-400">{children}</p>;
 }
 
 function BarChart({
@@ -116,15 +117,19 @@ function BarChart({
           <>
             <span className="flex w-24 shrink-0 items-center gap-1 truncate sm:w-32">
               {r.label}
-              {r.storfisk && <span title="Storfisk">🎣</span>}
+              {r.storfisk && (
+                <span title="Storfisk" className="text-accent">
+                  <MedalIcon className="h-3.5 w-3.5" />
+                </span>
+              )}
             </span>
             <div className="h-2 flex-1 rounded-full bg-black/5 dark:bg-white/10">
               <div
-                className="h-2 rounded-full bg-foreground/70"
+                className="h-2 rounded-full bg-accent/70"
                 style={{ width: `${(r.count / max) * 100}%` }}
               />
             </div>
-            <span className="w-6 shrink-0 text-right text-zinc-500 dark:text-zinc-400">
+            <span className="w-6 shrink-0 text-right text-slate-500 dark:text-slate-400">
               {r.count}
             </span>
           </>
@@ -200,7 +205,7 @@ export default function StatsDashboard({
 
   if (!hasAnyCatches) {
     return (
-      <p className="rounded-xl border border-dashed border-black/15 p-6 text-center text-sm text-zinc-500 dark:border-white/15 dark:text-zinc-400">
+      <p className="rounded-xl border border-dashed border-black/15 p-6 text-center text-sm text-slate-500 dark:border-white/15 dark:text-slate-400">
         Ingen statistik än. Logga din första fångst för att komma igång!
       </p>
     );
@@ -266,7 +271,7 @@ export default function StatsDashboard({
       </div>
 
       {expanded === "species" && (
-        <div className="flex flex-col gap-6 rounded-xl border border-black/10 bg-white p-5 dark:border-white/15 dark:bg-white/5">
+        <div className="flex flex-col gap-6 rounded-xl border border-black/[0.06] bg-white shadow-sm p-5 dark:border-white/15 dark:bg-white/5">
           <div>
             <h2 className="text-lg font-semibold">Alla arter</h2>
             {speciesRows.length === 0 ? (
@@ -286,7 +291,7 @@ export default function StatsDashboard({
       )}
 
       {expanded === "fishingdays" && (
-        <div className="rounded-xl border border-black/10 bg-white p-5 dark:border-white/15 dark:bg-white/5">
+        <div className="rounded-xl border border-black/[0.06] bg-white shadow-sm p-5 dark:border-white/15 dark:bg-white/5">
           <FishingDaysExplorer
             fishingDays={fishingDays}
             onBack={() => setExpanded(null)}
@@ -299,7 +304,7 @@ export default function StatsDashboard({
       )}
 
       {expanded === "lakes" && (
-        <div className="flex flex-col gap-6 rounded-xl border border-black/10 bg-white p-5 dark:border-white/15 dark:bg-white/5">
+        <div className="flex flex-col gap-6 rounded-xl border border-black/[0.06] bg-white shadow-sm p-5 dark:border-white/15 dark:bg-white/5">
           <div>
             <h2 className="text-lg font-semibold">Karta</h2>
             <div className="mt-3">
@@ -324,7 +329,7 @@ export default function StatsDashboard({
                       className="flex items-center justify-between gap-3 rounded-xl border border-black/10 px-4 py-3 text-sm hover:bg-black/5 dark:border-white/15 dark:hover:bg-white/10"
                     >
                       <span className="font-medium">{l.lake}</span>
-                      <span className="text-right text-zinc-500 dark:text-zinc-400">
+                      <span className="text-right text-slate-500 dark:text-slate-400">
                         {l.days} {l.days === 1 ? "dag" : "dagar"} · {l.platser}{" "}
                         {l.platser === 1 ? "plats" : "platser"} · {l.fish}{" "}
                         {l.fish === 1 ? "fisk" : "fiskar"}

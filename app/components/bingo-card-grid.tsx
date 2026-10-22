@@ -82,7 +82,7 @@ function BingoCell({
 }) {
   if (!matches) {
     return (
-      <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-sm bg-black/10 text-[10px] text-zinc-500 sm:h-9 sm:w-9 sm:text-xs dark:bg-white/10 dark:text-zinc-400">
+      <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-sm bg-black/10 text-[10px] text-slate-500 sm:h-9 sm:w-9 sm:text-xs dark:bg-white/10 dark:text-slate-400">
         {cm}
       </div>
     );
@@ -95,7 +95,7 @@ function BingoCell({
       className={
         "flex h-7 w-7 shrink-0 items-center justify-center rounded-sm text-[10px] font-medium text-white transition-colors sm:h-9 sm:w-9 sm:text-xs " +
         (selected
-          ? "bg-green-700 ring-2 ring-green-700 ring-offset-1 dark:ring-offset-zinc-900"
+          ? "bg-green-700 ring-2 ring-green-700 ring-offset-1 dark:ring-offset-slate-900"
           : "bg-green-600 hover:bg-green-700")
       }
     >
@@ -121,14 +121,14 @@ function CellDetailPanel({
   onClose: () => void;
 }) {
   return (
-    <div className="rounded-lg border border-black/10 bg-white p-3 text-sm dark:border-white/15 dark:bg-zinc-900">
+    <div className="rounded-lg border border-black/10 bg-white p-3 text-sm dark:border-white/15 dark:bg-slate-900">
       <div className="mb-2 flex items-center justify-between">
         <p className="font-medium">{cm} cm</p>
         <button
           type="button"
           onClick={onClose}
           aria-label="Stäng"
-          className="text-zinc-500 hover:text-foreground dark:text-zinc-400"
+          className="text-slate-500 hover:text-foreground dark:text-slate-400"
         >
           ×
         </button>
@@ -143,7 +143,7 @@ function CellDetailPanel({
               <p className="font-medium underline-offset-2 hover:underline">
                 {c.angler_name}
               </p>
-              <p className="text-zinc-500 dark:text-zinc-400">
+              <p className="text-slate-500 dark:text-slate-400">
                 {c.length_cm} cm
                 {c.weight_kg != null ? ` · ${c.weight_kg} kg` : ""} ·{" "}
                 {formatDate(c.caught_at)}
@@ -178,22 +178,22 @@ export default function BingoCardGrid({
   return (
     <details
       onToggle={(e) => setCardOpen(e.currentTarget.open)}
-      className="rounded-xl border border-black/10 bg-white p-2 sm:p-5 dark:border-white/15 dark:bg-white/5"
+      className="rounded-xl border border-black/[0.06] bg-white shadow-sm p-2 sm:p-5 dark:border-white/15 dark:bg-white/5"
     >
       <summary className="flex cursor-pointer list-none items-start justify-between gap-3">
         <div>
           <h2 className="text-lg font-semibold">
             {card.name || formatCardTitle(card)}
-            <span className="ml-2 rounded-full bg-black/10 px-2 py-0.5 text-xs font-normal text-zinc-500 dark:bg-white/10 dark:text-zinc-400">
+            <span className="ml-2 rounded-full bg-black/10 px-2 py-0.5 text-xs font-normal text-slate-500 dark:bg-white/10 dark:text-slate-400">
               {card.team_id ? "Team" : "Ensam"}
             </span>
             {card.archived_at && (
-              <span className="ml-2 inline-block whitespace-nowrap rounded-full bg-zinc-200 px-2 py-0.5 text-xs font-normal text-zinc-600 dark:bg-zinc-700 dark:text-zinc-300">
+              <span className="ml-2 inline-block whitespace-nowrap rounded-full bg-slate-200 px-2 py-0.5 text-xs font-normal text-slate-600 dark:bg-slate-700 dark:text-slate-300">
                 Arkiverad
               </span>
             )}
           </h2>
-          <p className="text-sm text-zinc-500 dark:text-zinc-400">
+          <p className="text-sm text-slate-500 dark:text-slate-400">
             {card.name && <>{formatCardTitle(card)} · </>}
             {doneCount}/{totalCount} fångade
           </p>
@@ -208,7 +208,7 @@ export default function BingoCardGrid({
           <button
             type="button"
             onClick={() => setEditingCard((prev) => !prev)}
-            className="shrink-0 rounded-full border border-black/10 px-4 py-2 text-sm font-medium transition-colors hover:bg-black/5 dark:border-white/15 dark:hover:bg-white/10"
+            className="shrink-0 rounded-full border border-black/10 bg-white px-4 py-2 text-sm font-medium transition-colors hover:bg-black/5 dark:border-white/15 dark:bg-white/5 dark:hover:bg-white/10"
           >
             {editingCard ? "Avbryt" : "Redigera"}
           </button>
@@ -231,7 +231,7 @@ export default function BingoCardGrid({
                 <input type="hidden" name="id" value={card.id} />
                 <button
                   type="submit"
-                  className="rounded-full px-3 py-1.5 text-sm text-zinc-500 transition-colors hover:bg-black/5 hover:text-foreground dark:text-zinc-400 dark:hover:bg-white/10"
+                  className="rounded-full px-3 py-1.5 text-sm text-slate-500 transition-colors hover:bg-black/5 hover:text-foreground dark:text-slate-400 dark:hover:bg-white/10"
                 >
                   {card.archived_at ? "Återställ bingobricka" : "Arkivera bingobricka"}
                 </button>
@@ -251,7 +251,7 @@ export default function BingoCardGrid({
               className={
                 "self-start inline-block whitespace-nowrap rounded-full px-2 py-0.5 text-xs font-normal " +
                 (status === "Avslutad"
-                  ? "bg-zinc-200 text-zinc-600 dark:bg-zinc-700 dark:text-zinc-300"
+                  ? "bg-slate-200 text-slate-600 dark:bg-slate-700 dark:text-slate-300"
                   : "bg-amber-100 text-amber-700 dark:bg-amber-950/40 dark:text-amber-400")
               }
             >

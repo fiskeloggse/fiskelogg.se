@@ -13,7 +13,7 @@ export default function ChangePasswordButton() {
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className="self-start rounded-full border border-black/10 px-4 py-2 text-sm font-medium transition-colors hover:bg-black/5 dark:border-white/15 dark:hover:bg-white/10"
+        className="self-start rounded-full border border-black/10 bg-white px-4 py-2 text-sm font-medium transition-colors hover:bg-black/5 dark:border-white/15 dark:bg-white/5 dark:hover:bg-white/10"
       >
         Byt lösenord
       </button>
@@ -27,7 +27,7 @@ export default function ChangePasswordButton() {
         <button
           type="button"
           onClick={() => setOpen(false)}
-          className="text-sm text-zinc-500 hover:text-foreground dark:text-zinc-400"
+          className="text-sm text-slate-500 hover:text-foreground dark:text-slate-400"
         >
           Avbryt
         </button>

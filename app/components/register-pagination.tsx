@@ -37,7 +37,7 @@ export default function RegisterPagination({
   return (
     <div className="flex flex-wrap items-center justify-between gap-4 text-sm">
       <div className="flex items-center gap-1.5">
-        <span className="text-zinc-500 dark:text-zinc-400">Per sida:</span>
+        <span className="text-slate-500 dark:text-slate-400">Per sida:</span>
         {[...PAGE_SIZE_OPTIONS.map(String), "all"].map((size) => {
           const isActive = size === "all" ? pageSize === null : pageSize === Number(size);
           return (
@@ -47,8 +47,8 @@ export default function RegisterPagination({
               className={
                 "rounded-full px-3 py-1 " +
                 (isActive
-                  ? "bg-foreground text-background"
-                  : "text-zinc-500 hover:bg-black/5 dark:text-zinc-400 dark:hover:bg-white/10")
+                  ? "bg-accent hover:bg-accent-hover text-white"
+                  : "text-slate-500 hover:bg-black/5 dark:text-slate-400 dark:hover:bg-white/10")
               }
             >
               {size === "all" ? "Alla" : size}
@@ -65,13 +65,13 @@ export default function RegisterPagination({
             className={
               "underline " +
               (page <= 1
-                ? "pointer-events-none text-zinc-300 dark:text-zinc-700"
-                : "text-zinc-500 hover:text-foreground dark:text-zinc-400")
+                ? "pointer-events-none text-slate-300 dark:text-slate-700"
+                : "text-slate-500 hover:text-foreground dark:text-slate-400")
             }
           >
             Föregående
           </Link>
-          <span className="text-zinc-500 dark:text-zinc-400">
+          <span className="text-slate-500 dark:text-slate-400">
             Sida {page} av {totalPages}
           </span>
           <Link
@@ -80,8 +80,8 @@ export default function RegisterPagination({
             className={
               "underline " +
               (page >= totalPages
-                ? "pointer-events-none text-zinc-300 dark:text-zinc-700"
-                : "text-zinc-500 hover:text-foreground dark:text-zinc-400")
+                ? "pointer-events-none text-slate-300 dark:text-slate-700"
+                : "text-slate-500 hover:text-foreground dark:text-slate-400")
             }
           >
             Nästa

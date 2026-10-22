@@ -69,7 +69,7 @@ export default function SignupForm() {
           onChange={(e) => setPassword(e.target.value)}
           className="rounded-lg border border-black/10 bg-white px-3 py-2 text-sm dark:border-white/15 dark:bg-white/5"
         />
-        <p className="text-xs text-zinc-500 dark:text-zinc-400">
+        <p className="text-xs text-slate-500 dark:text-slate-400">
           Minst 8 tecken.
         </p>
       </div>
@@ -83,12 +83,12 @@ export default function SignupForm() {
       <button
         type="submit"
         disabled={pending}
-        className="mt-2 rounded-full bg-foreground px-4 py-2 text-sm font-medium text-background disabled:opacity-60"
+        className="mt-2 rounded-full bg-accent hover:bg-accent-hover px-4 py-2 text-sm font-medium text-white disabled:opacity-60"
       >
         {pending ? "Skapar konto…" : "Skapa konto"}
       </button>
 
-      <p className="text-center text-sm text-zinc-500 dark:text-zinc-400">
+      <p className="text-center text-sm text-slate-500 dark:text-slate-400">
         Har du redan ett konto?{" "}
         <Link href="/login" className="font-medium text-foreground">
           Logga in

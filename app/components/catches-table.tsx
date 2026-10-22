@@ -74,28 +74,31 @@ function CatchesBox({
   const avgWeight = weights.length > 0 ? totalWeight / weights.length : null;
 
   return (
-    <div className="flex-1 overflow-x-auto rounded-xl border border-black/10 dark:border-white/15">
+    <div className="flex-1 overflow-x-auto rounded-xl border border-black/[0.06] bg-white shadow-sm dark:border-white/15 dark:bg-white/5">
       <table className="w-full border-collapse text-left text-sm">
         <thead>
-          <tr className="text-xs font-semibold text-zinc-600 dark:text-zinc-300">
-            <th colSpan={2} className="bg-black/[0.03] px-2 py-1.5 text-center dark:bg-white/5">
+          <tr>
+            <th
+              colSpan={2}
+              className="px-2 pt-2.5 pb-1 text-left text-[11px] font-semibold tracking-wider text-slate-500 uppercase dark:text-slate-400"
+            >
               {label}
             </th>
           </tr>
-          <tr className="border-b border-black/10 text-xs text-zinc-500 dark:border-white/15 dark:text-zinc-400">
+          <tr className="border-b border-black/[0.06] text-xs text-slate-400 dark:border-white/10 dark:text-slate-500">
             <th className="px-2 py-1 font-medium">Art</th>
             <th className="px-2 py-1 font-medium">Längd / vikt</th>
           </tr>
         </thead>
-        <tbody className="divide-y divide-black/10 dark:divide-white/10">
+        <tbody className="divide-y divide-black/[0.05] dark:divide-white/[0.06]">
           {Array.from({ length: ROWS }).map((_, i) => (
-            <tr key={i} className="hover:bg-black/[0.02] dark:hover:bg-white/[0.03]">
+            <tr key={i} className="hover:bg-accent/[0.04] dark:hover:bg-white/[0.04]">
               <CatchCells item={catches[i] ?? null} currentUserId={currentUserId} router={router} />
             </tr>
           ))}
         </tbody>
         {showTotal && catches.length > 0 && (
-          <tfoot className="border-t border-black/10 text-xs font-medium text-zinc-500 dark:border-white/15 dark:text-zinc-400">
+          <tfoot className="border-t border-black/10 text-xs font-medium text-slate-500 dark:border-white/15 dark:text-slate-400">
             <tr>
               <td className="py-1.5 pr-2 pl-2">Totalt</td>
               <td className="px-2 py-1.5">

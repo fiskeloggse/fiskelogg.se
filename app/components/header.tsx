@@ -38,7 +38,7 @@ export default async function Header() {
             <Link href="/login">Logga in</Link>
             <Link
               href="/signup"
-              className="rounded-full bg-foreground px-3 py-1.5 text-background"
+              className="rounded-full bg-accent hover:bg-accent-hover px-3 py-1.5 text-white"
             >
               Skapa konto
             </Link>

@@ -9,7 +9,7 @@ import TextSuggestInput from "./text-suggest-input";
 import { PositionIcon, WeatherIcon, WaterIcon } from "./logging-icons";
 
 const inputClassName =
-  "rounded-lg border border-black/10 bg-white px-3 py-2 text-sm dark:border-white/15 dark:bg-transparent";
+  "w-full rounded-lg border border-black/10 bg-white px-3 py-2 text-sm dark:border-white/15 dark:bg-transparent";
 
 type OpenFiskepass = {
   id: number;
@@ -93,7 +93,7 @@ function StartFiskepassButton({
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className="rounded-full border border-black/10 px-4 py-2 text-sm font-medium transition-colors hover:bg-black/5 dark:border-white/15 dark:hover:bg-white/10"
+        className="rounded-full border border-black/10 bg-white px-4 py-2 text-sm font-medium transition-colors hover:bg-black/5 dark:border-white/15 dark:bg-white/5 dark:hover:bg-white/10"
       >
         Starta fiskepass
       </button>
@@ -107,7 +107,7 @@ function StartFiskepassButton({
         onClick={(e) => {
           if (e.target === dialogRef.current) setOpen(false);
         }}
-        className="m-auto w-[min(90vw,28rem)] rounded-xl border border-black/10 bg-white p-0 backdrop:bg-black/40 dark:border-white/15 dark:bg-zinc-900"
+        className="m-auto w-[min(90vw,28rem)] rounded-xl border border-black/[0.06] bg-white shadow-2xl p-0 backdrop:bg-black/40 dark:border-white/15 dark:bg-slate-900"
       >
         <form action={formAction} className="flex flex-col gap-4 p-5">
           <div className="flex items-center justify-between">
@@ -115,7 +115,7 @@ function StartFiskepassButton({
             <button
               type="button"
               onClick={() => setOpen(false)}
-              className="text-sm text-zinc-500 hover:text-foreground dark:text-zinc-400"
+              className="text-sm text-slate-500 hover:text-foreground dark:text-slate-400"
             >
               Avbryt
             </button>
@@ -183,7 +183,7 @@ function StartFiskepassButton({
                       key={s}
                       type="button"
                       onClick={() => addSpecies(s)}
-                      className="rounded-full border border-black/10 px-3 py-1 text-sm transition-colors hover:bg-black/5 dark:border-white/15 dark:hover:bg-white/10"
+                      className="rounded-full border border-black/10 bg-white px-3 py-1 text-sm transition-colors hover:bg-black/5 dark:border-white/15 dark:bg-white/5 dark:hover:bg-white/10"
                     >
                       {s}
                     </button>
@@ -204,7 +204,7 @@ function StartFiskepassButton({
                         setTargetSpecies((prev) => prev.filter((x) => x !== s))
                       }
                       aria-label={`Ta bort ${s}`}
-                      className="text-zinc-500 hover:text-foreground dark:text-zinc-400"
+                      className="text-slate-500 hover:text-foreground dark:text-slate-400"
                     >
                       ×
                     </button>
@@ -226,8 +226,8 @@ function StartFiskepassButton({
                 className={
                   "flex h-9 w-9 items-center justify-center rounded-full border text-base transition-colors " +
                   (logPosition
-                    ? "border-foreground bg-foreground text-background"
-                    : "border-black/10 text-zinc-400 hover:bg-black/5 dark:border-white/15 dark:text-zinc-500 dark:hover:bg-white/10")
+                    ? "border-accent bg-accent hover:bg-accent-hover text-white"
+                    : "border-black/10 text-slate-400 hover:bg-black/5 dark:border-white/15 dark:text-slate-500 dark:hover:bg-white/10")
                 }
               >
                 <PositionIcon className="h-4 w-4" />
@@ -240,8 +240,8 @@ function StartFiskepassButton({
                 className={
                   "flex h-9 w-9 items-center justify-center rounded-full border text-base transition-colors " +
                   (logWeather
-                    ? "border-foreground bg-foreground text-background"
-                    : "border-black/10 text-zinc-400 hover:bg-black/5 dark:border-white/15 dark:text-zinc-500 dark:hover:bg-white/10")
+                    ? "border-accent bg-accent hover:bg-accent-hover text-white"
+                    : "border-black/10 text-slate-400 hover:bg-black/5 dark:border-white/15 dark:text-slate-500 dark:hover:bg-white/10")
                 }
               >
                 <WeatherIcon />
@@ -254,8 +254,8 @@ function StartFiskepassButton({
                 className={
                   "flex h-9 w-9 items-center justify-center rounded-full border text-base transition-colors " +
                   (fillWater
-                    ? "border-foreground bg-foreground text-background"
-                    : "border-black/10 text-zinc-400 hover:bg-black/5 dark:border-white/15 dark:text-zinc-500 dark:hover:bg-white/10")
+                    ? "border-accent bg-accent hover:bg-accent-hover text-white"
+                    : "border-black/10 text-slate-400 hover:bg-black/5 dark:border-white/15 dark:text-slate-500 dark:hover:bg-white/10")
                 }
               >
                 <WaterIcon className="h-4 w-4" />
@@ -264,7 +264,7 @@ function StartFiskepassButton({
             <input type="hidden" name="logPosition" value={logPosition ? "on" : ""} />
             <input type="hidden" name="logWeather" value={logWeather ? "on" : ""} />
             <input type="hidden" name="fillWater" value={fillWater ? "on" : ""} />
-            <p className="text-xs text-zinc-400 dark:text-zinc-500">
+            <p className="text-xs text-slate-400 dark:text-slate-500">
               Gäller alla fångster du loggar under passet.
             </p>
           </div>
@@ -286,7 +286,7 @@ function StartFiskepassButton({
               placeholder="°C"
               className={inputClassName}
             />
-            <p className="text-xs text-zinc-400 dark:text-zinc-500">
+            <p className="text-xs text-slate-400 dark:text-slate-500">
               Fylls i automatiskt när du loggar fisk under passet.
             </p>
           </div>
@@ -300,7 +300,7 @@ function StartFiskepassButton({
           <button
             type="submit"
             disabled={pending}
-            className="self-start rounded-full bg-foreground px-4 py-2 text-sm font-medium text-background disabled:opacity-60"
+            className="self-start rounded-full bg-accent hover:bg-accent-hover px-4 py-2 text-sm font-medium text-white disabled:opacity-60"
           >
             {pending ? "Startar…" : "Starta pass"}
           </button>
@@ -327,9 +327,9 @@ function StopFiskepassButton({ id, startTime }: { id: number; startTime: Date })
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className="rounded-full border border-black/10 px-4 py-2 text-sm font-medium transition-colors hover:bg-black/5 dark:border-white/15 dark:hover:bg-white/10"
+        className="rounded-full border border-black/10 bg-white px-4 py-2 text-sm font-medium transition-colors hover:bg-black/5 dark:border-white/15 dark:bg-white/5 dark:hover:bg-white/10"
       >
-        Avsluta pass <span className="text-zinc-500 dark:text-zinc-400">· {elapsed}</span>
+        Avsluta pass <span className="text-slate-500 dark:text-slate-400">· {elapsed}</span>
       </button>
 
       <form ref={formRef} action={stopFiskepass} className="hidden">
@@ -389,7 +389,7 @@ export function FiskepassStatus({ openPass }: { openPass: OpenFiskepass | null }
   if (!openPass) return null;
 
   return (
-    <p className="flex items-center justify-center gap-2 text-center text-sm text-zinc-500 dark:text-zinc-400">
+    <p className="flex items-center justify-center gap-2 text-center text-sm text-slate-500 dark:text-slate-400">
       <span className="relative flex h-2.5 w-2.5 shrink-0">
         <span className="absolute inline-flex h-full w-full motion-safe:animate-ping rounded-full bg-red-500 opacity-75" />
         <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-red-600" />

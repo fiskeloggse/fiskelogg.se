@@ -17,7 +17,7 @@ export default function ColumnVisibilityToggle({
     <HeaderPopover
       label="Kolumner"
       active={active}
-      triggerClassName="text-zinc-500 underline hover:text-foreground dark:text-zinc-400"
+      triggerClassName="text-slate-500 underline hover:text-foreground dark:text-slate-400"
     >
       {(close) => (
         <form
@@ -47,7 +47,7 @@ export default function ColumnVisibilityToggle({
           ))}
           <button
             type="submit"
-            className="self-start rounded-full bg-foreground px-3 py-1.5 text-xs font-medium text-background"
+            className="self-start rounded-full bg-accent hover:bg-accent-hover px-3 py-1.5 text-xs font-medium text-white"
           >
             Spara
           </button>

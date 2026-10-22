@@ -135,12 +135,12 @@ export default function MapPositionPicker({
         <button
           type="button"
           onClick={() => setTileType((t) => (t === "street" ? "satellite" : "street"))}
-          className="absolute bottom-2 left-2 z-[1000] rounded-lg border border-black/10 bg-white px-2 py-1 text-xs font-medium shadow dark:border-white/15 dark:bg-zinc-900"
+          className="absolute bottom-2 left-2 z-[1000] rounded-full border border-black/10 bg-white px-2 py-1 text-xs font-medium shadow dark:border-white/15 dark:bg-slate-900"
         >
           {tileType === "street" ? "Satellit" : "Karta"}
         </button>
       </div>
-      <p className="text-xs text-zinc-500 dark:text-zinc-400">
+      <p className="text-xs text-slate-500 dark:text-slate-400">
         Tryck på kartan för att sätta eller flytta positionen.
       </p>
     </div>

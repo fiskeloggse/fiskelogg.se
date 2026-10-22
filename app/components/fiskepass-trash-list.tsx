@@ -20,7 +20,7 @@ export default function FiskepassTrashList({
 
   if (passes.length === 0) {
     return (
-      <p className="rounded-xl border border-dashed border-black/15 p-6 text-center text-sm text-zinc-500 dark:border-white/15 dark:text-zinc-400">
+      <p className="rounded-xl border border-dashed border-black/15 p-6 text-center text-sm text-slate-500 dark:border-white/15 dark:text-slate-400">
         Papperskorgen är tom.
       </p>
     );
@@ -50,7 +50,7 @@ export default function FiskepassTrashList({
         <button
           type="button"
           onClick={toggleAll}
-          className="rounded-full border border-black/10 px-4 py-2 text-sm font-medium transition-colors hover:bg-black/5 dark:border-white/15 dark:hover:bg-white/10"
+          className="rounded-full border border-black/10 bg-white px-4 py-2 text-sm font-medium transition-colors hover:bg-black/5 dark:border-white/15 dark:bg-white/5 dark:hover:bg-white/10"
         >
           {allSelected ? "Avmarkera alla" : "Markera alla"}
         </button>
@@ -62,7 +62,7 @@ export default function FiskepassTrashList({
           <button
             type="submit"
             disabled={selected.size === 0}
-            className="rounded-full border border-black/10 px-4 py-2 text-sm font-medium transition-colors hover:bg-black/5 disabled:opacity-40 dark:border-white/15 dark:hover:bg-white/10"
+            className="rounded-full border border-black/10 bg-white px-4 py-2 text-sm font-medium transition-colors hover:bg-black/5 disabled:opacity-40 dark:border-white/15 dark:bg-white/5 dark:hover:bg-white/10"
           >
             Återställ valda
           </button>
@@ -72,7 +72,7 @@ export default function FiskepassTrashList({
           type="button"
           onClick={() => setConfirmingDelete(true)}
           disabled={selected.size === 0}
-          className="rounded-full border border-black/10 px-4 py-2 text-sm font-medium text-red-600 transition-colors hover:bg-red-50 disabled:opacity-40 dark:border-white/15 dark:text-red-400 dark:hover:bg-red-950/40"
+          className="rounded-full border border-black/10 bg-white px-4 py-2 text-sm font-medium text-red-600 transition-colors hover:bg-red-50 disabled:opacity-40 dark:border-white/15 dark:bg-white/5 dark:text-red-400 dark:hover:bg-red-950/40"
         >
           Radera valda permanent
         </button>
@@ -110,18 +110,18 @@ export default function FiskepassTrashList({
                 {formatDateTime(pass.start_time)}
                 {pass.stop_time ? ` – ${formatDateTime(pass.stop_time)}` : " – pågick"}
               </span>
-              <span className="rounded-full bg-black/10 px-2 py-0.5 text-xs font-normal text-zinc-500 dark:bg-white/10 dark:text-zinc-400">
+              <span className="rounded-full bg-black/10 px-2 py-0.5 text-xs font-normal text-slate-500 dark:bg-white/10 dark:text-slate-400">
                 {pass.team_id ? "Team" : "Ensam"}
               </span>
               {pass.target_species && pass.target_species.length > 0 && (
-                <span className="text-zinc-500 dark:text-zinc-400">
+                <span className="text-slate-500 dark:text-slate-400">
                   {pass.target_species.join(", ")}
                 </span>
               )}
-              <span className="text-zinc-500 dark:text-zinc-400">
+              <span className="text-slate-500 dark:text-slate-400">
                 {pass.catch_count} {pass.catch_count === 1 ? "fångst" : "fångster"}
               </span>
-              <span className="text-xs text-zinc-400 dark:text-zinc-500">
+              <span className="text-xs text-slate-400 dark:text-slate-500">
                 Raderad {formatDateTime(pass.deleted_at)}
               </span>
             </div>

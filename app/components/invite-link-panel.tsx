@@ -24,7 +24,7 @@ export default function InviteLinkPanel({ token }: { token: string | null }) {
   return (
     <div className="flex flex-col gap-1.5 border-t border-black/10 pt-3 dark:border-white/15">
       <p className="text-sm font-medium">Inbjudningslänk</p>
-      <p className="text-xs text-zinc-500 dark:text-zinc-400">
+      <p className="text-xs text-slate-500 dark:text-slate-400">
         Skicka länken till vem som helst — den fungerar även om personen
         inte redan har ett konto på Fisklogg.
       </p>
@@ -40,7 +40,7 @@ export default function InviteLinkPanel({ token }: { token: string | null }) {
           <button
             type="button"
             onClick={handleCopy}
-            className="shrink-0 rounded-full border border-black/10 px-3 py-1.5 text-sm font-medium transition-colors hover:bg-black/5 dark:border-white/15 dark:hover:bg-white/10"
+            className="shrink-0 rounded-full border border-black/10 bg-white px-3 py-1.5 text-sm font-medium transition-colors hover:bg-black/5 dark:border-white/15 dark:bg-white/5 dark:hover:bg-white/10"
           >
             {copied ? "Kopierad!" : "Kopiera"}
           </button>
@@ -50,12 +50,12 @@ export default function InviteLinkPanel({ token }: { token: string | null }) {
       <form action={refreshInviteLink} className="flex flex-col items-start gap-1">
         <button
           type="submit"
-          className="text-sm text-zinc-500 underline hover:text-foreground dark:text-zinc-400"
+          className="text-sm text-slate-500 underline hover:text-foreground dark:text-slate-400"
         >
           {token ? "Skapa ny länk" : "Skapa länk"}
         </button>
         {token && (
-          <p className="text-xs text-zinc-400 dark:text-zinc-500">
+          <p className="text-xs text-slate-400 dark:text-slate-500">
             Gör den gamla länken ogiltig.
           </p>
         )}

@@ -20,8 +20,8 @@ export default function RegisterTabs() {
           className={
             "-mb-px whitespace-nowrap border-b-2 px-4 py-2 text-sm font-medium " +
             (pathname === tab.href
-              ? "border-foreground text-foreground"
-              : "border-transparent text-zinc-500 hover:text-foreground dark:text-zinc-400")
+              ? "border-accent text-accent"
+              : "border-transparent text-slate-500 hover:text-foreground dark:text-slate-400")
           }
         >
           {tab.label}

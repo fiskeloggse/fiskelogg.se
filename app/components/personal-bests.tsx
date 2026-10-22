@@ -2,6 +2,7 @@ import Link from "next/link";
 import type { PersonalBest } from "@/lib/personal-bests";
 import { getStorfiskPercent } from "@/lib/storfisk";
 import StorfiskBadge from "./storfisk-badge";
+import { TrophyIcon } from "./icons";
 
 function formatDate(date: Date) {
   return date.toLocaleDateString("sv-SE", { dateStyle: "medium" });
@@ -21,7 +22,7 @@ export default function PersonalBests({
   return (
     <div className="flex flex-col gap-3">
       {bests.length === 0 ? (
-        <p className="rounded-xl border border-dashed border-black/15 p-6 text-center text-sm text-zinc-500 dark:border-white/15 dark:text-zinc-400">
+        <p className="rounded-xl border border-dashed border-black/15 p-6 text-center text-sm text-slate-500 dark:border-white/15 dark:text-slate-400">
           Inga personbästa än. Logga en fångst för att komma igång!
         </p>
       ) : (
@@ -34,7 +35,7 @@ export default function PersonalBests({
             const content = (
               <>
                 <div className="flex items-center gap-2">
-                  <span className="text-lg">🏆</span>
+                  <TrophyIcon className="h-5 w-5 text-amber-500" />
                   <p className="font-semibold">{pb.species}</p>
                   {isStorfisk && <StorfiskBadge />}
                 </div>
@@ -44,7 +45,7 @@ export default function PersonalBests({
                       <p className="text-2xl font-semibold tabular-nums">
                         {pb.longest.length_cm} cm
                       </p>
-                      <p className="text-xs text-zinc-500 dark:text-zinc-400">
+                      <p className="text-xs text-slate-500 dark:text-slate-400">
                         Längst · {formatDate(pb.longest.caught_at)}
                       </p>
                     </div>
@@ -54,7 +55,7 @@ export default function PersonalBests({
                       <p className="text-2xl font-semibold tabular-nums">
                         {formatSv(pb.heaviest.weight_kg)} kg
                       </p>
-                      <p className="text-xs text-zinc-500 dark:text-zinc-400">
+                      <p className="text-xs text-slate-500 dark:text-slate-400">
                         Tyngst · {formatDate(pb.heaviest.caught_at)}
                       </p>
                     </div>
@@ -68,12 +69,12 @@ export default function PersonalBests({
                 {getHref ? (
                   <Link
                     href={getHref(pb.species)}
-                    className="block rounded-xl border border-black/10 bg-white p-4 transition-colors hover:border-foreground/30 hover:bg-black/5 dark:border-white/15 dark:bg-white/5 dark:hover:bg-white/10"
+                    className="block rounded-xl border border-black/[0.06] bg-white shadow-sm p-4 transition-colors hover:border-foreground/30 hover:bg-black/5 dark:border-white/15 dark:bg-white/5 dark:hover:bg-white/10"
                   >
                     {content}
                   </Link>
                 ) : (
-                  <div className="rounded-xl border border-black/10 bg-white p-4 dark:border-white/15 dark:bg-white/5">
+                  <div className="rounded-xl border border-black/[0.06] bg-white shadow-sm p-4 dark:border-white/15 dark:bg-white/5">
                     {content}
                   </div>
                 )}
