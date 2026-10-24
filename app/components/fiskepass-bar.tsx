@@ -2,6 +2,7 @@
 
 import { useActionState, useEffect, useRef, useState } from "react";
 import { startFiskepass, stopFiskepass } from "@/app/actions/fiskepass";
+import { lookupWaterName } from "@/app/actions/geocode";
 import { WATER_TEMP_MAX, WATER_TEMP_MIN } from "@/lib/constants";
 import { FISH_SPECIES } from "@/lib/species";
 import ConfirmDialog from "./confirm-dialog";
@@ -16,6 +17,7 @@ type OpenFiskepass = {
   team_id: number | null;
   target_species: string[] | null;
   water_temp_c: number | null;
+  lake: string | null;
   log_position: boolean | null;
   log_weather: boolean | null;
   fill_water: boolean | null;
@@ -37,12 +39,16 @@ function formatClockTime(date: Date): string {
 function StartFiskepassButton({
   hasTeam,
   recentTargetSpecies,
+  lakeOptions,
+  recentLakes,
   defaultLogPosition,
   defaultLogWeather,
   defaultFillWater,
 }: {
   hasTeam: boolean;
   recentTargetSpecies: string[];
+  lakeOptions: string[];
+  recentLakes: string[];
   defaultLogPosition: boolean;
   defaultLogWeather: boolean;
   defaultFillWater: boolean;
@@ -59,6 +65,60 @@ function StartFiskepassButton({
   const [logPosition, setLogPosition] = useState(defaultLogPosition);
   const [logWeather, setLogWeather] = useState(defaultLogWeather);
   const [fillWater, setFillWater] = useState(defaultFillWater);
+  const [lake, setLake] = useState("");
+  const [lakeAutoFilled, setLakeAutoFilled] = useState(false);
+  const [lakeLookup, setLakeLookup] = useState<"idle" | "loading" | "done" | "error">(
+    "idle"
+  );
+  const lakeRef = useRef(lake);
+  useEffect(() => {
+    lakeRef.current = lake;
+  }, [lake]);
+
+  // With the Vatten icon on, look the water up from GPS once per opening of
+  // the dialog -- only ever filling an empty field, so typing your own
+  // water (before or after) always wins.
+  useEffect(() => {
+    if (!open || !fillWater || lakeLookup !== "idle" || lake.trim() !== "") return;
+    if (!navigator.geolocation) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setLakeLookup("error");
+      return;
+    }
+    setLakeLookup("loading");
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        lookupWaterName(position.coords.latitude, position.coords.longitude)
+          .then((name) => {
+            if (!name) {
+              setLakeLookup("error");
+              return;
+            }
+            if (lakeRef.current.trim() === "") {
+              setLake(name);
+              setLakeAutoFilled(true);
+            }
+            setLakeLookup("done");
+          })
+          .catch(() => setLakeLookup("error"));
+      },
+      () => setLakeLookup("error"),
+      { enableHighAccuracy: true, timeout: 10000 }
+    );
+  }, [open, fillWater, lakeLookup, lake]);
+
+  // A fresh opening should look up the current spot again, and shouldn't
+  // carry over a GPS guess from last time.
+  useEffect(() => {
+    if (open) return;
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setLakeLookup("idle");
+    if (lakeAutoFilled) {
+      setLake("");
+      setLakeAutoFilled(false);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open]);
 
   useEffect(() => {
     const dialog = dialogRef.current;
@@ -76,6 +136,8 @@ function StartFiskepassButton({
       setLogPosition(defaultLogPosition);
       setLogWeather(defaultLogWeather);
       setFillWater(defaultFillWater);
+      setLake("");
+      setLakeAutoFilled(false);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [state]);
@@ -270,6 +332,52 @@ function StartFiskepassButton({
           </div>
 
           <div className="flex flex-col gap-1.5">
+            <label htmlFor="fiskepass-lake" className="text-sm font-medium">
+              Vatten
+            </label>
+            <TextSuggestInput
+              id="fiskepass-lake"
+              name="lake"
+              value={lake}
+              onChange={(value) => {
+                setLake(value);
+                setLakeAutoFilled(false);
+              }}
+              options={lakeOptions}
+              placeholder="t.ex. Vättern"
+              className={inputClassName}
+            />
+            {recentLakes.filter((l) => l !== lake).length > 0 && (
+              <div className="flex flex-wrap gap-1.5">
+                {recentLakes
+                  .filter((l) => l !== lake)
+                  .map((l) => (
+                    <button
+                      key={l}
+                      type="button"
+                      onClick={() => {
+                        setLake(l);
+                        setLakeAutoFilled(false);
+                      }}
+                      className="rounded-full border border-black/10 bg-white px-3 py-1 text-sm transition-colors hover:bg-black/5 dark:border-white/15 dark:bg-white/5 dark:hover:bg-white/10"
+                    >
+                      {l}
+                    </button>
+                  ))}
+              </div>
+            )}
+            <p className="text-xs text-slate-400 dark:text-slate-500">
+              {lakeLookup === "loading"
+                ? "Söker vatten via GPS…"
+                : lakeAutoFilled
+                  ? "Ifyllt via GPS — ändra om det inte stämmer."
+                  : lakeLookup === "error" && fillWater && lake.trim() === ""
+                    ? "Hittade inget vatten via GPS — fyll i det själv."
+                    : "Fylls i automatiskt när du loggar fisk under passet."}
+            </p>
+          </div>
+
+          <div className="flex flex-col gap-1.5">
             <label htmlFor="fiskepass-water-temp" className="text-sm font-medium">
               Vattentemperatur (valfritt)
             </label>
@@ -358,6 +466,8 @@ export default function FiskepassButton({
   openPass,
   hasTeam,
   recentTargetSpecies = [],
+  lakeOptions = [],
+  recentLakes = [],
   defaultLogPosition,
   defaultLogWeather,
   defaultFillWater,
@@ -365,6 +475,8 @@ export default function FiskepassButton({
   openPass: OpenFiskepass | null;
   hasTeam: boolean;
   recentTargetSpecies?: string[];
+  lakeOptions?: string[];
+  recentLakes?: string[];
   defaultLogPosition: boolean;
   defaultLogWeather: boolean;
   defaultFillWater: boolean;
@@ -374,6 +486,8 @@ export default function FiskepassButton({
     <StartFiskepassButton
       hasTeam={hasTeam}
       recentTargetSpecies={recentTargetSpecies}
+      lakeOptions={lakeOptions}
+      recentLakes={recentLakes}
       defaultLogPosition={defaultLogPosition}
       defaultLogWeather={defaultLogWeather}
       defaultFillWater={defaultFillWater}
@@ -399,6 +513,7 @@ export function FiskepassStatus({ openPass }: { openPass: OpenFiskepass | null }
       {openPass.target_species && openPass.target_species.length > 0
         ? ` · ${openPass.target_species.join(", ")}`
         : ""}
+      {openPass.lake ? ` · ${openPass.lake}` : ""}
     </p>
   );
 }

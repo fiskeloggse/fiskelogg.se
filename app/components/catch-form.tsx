@@ -130,6 +130,7 @@ export default function CatchForm({
   defaultFillWater,
   openFiskepassSpecies,
   openFiskepassWaterTempC,
+  openFiskepassLake,
   openFiskepassLogPosition,
   openFiskepassLogWeather,
   openFiskepassFillWater,
@@ -152,6 +153,7 @@ export default function CatchForm({
   defaultFillWater: boolean;
   openFiskepassSpecies?: string[] | null;
   openFiskepassWaterTempC?: number | null;
+  openFiskepassLake?: string | null;
   openFiskepassLogPosition?: boolean | null;
   openFiskepassLogWeather?: boolean | null;
   openFiskepassFillWater?: boolean | null;
@@ -256,7 +258,16 @@ export default function CatchForm({
   const [species, setSpecies] = useState("");
   const [lengthCm, setLengthCm] = useState("");
   const [weightKg, setWeightKg] = useState("");
-  const [lake, setLake] = useState(defaultLake ?? "");
+  const [lake, setLake] = useState(openFiskepassLake ?? defaultLake ?? "");
+  // An open pass's water takes over as soon as the pass starts (same
+  // reasoning as the waterTempC sync below); a GPS lookup only ever fills
+  // an empty field, so it won't override it either.
+  useEffect(() => {
+    if (openFiskepassLake) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setLake(openFiskepassLake);
+    }
+  }, [openFiskepassLake]);
   const [location, setLocation] = useState("");
   const [method, setMethod] = useState(defaultMethod ?? "");
   const [bait, setBait] = useState(defaultBait ?? "");

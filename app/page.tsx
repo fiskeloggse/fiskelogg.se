@@ -230,6 +230,7 @@ export default async function Home(props: PageProps<"/">) {
         defaultFillWater={user.fill_water}
         openFiskepassSpecies={openFiskepass?.target_species ?? null}
         openFiskepassWaterTempC={openFiskepass?.water_temp_c ?? null}
+        openFiskepassLake={openFiskepass?.lake ?? null}
         openFiskepassLogPosition={openFiskepass?.log_position ?? null}
         openFiskepassLogWeather={openFiskepass?.log_weather ?? null}
         openFiskepassFillWater={openFiskepass?.fill_water ?? null}
@@ -237,6 +238,8 @@ export default async function Home(props: PageProps<"/">) {
           <FiskepassButton
             openPass={openFiskepass}
             hasTeam={user.team_id !== null}
+            lakeOptions={lakeSuggestions.all}
+            recentLakes={lakeSuggestions.recent.slice(0, 3)}
             recentTargetSpecies={recentFiskepassTargetSpecies}
             defaultLogPosition={user.log_position}
             defaultLogWeather={user.log_weather}
