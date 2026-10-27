@@ -259,3 +259,15 @@ alter table teams add column if not exists invite_token text unique;
 -- catches (or catches without a lake) can still say where it was fished.
 -- Shown together with the distinct waters of its catches.
 alter table fiskepass add column if not exists lake text;
+
+-- The app connects directly as `postgres` (owner of every table, so RLS
+-- never applies to it) and never uses Supabase's Data API. Without RLS the
+-- Data API's anon/authenticated roles had full read/write on every table,
+-- including users' emails and password hashes, for anyone holding the
+-- project URL + anon key. RLS with no policies denies those roles
+-- everything. Add every new table here too.
+alter table users enable row level security;
+alter table teams enable row level security;
+alter table catches enable row level security;
+alter table fiskepass enable row level security;
+alter table bingo_cards enable row level security;
