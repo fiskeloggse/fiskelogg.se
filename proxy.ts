@@ -24,8 +24,11 @@ export function proxy(request: NextRequest) {
   // account (or isn't logged in) yet -- the page itself prompts them to
   // sign up/log in rather than needing an existing session.
   const isJoinPath = pathname.startsWith("/join/");
+  // Called by the Vercel cron, which has no session -- the route checks
+  // CRON_SECRET itself.
+  const isKeepalivePath = pathname === "/api/keepalive";
 
-  if (!isPublicPath && !isJoinPath && !session) {
+  if (!isPublicPath && !isJoinPath && !isKeepalivePath && !session) {
     return NextResponse.redirect(new URL("/login", request.url));
   }
 
